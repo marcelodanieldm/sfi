@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>¡Pago Exitoso! — SkillsForIT</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center font-sans">
+
+    <div class="max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-100 m-4">
+
+        <!-- Icono de Éxito -->
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-100 mb-6">
+            <svg class="h-10 w-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+
+        <!-- Título y Estado -->
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">¡Pago Confirmado con Éxito!</h1>
+        <p class="text-slate-600 mb-6">Tu informe premium de optimización de CV mediante IA ya está listo.</p>
+
+        <!-- Alerta de SPAM de alta visibilidad -->
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl text-left mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-amber-800">
+                        ¡Te enviamos una copia por correo electrónico!
+                    </p>
+                    <p class="text-xs text-amber-700 mt-1">
+                        Si no ves el mail en tu bandeja de entrada en los próximos 2 minutos, por favor
+                        <strong>revisá tu carpeta de SPAM o Correo No Deseado</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones Principales -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+
+            <!-- Descarga Directa -->
+            <a href="{% url 'core:ats_pdf' report.id %}"
+               class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition shadow-sm font-semibold">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Descargar Reporte PDF
+            </a>
+
+            <!-- Re-enviar link por email -->
+            <button id="btnSendEmail" onclick="reenviarEmail()"
+                    class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-slate-200 text-base font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 transition shadow-sm">
+                <svg class="w-5 h-5 mr-2 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                Enviar link a mi Email
+            </button>
+        </div>
+
+        <!-- Ver informe online -->
+        <div class="mt-4">
+            <a href="{% url 'core:ats_informe_completo' report.id %}"
+               class="text-sm text-indigo-600 hover:text-indigo-800 underline">
+                Ver informe completo online →
+            </a>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-6">
+            Se envió el archivo a:
+            <span class="font-medium text-slate-500">{{ user_email }}</span>
+        </p>
+
+    </div>
+
+    {% csrf_token %}
+    <script>
+        function reenviarEmail() {
+            const btn = document.getElementById('btnSendEmail');
+            btn.disabled = true;
+            btn.innerHTML = 'Enviando...';
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch("{% url 'core:api_reenviar_email_reporte' report.id %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken }
+            })
+            .then(res => {
+                if (res.ok) {
+                    btn.className = 'w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-emerald-200 text-base font-medium rounded-xl text-emerald-700 bg-emerald-50 cursor-not-allowed';
+                    btn.innerHTML = '&#10003; ¡Email enviado con éxito!';
+                } else {
+                    return res.json().then(data => { throw new Error(data.error || 'Error'); });
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = 'Intentar de nuevo';
+                console.error('Error al reenviar email:', err);
+            });
+        }
+    </script>
+
+</body>
+</html>

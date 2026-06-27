@@ -1,0 +1,69 @@
+from django.urls import path
+from django.contrib.auth.views import (
+    PasswordResetView, PasswordResetDoneView,
+    PasswordResetConfirmView, PasswordResetCompleteView,
+)
+from core import views
+
+app_name = 'core'
+
+urlpatterns = [
+    path('', views.inicio, name='inicio'),
+    path('ats-evaluator/', views.ats_evaluator, name='ats_evaluator'),
+    path('ats-evaluator/resultado/<uuid:uuid>/', views.ats_resultado, name='ats_resultado'),
+    path('ats-evaluator/checkout/<uuid:uuid>/', views.ats_checkout, name='ats_checkout'),
+    path('ats-evaluator/informe/<uuid:uuid>/', views.ats_informe_completo, name='ats_informe_completo'),
+    path('ats-evaluator/informe/<uuid:uuid>/pdf/', views.descargar_pdf_reporte, name='ats_pdf'),
+    # Pago: creación de sesión, retorno y cancelación
+    path('ats-evaluator/checkout/<uuid:uuid>/pay/', views.ats_payment_create, name='ats_payment_create'),
+    path('ats-evaluator/checkout/<uuid:uuid>/success/<str:gateway>/', views.ats_payment_success, name='ats_payment_success'),
+    path('ats-evaluator/checkout/<uuid:uuid>/cancel/', views.ats_payment_cancel, name='ats_payment_cancel'),
+    # Webhooks de pasarelas (CSRF exempt — validación interna)
+    path('webhooks/stripe/', views.webhook_stripe, name='webhook_stripe'),
+    path('webhooks/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
+    path('api/webhooks/hotmart/', views.webhook_hotmart, name='webhook_hotmart'),
+    # Página de confirmación de pago + polling de estado
+    path('ats-evaluator/pago-exitoso/<uuid:report_id>/', views.PaymentSuccessView.as_view(), name='payment_success_page'),
+    path('ats-evaluator/pago-exitoso/<uuid:report_id>/status/', views.check_payment_status, name='check_payment_status'),
+    path('ats-evaluator/pago-exitoso/<uuid:report_id>/reenviar-email/', views.api_reenviar_email_reporte, name='api_reenviar_email_reporte'),
+    path('ebook/', views.ebook, name='ebook'),
+    path('soft-skills/', views.soft_skills, name='soft_skills'),
+    path('mentoring/', views.mentoring, name='mentoring'),
+    path('premium/', views.premium, name='premium'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('habilidades/', views.lista_habilidades, name='lista_habilidades'),
+    path('habilidades/<int:pk>/', views.detalle_habilidad, name='detalle_habilidad'),
+
+    # Auth
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+
+    # Panel de administrador
+    path('admin/', views.panel_admin, name='panel_admin'),
+
+    # Recuperación de contraseña
+    path('password-reset/',
+         PasswordResetView.as_view(
+             template_name='core/auth/password_reset.html',
+             email_template_name='core/auth/password_reset_email.html',
+             subject_template_name='core/auth/password_reset_subject.txt',
+             success_url='/password-reset/done/',
+         ),
+         name='password_reset'),
+    path('password-reset/done/',
+         PasswordResetDoneView.as_view(
+             template_name='core/auth/password_reset_done.html',
+         ),
+         name='password_reset_done'),
+    path('password-reset/<uidb64>/<token>/',
+         PasswordResetConfirmView.as_view(
+             template_name='core/auth/password_reset_confirm.html',
+             success_url='/password-reset/complete/',
+         ),
+         name='password_reset_confirm'),
+    path('password-reset/complete/',
+         PasswordResetCompleteView.as_view(
+             template_name='core/auth/password_reset_complete.html',
+         ),
+         name='password_reset_complete'),
+]

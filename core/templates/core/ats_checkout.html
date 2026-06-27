@@ -1,0 +1,139 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Checkout ATS — SkillsForIT{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--blue">
+    <div class="page-hero-inner">
+        <span class="page-hero-tag">Pago único</span>
+        <h1>Desbloqueá tu Plan de Acción IA</h1>
+        <p>Accedé a las recomendaciones exactas y descargá tu informe completo en PDF.</p>
+    </div>
+</section>
+
+<div class="page-container">
+    <div class="checkout-layout">
+
+        <!-- Resumen de compra -->
+        <div class="checkout-summary">
+            <h2>Resumen</h2>
+            <div class="checkout-cv-info">
+                <span class="checkout-cv-icon">📄</span>
+                <div>
+                    <strong>{{ analisis.archivo_nombre }}</strong>
+                    <span class="checkout-score">Score actual: {{ analisis.score_ats }}/100</span>
+                </div>
+            </div>
+
+            <ul class="checkout-features">
+                <li><span class="cf-icon">🔑</span>
+                    <div><strong>{{ analisis.keywords_faltantes|length }} keywords</strong> con redacciones exactas para integrar en tu CV</div>
+                </li>
+                <li><span class="cf-icon">📋</span>
+                    <div><strong>{{ analisis.secciones_faltantes|length }} secciones</strong> con templates listos para copiar y pegar</div>
+                </li>
+                {% if analisis.problemas_formato %}
+                <li><span class="cf-icon">⚠️</span>
+                    <div><strong>{{ analisis.problemas_formato|length }} problema(s) de formato</strong> con instrucciones de corrección paso a paso</div>
+                </li>
+                {% endif %}
+                <li><span class="cf-icon">📊</span>
+                    <div><strong>Informe PDF</strong> completo y estructurado listo para usar</div>
+                </li>
+            </ul>
+
+            <div class="checkout-price-box">
+                <div class="checkout-price-row">
+                    <span>Plan de Acción IA + PDF</span>
+                    <span class="price-usd">USD {{ precio_usd }}</span>
+                </div>
+                <div class="checkout-price-row checkout-price-ars">
+                    <span>Precio en pesos (AR)</span>
+                    <span>ARS {{ precio_ars }}</span>
+                </div>
+                <div class="checkout-price-total">
+                    <span>Total</span>
+                    <span>USD {{ precio_usd }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métodos de pago -->
+        <div class="checkout-payment">
+            <h2>Elegí cómo pagar</h2>
+
+            <form method="post" action="{% url 'core:ats_payment_create' report.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="currency" id="currency-hidden" value="USD">
+
+                <div class="payment-options">
+                    <label class="payment-option active" id="opt-usd" onclick="selectMethod('USD','Stripe','USD {{ precio_usd }}')">
+                        <input type="radio" name="_method_display" value="USD" checked style="display:none">
+                        <div class="payment-option-header">
+                            <span class="payment-logo payment-logo--stripe">Stripe</span>
+                            <span class="payment-badge">Internacional · USD</span>
+                        </div>
+                        <p>Tarjeta de crédito/débito — USD {{ precio_usd }}</p>
+                        <ul class="payment-detail">
+                            <li>✓ Visa, Mastercard, Amex</li>
+                            <li>✓ Pago seguro con encriptación SSL</li>
+                            <li>✓ Acceso inmediato al informe</li>
+                        </ul>
+                    </label>
+
+                    <label class="payment-option" id="opt-ars" onclick="selectMethod('ARS','MercadoPago','ARS {{ precio_ars }}')">
+                        <input type="radio" name="_method_display" value="ARS" style="display:none">
+                        <div class="payment-option-header">
+                            <span class="payment-logo payment-logo--mp">MercadoPago</span>
+                            <span class="payment-badge payment-badge--mp">Argentina · ARS</span>
+                        </div>
+                        <p>Pesos argentinos — ARS {{ precio_ars }}</p>
+                        <ul class="payment-detail">
+                            <li>✓ Tarjeta, transferencia, efectivo</li>
+                            <li>✓ Cuotas sin interés disponibles</li>
+                            <li>✓ Acceso inmediato al informe</li>
+                        </ul>
+                    </label>
+
+                    <label class="payment-option" id="opt-brl" onclick="selectMethod('BRL','MercadoPago','BRL 49.90')">
+                        <input type="radio" name="_method_display" value="BRL" style="display:none">
+                        <div class="payment-option-header">
+                            <span class="payment-logo payment-logo--mp">MercadoPago</span>
+                            <span class="payment-badge payment-badge--mp">Brasil · BRL</span>
+                        </div>
+                        <p>Reais brasileños — BRL 49.90</p>
+                        <ul class="payment-detail">
+                            <li>✓ Pix, cartão, boleto</li>
+                            <li>✓ Pagamento seguro</li>
+                            <li>✓ Acesso imediato ao relatório</li>
+                        </ul>
+                    </label>
+                </div>
+
+                <div class="checkout-dev-notice">
+                    <span>⚠️</span>
+                    <p><strong>Modo desarrollo:</strong> el pago está simulado. En producción se redirige a Stripe o MercadoPago según la moneda elegida.</p>
+                </div>
+
+                <button type="submit" class="btn-primary btn-full btn-checkout" id="checkout-btn">
+                    Pagar con Stripe — USD {{ precio_usd }}
+                </button>
+
+                <p class="checkout-secure">🔒 Pago seguro · Sin cargos adicionales · Acceso inmediato</p>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function selectMethod(currency, label, price) {
+    document.getElementById('currency-hidden').value = currency;
+    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
+    const idMap = { 'USD': 'opt-usd', 'ARS': 'opt-ars', 'BRL': 'opt-brl' };
+    document.getElementById(idMap[currency]).classList.add('active');
+    document.getElementById('checkout-btn').textContent =
+        `Pagar con ${label} — ${price}`;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Evaluador ATS — SkillsForIT{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--blue">
+    <div class="page-hero-inner">
+        <span class="page-hero-tag">Evaluador ATS</span>
+        <h1>Analizá tu CV con inteligencia artificial</h1>
+        <p>Subí tu currículum en PDF y recibí un análisis detallado de compatibilidad ATS con recomendaciones.</p>
+    </div>
+</section>
+
+<div class="page-container">
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" id="ats-form">
+            {% csrf_token %}
+
+            <div class="upload-area" id="drop-zone">
+                <div class="upload-icon">📄</div>
+                <p class="upload-title">Arrastrá tu CV aquí o hacé clic para seleccionar</p>
+                <p class="upload-sub">Solo archivos PDF</p>
+                <input type="file" name="cv" id="cv-input" accept=".pdf" class="upload-input" required>
+                <span class="upload-filename" id="file-name"></span>
+            </div>
+
+            <details class="jd-toggle" id="jd-details">
+                <summary>
+                    <span class="jd-toggle-icon">＋</span>
+                    Agregar descripción del trabajo <em>(opcional — mejora la precisión del análisis)</em>
+                </summary>
+                <div class="jd-body">
+                    <p class="jd-hint">Pegá el texto completo de la oferta de trabajo o la URL de la publicación.</p>
+                    <textarea
+                        name="jd_texto"
+                        id="jd_texto"
+                        rows="6"
+                        class="form-control"
+                        placeholder="Ej: 'Buscamos un desarrollador Python con experiencia en Django, REST APIs, Docker y AWS...'"></textarea>
+                </div>
+            </details>
+
+            <button type="submit" class="btn-primary btn-full" id="submit-btn">
+                Analizar CV
+            </button>
+        </form>
+
+        <div class="ats-loading" id="loading" style="display:none">
+            <div class="loading-spinner"></div>
+            <p><strong>Analizando tu CV...</strong></p>
+            <p class="loading-sub">Verificando formato, keywords y compatibilidad ATS</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const input = document.getElementById('cv-input');
+const zone = document.getElementById('drop-zone');
+const label = document.getElementById('file-name');
+const form = document.getElementById('ats-form');
+const btn = document.getElementById('submit-btn');
+const loading = document.getElementById('loading');
+
+if (input) {
+    input.addEventListener('change', () => {
+        label.textContent = input.files[0]?.name || '';
+        zone.classList.toggle('has-file', !!input.files[0]);
+    });
+    zone.addEventListener('click', e => { if (e.target !== input) input.click(); });
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files[0]) {
+            const dt = e.dataTransfer;
+            input.files = dt.files;
+            label.textContent = dt.files[0].name;
+            zone.classList.add('has-file');
+        }
+    });
+}
+
+const details = document.getElementById('jd-details');
+if (details) {
+    details.addEventListener('toggle', () => {
+        details.querySelector('.jd-toggle-icon').textContent = details.open ? '−' : '＋';
+    });
+}
+
+form.addEventListener('submit', () => {
+    form.style.display = 'none';
+    loading.style.display = 'flex';
+});
+</script>
+{% endblock %}
+

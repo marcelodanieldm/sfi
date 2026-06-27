@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ habilidad.nombre }} - Skills For IT{% endblock %}
+
+{% block content %}
+<div class="detalle">
+    <a href="{% url 'core:lista_habilidades' %}" class="back-link">&larr; Volver a Habilidades</a>
+
+    <div class="detalle-header">
+        <span class="badge badge-{{ habilidad.nivel }}">{{ habilidad.get_nivel_display }}</span>
+        <span class="categoria-label">{{ habilidad.categoria.nombre }}</span>
+    </div>
+
+    <h1>{{ habilidad.nombre }}</h1>
+    <p class="detalle-descripcion">{{ habilidad.descripcion }}</p>
+
+    <div class="detalle-meta">
+        <p><strong>Fecha de creación:</strong> {{ habilidad.fecha_creacion|date:"d/m/Y" }}</p>
+    </div>
+</div>
+{% endblock %}

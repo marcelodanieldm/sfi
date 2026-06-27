@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Mi Panel — SkillsForIT{% endblock %}
+
+{% block content %}
+<section class="dashboard-hero">
+    <div class="page-hero-inner">
+        <h1>Bienvenido de nuevo</h1>
+        <h2 class="dashboard-greeting">Hola, {{ user.get_short_name|default:user.username }} 👋</h2>
+        <p>¿Qué querés hacer hoy?</p>
+        <form method="post" action="{% url 'core:logout' %}" style="margin-top:1.25rem">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout-dashboard">Cerrar sesión</button>
+        </form>
+    </div>
+</section>
+
+<div class="page-container">
+    <div class="dashboard-grid">
+        {% for tool in herramientas %}
+        <a href="{% url 'core:'|add:tool.url %}" class="dashboard-card dashboard-card--{{ tool.color }}">
+            <span class="dashboard-icon">{{ tool.icon }}</span>
+            <h3>{{ tool.nombre }}</h3>
+            <p>{{ tool.descripcion }}</p>
+            <span class="dashboard-arrow">→</span>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="dashboard-bottom">
+        <div class="dashboard-tip">
+            <span class="tip-icon">💡</span>
+            <div>
+                <strong>Tip del día</strong>
+                <p>Practicar tus soft skills regularmente incrementa tus chances de conseguir un ascenso en un 40%.</p>
+            </div>
+        </div>
+        <a href="{% url 'core:premium' %}" class="premium-banner">
+            <span class="premium-banner-icon">⭐</span>
+            <div>
+                <strong>Actualizá a Premium</strong>
+                <p>Evaluaciones ilimitadas, mentorías incluidas y más.</p>
+            </div>
+            <span class="premium-banner-arrow">→</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

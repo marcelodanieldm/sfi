@@ -1,0 +1,197 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Panel de Administrador — SkillsForIT{% endblock %}
+
+{% block content %}
+<section class="admin-hero">
+    <div class="admin-hero-inner">
+        <div class="admin-hero-left">
+            <span class="page-hero-tag">Administrador</span>
+            <h1>Panel de Administrador</h1>
+            <p>Visión completa de usuarios, mentorías y evaluaciones.</p>
+        </div>
+        <form method="post" action="{% url 'core:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout-dashboard">Cerrar sesión</button>
+        </form>
+    </div>
+</section>
+
+<div class="page-container">
+
+    <!-- Tabs -->
+    <nav class="admin-tabs">
+        <a href="?tab=resumen"   class="admin-tab {% if tab == 'resumen' %}active{% endif %}">📊 Resumen</a>
+        <a href="?tab=usuarios"  class="admin-tab {% if tab == 'usuarios' %}active{% endif %}">👥 Usuarios</a>
+        <a href="?tab=mentorias" class="admin-tab {% if tab == 'mentorias' %}active{% endif %}">📅 Mentorías</a>
+        <a href="?tab=premium"   class="admin-tab {% if tab == 'premium' %}active{% endif %}">⭐ Premium</a>
+    </nav>
+
+    <!-- ===== RESUMEN ===== -->
+    {% if tab == 'resumen' %}
+    <div class="admin-stats">
+        {% for s in stats %}
+        <div class="admin-stat-card admin-stat--{{ s.color }}">
+            <span class="admin-stat-icon">{{ s.icon }}</span>
+            <div>
+                <span class="admin-stat-num">{{ s.valor }}</span>
+                <span class="admin-stat-label">{{ s.label }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="admin-quick-links">
+        <h2>Accesos rápidos</h2>
+        <div class="quick-links-grid">
+            <a href="?tab=usuarios"  class="quick-link">👤 Ver usuarios</a>
+            <a href="?tab=mentorias" class="quick-link">📅 Ver mentorías</a>
+            <a href="?tab=premium"   class="quick-link">⭐ Ver suscripciones</a>
+            <a href="/sistema/"      class="quick-link" target="_blank">⚙️ Admin Django</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== USUARIOS ===== -->
+    {% if tab == 'usuarios' %}
+    <div class="admin-section">
+        <div class="admin-section-header">
+            <h2>Usuarios registrados</h2>
+            <span class="admin-count">{{ usuarios|length }} usuarios</span>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Registro</th>
+                        <th>Último acceso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td><strong>{{ u.username }}</strong></td>
+                        <td>{{ u.email|default:"—" }}</td>
+                        <td>{{ u.first_name }} {{ u.last_name }}</td>
+                        <td>
+                            {% if u.is_superuser %}
+                            <span class="role-badge role-admin">Admin</span>
+                            {% elif u.is_staff %}
+                            <span class="role-badge role-staff">Staff</span>
+                            {% else %}
+                            <span class="role-badge role-user">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                            <span class="status-badge status-active">Activo</span>
+                            {% else %}
+                            <span class="status-badge status-inactive">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ u.created_at|date:"d/m/Y" }}</td>
+                        <td>{{ u.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="empty-row">No hay usuarios registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== MENTORÍAS ===== -->
+    {% if tab == 'mentorias' %}
+    <div class="admin-section">
+        <div class="admin-section-header">
+            <h2>Reservas de mentorías</h2>
+            <span class="admin-count">{{ reservas|length }} reservas</span>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Mentor</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Estado</th>
+                        <th>Registrado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reservas %}
+                    <tr>
+                        <td><strong>{{ r.nombre }}</strong></td>
+                        <td>{{ r.email }}</td>
+                        <td>{{ r.mentor.nombre }}</td>
+                        <td>{{ r.fecha|date:"d/m/Y" }}</td>
+                        <td>{{ r.hora }}hs</td>
+                        <td>
+                            {% if r.estado == 'confirmada' %}
+                            <span class="status-badge status-active">Confirmada</span>
+                            {% elif r.estado == 'pendiente' %}
+                            <span class="status-badge status-pending">Pendiente</span>
+                            {% else %}
+                            <span class="status-badge status-inactive">Cancelada</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ r.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="empty-row">No hay reservas aún.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ===== PREMIUM ===== -->
+    {% if tab == 'premium' %}
+    <div class="admin-section">
+        <div class="admin-section-header">
+            <h2>Suscripciones Premium</h2>
+            <span class="admin-count">{{ suscripciones|length }} suscripciones</span>
+        </div>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Plan</th>
+                        <th>Fecha de registro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in suscripciones %}
+                    <tr>
+                        <td><strong>{{ s.nombre }}</strong></td>
+                        <td>{{ s.email }}</td>
+                        <td>
+                            {% if s.plan == 'anual' %}
+                            <span class="role-badge role-admin">Anual</span>
+                            {% else %}
+                            <span class="role-badge role-staff">Mensual</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ s.fecha_registro|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="empty-row">No hay suscripciones aún.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

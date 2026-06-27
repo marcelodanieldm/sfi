@@ -1,0 +1,50 @@
+[
+  {
+    "model": "core.mentor",
+    "pk": 1,
+    "fields": {
+      "nombre": "Carolina Méndez",
+      "especialidad": "Liderazgo técnico & Agile",
+      "bio": "Tech Lead con 12 años en la industria. Especialista en Scrum, Kanban y gestión de equipos distribuidos.",
+      "foto_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop&crop=face",
+      "activo": true,
+      "orden": 1
+    }
+  },
+  {
+    "model": "core.mentor",
+    "pk": 2,
+    "fields": {
+      "nombre": "Martín García",
+      "especialidad": "Desarrollo de carrera en IT",
+      "bio": "Engineering Manager. Ayuda a profesionales a trazar su plan de carrera y prepararse para entrevistas FAANG.",
+      "foto_url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
+      "activo": true,
+      "orden": 2
+    }
+  },
+  {
+    "model": "core.mentor",
+    "pk": 3,
+    "fields": {
+      "nombre": "Lucía Torres",
+      "especialidad": "Soft Skills & Comunicación",
+      "bio": "Coach profesional y ex-recruiter de empresas tech. Experta en comunicación efectiva y negociación salarial.",
+      "foto_url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop&crop=face",
+      "activo": true,
+      "orden": 3
+    }
+  },
+  {
+    "model": "core.mentor",
+    "pk": 4,
+    "fields": {
+      "nombre": "Diego Fernández",
+      "especialidad": "Arquitectura & System Design",
+      "bio": "Staff Engineer. Prepara candidatos para entrevistas de system design y revisión de arquitectura.",
+      "foto_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face",
+      "activo": true,
+      "orden": 4
+    }
+  }
+]

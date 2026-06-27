@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bienvenido a SkillsForIT</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+
+  <!-- Wrapper -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1f5f9;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border-radius:12px 12px 0 0;padding:36px 40px;text-align:center;">
+              <p style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:1px;">
+                Skills<span style="color:#38bdf8;">For</span>IT
+              </p>
+              <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;letter-spacing:0.5px;">
+                Tu plataforma de aprendizaje tech
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#ffffff;padding:40px 40px 32px;">
+
+              <!-- Greeting -->
+              <p style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0f172a;">
+                Hola, {{ first_name }}! 👋
+              </p>
+              <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.6;">
+                ¡Gracias por tu compra! Nos alegra que te hayas sumado a la comunidad de SkillsForIT.
+              </p>
+
+              <!-- Divider -->
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 28px;">
+
+              <!-- Purchase confirmation -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#16a34a;text-transform:uppercase;letter-spacing:0.8px;">
+                      Compra confirmada
+                    </p>
+                    <p style="margin:0;font-size:17px;font-weight:700;color:#0f172a;">
+                      {{ product_name }}
+                    </p>
+                  </td>
+                  <td style="padding:20px 24px 20px 0;width:48px;text-align:right;vertical-align:middle;">
+                    <span style="font-size:28px;">✅</span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Hotmart reminder -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1d4ed8;">
+                      📬 Revisá tu bandeja de entrada
+                    </p>
+                    <p style="margin:0;font-size:14px;color:#1e40af;line-height:1.6;">
+                      <strong>Hotmart</strong> ya te envió el correo de acceso al eBook a
+                      esta misma dirección. Si no aparece en los próximos minutos,
+                      revisá tu carpeta de <strong>spam</strong> o
+                      <strong>correo no deseado</strong>.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Coupon -->
+              <p style="margin:0 0 12px;font-size:15px;font-weight:600;color:#0f172a;">
+                🎁 Un regalo para vos
+              </p>
+              <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.6;">
+                Como cliente de SkillsForIT, tenés un <strong>20&nbsp;% de descuento</strong>
+                en tu próxima compra. Usá el código al momento del checkout:
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                <tr>
+                  <td align="center">
+                    <div style="display:inline-block;background:#0f172a;border-radius:8px;padding:14px 36px;">
+                      <span style="font-size:22px;font-weight:700;color:#38bdf8;letter-spacing:4px;">
+                        {{ coupon_code }}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Support CTA -->
+              <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.6;">
+                ¿Tenés alguna pregunta o necesitás ayuda? Nuestro equipo está disponible
+                para asistirte en todo momento.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:12px;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ support_url }}"
+                       style="display:inline-block;background:#0ea5e9;color:#ffffff;font-size:15px;font-weight:600;
+                              text-decoration:none;border-radius:8px;padding:14px 36px;">
+                      Contactar soporte
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8fafc;border-top:1px solid #e2e8f0;border-radius:0 0 12px 12px;
+                       padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 6px;font-size:13px;color:#64748b;">
+                © 2025 SkillsForIT — Todos los derechos reservados
+              </p>
+              <p style="margin:0;font-size:12px;color:#94a3b8;">
+                <a href="{{ site_url }}" style="color:#0ea5e9;text-decoration:none;">skillsforit.com</a>
+                &nbsp;·&nbsp;
+                <a href="mailto:info@skillsforit.com" style="color:#0ea5e9;text-decoration:none;">info@skillsforit.com</a>
+              </p>
+              <p style="margin:12px 0 0;font-size:11px;color:#cbd5e1;">
+                Recibiste este correo porque realizaste una compra en SkillsForIT.<br>
+                Si creés que es un error, escribinos a info@skillsforit.com.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

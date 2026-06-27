@@ -1,0 +1,171 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Resultado ATS — SkillsForIT{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--blue">
+    <div class="page-hero-inner">
+        <span class="page-hero-tag">Evaluador ATS</span>
+        <h1>Tu informe de compatibilidad ATS</h1>
+        <p class="ats-filename">📄 {{ analisis.archivo_nombre }}</p>
+    </div>
+</section>
+
+<div class="page-container ats-resultado-layout">
+
+    <!-- Score principal -->
+    <div class="ats-score-card">
+        <div class="ats-score-donut" style="--score-color:{{ score_info.css }}; --score-pct:{{ analisis.score_ats }}%">
+            <div class="ats-score-inner">
+                <span class="ats-score-num">{{ analisis.score_ats }}</span>
+                <span class="ats-score-denom">/100</span>
+                <span class="ats-score-label" style="color:{{ score_info.css }}">{{ score_info.label }}</span>
+            </div>
+        </div>
+        <div class="ats-score-meta">
+            <h2>Puntaje ATS Global</h2>
+            <p>
+                {% if analisis.score_ats >= 80 %}
+                    Tu CV tiene buena compatibilidad ATS. Hay algunas mejoras menores posibles.
+                {% elif analisis.score_ats >= 65 %}
+                    Tu CV es aceptable pero puede mejorar significativamente con ajustes concretos.
+                {% elif analisis.score_ats >= 50 %}
+                    Tu CV necesita mejoras importantes para pasar los filtros ATS automáticos.
+                {% else %}
+                    Tu CV tiene problemas críticos que hacen que sea rechazado por la mayoría de los ATS.
+                {% endif %}
+            </p>
+            {% if analisis.jd_texto %}
+            <span class="jd-badge">✓ Analizado contra descripción del trabajo</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Checks gratuitos -->
+    <div class="ats-checks">
+
+        <!-- 1. Legibilidad -->
+        <div class="ats-check-card {% if analisis.legibilidad_ok %}check-pass{% else %}check-fail{% endif %}">
+            <div class="check-header">
+                <span class="check-icon-big">{% if analisis.legibilidad_ok %}✅{% else %}❌{% endif %}</span>
+                <div>
+                    <h3>Verificación de legibilidad</h3>
+                    <p>{% if analisis.legibilidad_ok %}El formato de tu CV es legible por los ATS.{% else %}Se detectaron {{ analisis.problemas_formato|length }} problema(s) de formato.{% endif %}</p>
+                </div>
+            </div>
+            {% if not analisis.legibilidad_ok %}
+            <ul class="check-detail-list">
+                {% for p in analisis.problemas_formato %}
+                <li>⚠️ {{ p }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+        <!-- 2. Keywords encontradas -->
+        <div class="ats-check-card check-info">
+            <div class="check-header">
+                <span class="check-icon-big">🔑</span>
+                <div>
+                    <h3>Keywords detectadas</h3>
+                    <p>{{ analisis.keywords_encontradas|length }} keywords de tecnología encontradas en tu CV.</p>
+                </div>
+            </div>
+            <div class="keywords-grid">
+                {% for kw in analisis.keywords_encontradas %}
+                <span class="kw-badge kw-found">{{ kw }}</span>
+                {% endfor %}
+            </div>
+            <div class="keywords-missing-preview">
+                <p class="missing-label">⚠️ {{ analisis.keywords_faltantes|length }} keywords relevantes no encontradas</p>
+                <div class="keywords-grid">
+                    {% for kw in analisis.keywords_faltantes|slice:":4" %}
+                    <span class="kw-badge kw-missing">{{ kw }}</span>
+                    {% endfor %}
+                    {% if analisis.keywords_faltantes|length > 4 %}
+                    <span class="kw-badge kw-locked">+{{ analisis.keywords_faltantes|length|add:"-4" }} más 🔒</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Secciones -->
+        <div class="ats-check-card {% if analisis.secciones_faltantes %}check-warn{% else %}check-pass{% endif %}">
+            <div class="check-header">
+                <span class="check-icon-big">📋</span>
+                <div>
+                    <h3>Secciones del CV</h3>
+                    <p>{{ analisis.secciones_presentes|length }} secciones detectadas{% if analisis.secciones_faltantes %}, {{ analisis.secciones_faltantes|length }} faltantes{% endif %}.</p>
+                </div>
+            </div>
+            <div class="secciones-grid">
+                {% for s in analisis.secciones_presentes %}
+                <span class="seccion-badge seccion-ok">✓ {{ s }}</span>
+                {% endfor %}
+                {% for s in analisis.secciones_faltantes %}
+                <span class="seccion-badge seccion-miss">✗ {{ s }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div><!-- /checks -->
+
+    <!-- PAYWALL -->
+    <div class="paywall-wrapper">
+        <div class="paywall-blur-bg">
+            <div class="paywall-blur-items">
+                <div class="paywall-blur-item">
+                    <span class="rec-type-dot rec-type-dot--formato"></span>
+                    <div>
+                        <strong>Problema de formato crítico</strong>
+                        <p>Convertí tu CV a formato de una sola columna...</p>
+                    </div>
+                </div>
+                <div class="paywall-blur-item">
+                    <span class="rec-type-dot rec-type-dot--keyword"></span>
+                    <div>
+                        <strong>Keyword faltante: "Docker"</strong>
+                        <p>Agregá "Docker" en tu sección de Habilidades con el ejemplo exacto...</p>
+                    </div>
+                </div>
+                <div class="paywall-blur-item">
+                    <span class="rec-type-dot rec-type-dot--seccion"></span>
+                    <div>
+                        <strong>Sección faltante: Perfil Profesional</strong>
+                        <p>Usá exactamente el título "Perfil Profesional" y este template...</p>
+                    </div>
+                </div>
+                <div class="paywall-blur-item">
+                    <span class="rec-type-dot rec-type-dot--keyword"></span>
+                    <div>
+                        <strong>Keyword faltante: "CI/CD"</strong>
+                        <p>Mencioná "CI/CD" en la descripción de tu experiencia laboral...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="paywall-lock-panel">
+            <span class="paywall-lock-icon">🔒</span>
+            <h2>Desbloquear Plan de Acción IA</h2>
+            <p>Tu CV tiene <strong>{{ n_recs }} recomendaciones concretas</strong> de mejora. Desbloqueá el plan completo con las redacciones exactas.</p>
+            <ul class="paywall-features">
+                <li>✓ {{ n_recs }} recomendaciones de redacción exactas</li>
+                <li>✓ Templates listos para copiar y pegar</li>
+                <li>✓ Guía de integración de keywords</li>
+                <li>✓ Plan de acción priorizado</li>
+                <li>✓ Informe PDF descargable</li>
+            </ul>
+            <a href="{% url 'core:ats_checkout' uuid=analisis.id %}" class="btn-unlock">
+                Desbloquear Plan de Acción IA + Descargar PDF
+            </a>
+            <p class="paywall-price">USD {{ precio_usd }} · Pago único · Sin suscripción</p>
+        </div>
+    </div>
+
+    <div class="ats-retry">
+        <a href="{% url 'core:ats_evaluator' %}" class="btn-outline">← Analizar otro CV</a>
+    </div>
+
+</div>
+{% endblock %}
