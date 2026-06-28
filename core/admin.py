@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from core.models import User, Categoria, Habilidad, Mentor, MentoriaReserva, SuscripcionPremium, CVAnalisis, AnalysisReport, Ebook, EbookOrder, MentorIASubscription, MentorIASession, MentorIAMessage
+from core.models import User, Categoria, Habilidad, Mentor, MentoriaReserva, SuscripcionPremium, CVAnalisis, AnalysisReport, Ebook, EbookOrder, MentorIASubscription, MentorIASession, MentorIAMessage, ProcessedPayment
 
 
 @admin.register(User)
@@ -129,3 +129,12 @@ class MentorIAMessageAdmin(admin.ModelAdmin):
     def contenido_short(self, obj):
         return obj.contenido[:80]
     contenido_short.short_description = 'Contenido'
+
+
+@admin.register(ProcessedPayment)
+class ProcessedPaymentAdmin(admin.ModelAdmin):
+    list_display   = ['event_id', 'gateway', 'event_type', 'processed_at']
+    list_filter    = ['gateway', 'event_type']
+    search_fields  = ['event_id']
+    readonly_fields = ['event_id', 'gateway', 'event_type', 'processed_at']
+    date_hierarchy = 'processed_at'

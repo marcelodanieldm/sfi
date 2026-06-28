@@ -412,3 +412,25 @@ class MentorIAMessage(models.Model):
     def __str__(self):
         return f'[{self.rol}] {self.contenido[:60]}'
 
+
+# ─────────────────────────────────────────────
+#  ProcessedPayment
+#  Tabla de idempotencia: registra eventos de
+#  pago ya procesados para evitar duplicados.
+# ─────────────────────────────────────────────
+class ProcessedPayment(models.Model):
+    GATEWAY_CHOICES = [('stripe', 'Stripe'), ('mercadopago', 'MercadoPago')]
+
+    event_id     = models.CharField(max_length=255, unique=True, db_index=True)
+    gateway      = models.CharField(max_length=20, choices=GATEWAY_CHOICES)
+    event_type   = models.CharField(max_length=100)
+    processed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name        = 'Pago procesado'
+        verbose_name_plural = 'Pagos procesados'
+        ordering            = ['-processed_at']
+
+    def __str__(self):
+        return f'[{self.gateway}] {self.event_type} — {self.event_id[:30]}'
+
