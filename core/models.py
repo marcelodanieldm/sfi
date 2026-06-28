@@ -335,9 +335,19 @@ class MentorIASubscription(models.Model):
         ('trialing',  'En prueba'),
     ]
 
+    PROVIDER_CHOICES = [('stripe', 'Stripe'), ('mercadopago', 'MercadoPago')]
+
     user                   = models.OneToOneField('core.User', on_delete=models.CASCADE, related_name='mentoria_subscription')
+    payment_provider       = models.CharField(max_length=20, choices=PROVIDER_CHOICES, default='stripe', blank=True)
+
+    # Stripe
     stripe_customer_id     = models.CharField(max_length=100, blank=True)
     stripe_subscription_id = models.CharField(max_length=100, blank=True, db_index=True)
+
+    # MercadoPago
+    mp_preapproval_id      = models.CharField(max_length=100, blank=True, db_index=True)
+    mp_payer_id            = models.CharField(max_length=100, blank=True)
+
     status                 = models.CharField(max_length=20, choices=STATUS_CHOICES, default='inactive')
     current_period_end     = models.DateTimeField(null=True, blank=True)
     created_at             = models.DateTimeField(auto_now_add=True)

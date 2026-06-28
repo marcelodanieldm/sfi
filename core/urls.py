@@ -23,6 +23,12 @@ urlpatterns = [
     path('webhooks/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
     path('api/webhooks/hotmart/', views.webhook_hotmart, name='webhook_hotmart'),
     path('api/v1/webhooks/stripe/', views.stripe_webhook, name='stripe_webhook'),
+    path('api/v1/webhooks/mercadopago/', views.mercadopago_webhook, name='mercadopago_webhook'),
+
+    # MentorIA — MercadoPago checkout
+    path('mentor-ia/mp/checkout/', views.mentor_ia_mp_checkout, name='mentor_ia_mp_checkout'),
+    path('mentor-ia/mp/checkout/success/', views.mentor_ia_mp_checkout_success, name='mentor_ia_mp_checkout_success'),
+    path('mentor-ia/mp/checkout/cancel/', views.mentor_ia_mp_checkout_cancel, name='mentor_ia_mp_checkout_cancel'),
 
     # MentorIA
     path('mentor-ia/',                          views.mentor_ia,                    name='mentor_ia'),

@@ -208,16 +208,26 @@ footer a{color:var(--accent)}
       <li>Sin contratos ni compromisos de permanencia</li>
     </ul>
     {% if is_authenticated %}
-      <form method="POST" action="{% url 'core:mentor_ia_checkout' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-lg pricing-cta">Suscribirme ahora →</button>
-      </form>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%">
+        <form method="POST" action="{% url 'core:mentor_ia_checkout' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-lg pricing-cta" style="width:100%;justify-content:center">
+            💳 Pagar con tarjeta (Stripe) →
+          </button>
+        </form>
+        <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}">
+          {% csrf_token %}
+          <button type="submit" style="width:100%;padding:14px 32px;font-size:.9rem;font-weight:700;font-family:var(--mono);background:#009ee3;color:#fff;border:none;border-radius:var(--r);cursor:pointer;transition:background .2s;letter-spacing:.02em">
+            🇦🇷 Pagar con MercadoPago →
+          </button>
+        </form>
+      </div>
     {% else %}
-      <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia' %}" class="btn btn-lg pricing-cta">Crear cuenta y suscribirme →</a>
+      <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia' %}" class="btn btn-lg pricing-cta" style="width:100%;justify-content:center">Crear cuenta y suscribirme →</a>
     {% endif %}
     <p class="login-note">
       {% if not is_authenticated %}¿Ya tenés cuenta? <a href="{% url 'core:login' %}">Iniciá sesión</a>.{% endif %}
-      Pago seguro via Stripe.
+      Pago 100% seguro · Stripe o MercadoPago.
     </p>
   </div>
 </section>

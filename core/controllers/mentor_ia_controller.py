@@ -217,6 +217,87 @@ def mentor_ia_checkout_cancel(request):
     return redirect('core:mentor_ia')
 
 
+# ────────────────────────────────────────────────────────────────────────────
+#  MercadoPago Checkout
+# ────────────────────────────────────────────────────────────────────────────
+
+def _mp_sdk():
+    import mercadopago
+    return mercadopago.SDK(getattr(settings, 'MP_ACCESS_TOKEN', ''))
+
+
+@login_required
+@require_POST
+def mentor_ia_mp_checkout(request):
+    """
+    POST /mentor-ia/mp/checkout/
+    Crea un Preapproval de MercadoPago para la suscripción mensual
+    y redirige al usuario al init_point de pago.
+    """
+    access_token = getattr(settings, 'MP_ACCESS_TOKEN', '')
+    if not access_token:
+        logger.error('MP_ACCESS_TOKEN no configurado')
+        return redirect('core:mentor_ia')
+
+    site_url = getattr(settings, 'SITE_URL', 'https://skillsforit.online')
+    amount   = float(getattr(settings, 'MP_SUBSCRIPTION_AMOUNT', '9990'))
+    currency = getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS')
+
+    sdk = _mp_sdk()
+
+    preapproval_data = {
+        'reason':        'MentorIA — Coach de Soft Skills IT',
+        'payer_email':   request.user.email,
+        'auto_recurring': {
+            'frequency':          1,
+            'frequency_type':     'months',
+            'transaction_amount': amount,
+            'currency_id':        currency,
+        },
+        'back_url': f'{site_url}/mentor-ia/mp/checkout/success/',
+        'status':   'pending',
+        'external_reference': str(request.user.id),
+    }
+
+    try:
+        result = sdk.preapproval().create(preapproval_data)
+        if result['status'] not in (200, 201):
+            logger.error('MP preapproval error: %s', result)
+            return redirect('core:mentor_ia')
+
+        preapproval = result['response']
+
+        # Guardamos el preapproval_id pendiente para vincularlo en el webhook
+        MentorIASubscription.objects.update_or_create(
+            user=request.user,
+            defaults={
+                'payment_provider': 'mercadopago',
+                'mp_preapproval_id': preapproval['id'],
+                'status': 'inactive',
+            },
+        )
+
+        return redirect(preapproval['init_point'])
+
+    except Exception as exc:
+        logger.error('MP checkout error: %s', exc)
+        return redirect('core:mentor_ia')
+
+
+@login_required
+def mentor_ia_mp_checkout_success(request):
+    """
+    GET /mentor-ia/mp/checkout/success/
+    MercadoPago redirige aquí tras el pago. El estado real llega por webhook;
+    mostramos el chat y dejamos que el webhook active la suscripción.
+    """
+    return redirect('core:mentor_ia_chat')
+
+
+def mentor_ia_mp_checkout_cancel(request):
+    return redirect('core:mentor_ia')
+
+
 def _activate_subscription(user, stripe_customer_id, stripe_subscription):
     """Crea o actualiza MentorIASubscription desde un objeto stripe.Subscription."""
     if not stripe_subscription:
