@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MentorIA — Tu Coach de Soft Skills IT 24/7 | SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--card:#374151;--border:#4b5563;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--accent-dark:#10b981;--glow:rgba(52,211,153,.15);
+  --red:#f87171;--mono:'JetBrains Mono',monospace;--r:8px;
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Nav ── */
+nav{background:rgba(17,24,39,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--dim);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--text)}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;gap:20px;align-items:center}
+.nav-links a{font-size:.82rem;color:var(--muted);transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0d1117;font-size:.85rem;font-weight:700;font-family:var(--mono);padding:10px 20px;border-radius:var(--r);border:none;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;letter-spacing:.02em}
+.btn:hover{background:#6ee7b7;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.btn-outline:hover{background:var(--glow)}
+.btn-lg{padding:14px 32px;font-size:.95rem}
+
+/* ── Hero ── */
+.hero{max-width:900px;margin:0 auto;padding:80px 32px 60px;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(52,211,153,.07) 0%,transparent 65%);pointer-events:none}
+.hero-kicker{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.15em;margin-bottom:16px;display:block}
+.hero h1{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:20px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero p{font-size:1.05rem;color:var(--muted);max-width:600px;margin:0 auto 36px;line-height:1.75}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.price-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:8px 18px;font-size:.82rem;color:var(--muted);margin-top:24px}
+.price-badge strong{color:var(--accent);font-family:var(--mono)}
+
+/* ── Eval types ── */
+.eval-section{background:var(--bg);padding:64px 32px}
+.eval-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.eval-section .subtitle{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:40px}
+.eval-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:1000px;margin:0 auto}
+.eval-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 16px;text-align:center;transition:border-color .2s,transform .15s}
+.eval-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.eval-icon{font-size:1.6rem;margin-bottom:10px;display:block}
+.eval-card h3{font-size:.82rem;font-weight:600;color:var(--text);line-height:1.3}
+
+/* ── How it works ── */
+.how-section{padding:64px 32px;max-width:900px;margin:0 auto}
+.how-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:40px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step{text-align:center}
+.step-num{width:40px;height:40px;border-radius:50%;background:var(--glow);border:1px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--accent);margin:0 auto 14px}
+.step h3{font-size:.9rem;font-weight:600;margin-bottom:6px}
+.step p{font-size:.8rem;color:var(--muted);line-height:1.55}
+
+/* ── Pricing ── */
+.pricing-section{background:var(--bg);padding:64px 32px}
+.pricing-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:40px}
+.pricing-card{max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:36px;text-align:center;position:relative;overflow:hidden}
+.pricing-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:280px;height:160px;background:radial-gradient(ellipse,rgba(52,211,153,.1) 0%,transparent 70%);pointer-events:none}
+.pricing-badge{font-family:var(--mono);font-size:.68rem;color:var(--accent);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:20px;padding:4px 12px;display:inline-block;margin-bottom:20px;letter-spacing:.08em}
+.pricing-price{font-size:3.2rem;font-weight:800;font-family:var(--mono);color:var(--text);line-height:1}
+.pricing-price sup{font-size:1.2rem;font-weight:600;vertical-align:top;margin-top:8px}
+.pricing-price span{font-size:.9rem;font-weight:400;color:var(--muted)}
+.pricing-desc{color:var(--muted);font-size:.85rem;margin:12px 0 24px}
+.pricing-features{text-align:left;margin-bottom:28px}
+.pricing-features li{display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--muted);padding:7px 0;border-bottom:1px solid var(--dim)}
+.pricing-features li:last-child{border-bottom:none}
+.pricing-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
+.pricing-cta{width:100%}
+.login-note{text-align:center;margin-top:16px;font-size:.78rem;color:var(--faint)}
+.login-note a{color:var(--accent)}
+
+/* ── FAQ ── */
+.faq-section{padding:64px 32px;max-width:700px;margin:0 auto}
+.faq-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:32px}
+.faq-item{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:2px}
+.faq-toggle{display:none}
+.faq-label{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;font-size:.85rem;font-weight:500;transition:background .15s}
+.faq-label:hover{background:var(--card)}
+.faq-arrow{color:var(--accent);font-family:var(--mono);font-size:.7rem;transition:transform .25s}
+.faq-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-body-inner{padding:0 18px 14px;font-size:.8rem;color:var(--muted);line-height:1.65;border-top:1px solid var(--dim);padding-top:12px}
+.faq-toggle:checked~.faq-label .faq-arrow{transform:rotate(180deg)}
+.faq-toggle:checked~.faq-body{max-height:300px}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--dim);padding:28px 32px;text-align:center;font-size:.78rem;color:var(--faint)}
+footer a{color:var(--accent)}
+
+@media(max-width:768px){
+  .eval-grid{grid-template-columns:repeat(2,1fr)}
+  .eval-grid .eval-card:last-child{grid-column:1/-1}
+  .steps{grid-template-columns:1fr}
+  nav{padding:12px 18px}
+  .hero{padding:60px 18px 40px}
+  .how-section,.faq-section,.pricing-section,.eval-section{padding:48px 18px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Skills<span>For</span>IT — <span style="color:var(--muted)">MentorIA</span></span>
+  <div class="nav-links">
+    <a href="{% url 'core:inicio' %}">Inicio</a>
+    <a href="{% url 'core:ebook' %}">eBooks</a>
+    {% if is_authenticated %}
+      <a href="{% url 'core:mentor_ia_checkout' %}" class="btn">Suscribirme →</a>
+    {% else %}
+      <a href="{% url 'core:login' %}" class="btn btn-outline">Iniciar sesión</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <span class="hero-kicker">// TU COACH DE SOFT SKILLS IT · 24/7 · POR TEXTO</span>
+  <h1>Las habilidades blandas que te frenan<br>tienen una <em>solución concreta</em>.</h1>
+  <p>MentorIA simula situaciones reales de trabajo y te da feedback específico sobre comunicación, entrevistas, trabajo en equipo y más. Sin teoría vacía. Sin horarios.</p>
+  <div class="hero-cta">
+    {% if is_authenticated %}
+      <a href="{% url 'core:mentor_ia_checkout' %}" class="btn btn-lg">Comenzar por USD ${{ precio_mensual }}/mes →</a>
+    {% else %}
+      <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia' %}" class="btn btn-lg">Comenzar ahora →</a>
+    {% endif %}
+    <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>
+  </div>
+  <div>
+    <span class="price-badge">
+      <strong>USD ${{ precio_mensual }}</strong>/mes · cancelá cuando quieras
+    </span>
+  </div>
+</section>
+
+<!-- Tipos de evaluación -->
+<section class="eval-section">
+  <h2>5 áreas de evaluación</h2>
+  <p class="subtitle">Elegís el área y MentorIA crea un escenario real para trabajarla</p>
+  <div class="eval-grid">
+    <div class="eval-card">
+      <span class="eval-icon">🎯</span>
+      <h3>Entrevistas de trabajo</h3>
+    </div>
+    <div class="eval-card">
+      <span class="eval-icon">🧩</span>
+      <h3>Resolución de problemas</h3>
+    </div>
+    <div class="eval-card">
+      <span class="eval-icon">🤝</span>
+      <h3>Trabajo en equipo</h3>
+    </div>
+    <div class="eval-card">
+      <span class="eval-icon">💬</span>
+      <h3>Comunicación asertiva</h3>
+    </div>
+    <div class="eval-card">
+      <span class="eval-icon">⚡</span>
+      <h3>Proactividad</h3>
+    </div>
+  </div>
+</section>
+
+<!-- Cómo funciona -->
+<section class="how-section" id="como-funciona">
+  <h2>Cómo funciona</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Elegís el área</h3>
+      <p>Seleccionás qué querés trabajar: entrevistas, comunicación, equipo, resolución de problemas o proactividad.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>MentorIA plantea el escenario</h3>
+      <p>La IA crea una situación real de trabajo IT y te pide que respondas como lo harías en el trabajo.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Recibís feedback concreto</h3>
+      <p>MentorIA evalúa tu respuesta, te da un puntaje y te muestra exactamente cómo mejorarla con ejemplos reales.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="pricing-section">
+  <h2>Un precio. Sin sorpresas.</h2>
+  <div class="pricing-card">
+    <span class="pricing-badge">ACCESO COMPLETO</span>
+    <div class="pricing-price">
+      <sup>USD $</sup>{{ precio_mensual }}<span>/mes</span>
+    </div>
+    <p class="pricing-desc">Cancelá cuando quieras desde tu panel</p>
+    <ul class="pricing-features">
+      <li>Acceso ilimitado a las 5 áreas de evaluación</li>
+      <li>Feedback inmediato con IA de última generación</li>
+      <li>Sesiones ilimitadas, sin límite de mensajes</li>
+      <li>Nuevos escenarios cada vez — nunca se repite</li>
+      <li>Sin contratos ni compromisos de permanencia</li>
+    </ul>
+    {% if is_authenticated %}
+      <form method="POST" action="{% url 'core:mentor_ia_checkout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-lg pricing-cta">Suscribirme ahora →</button>
+      </form>
+    {% else %}
+      <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia' %}" class="btn btn-lg pricing-cta">Crear cuenta y suscribirme →</a>
+    {% endif %}
+    <p class="login-note">
+      {% if not is_authenticated %}¿Ya tenés cuenta? <a href="{% url 'core:login' %}">Iniciá sesión</a>.{% endif %}
+      Pago seguro via Stripe.
+    </p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <h2>Preguntas frecuentes</h2>
+  <div>
+    <div class="faq-item">
+      <input type="checkbox" class="faq-toggle" id="faq1" checked>
+      <label class="faq-label" for="faq1">¿Cómo sé que el feedback es realmente útil? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">MentorIA usa un modelo de lenguaje avanzado entrenado con miles de situaciones IT reales. El feedback es específico a tu respuesta — no genérico. Usamos frameworks como STAR para entrevistas y principios de comunicación asertiva para las otras áreas.</div></div>
+    </div>
+    <div class="faq-item">
+      <input type="checkbox" class="faq-toggle" id="faq2">
+      <label class="faq-label" for="faq2">¿Puedo cancelar en cualquier momento? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">Sí. Cancelás desde tu panel de suscripciones y no se te cobra el siguiente período. No hay multas ni períodos mínimos.</div></div>
+    </div>
+    <div class="faq-item">
+      <input type="checkbox" class="faq-toggle" id="faq3">
+      <label class="faq-label" for="faq3">¿Hay un límite de sesiones? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">No. Podés hacer tantas sesiones y enviar tantos mensajes como quieras. El modelo crea escenarios únicos cada vez, así que nunca se agota el contenido.</div></div>
+    </div>
+    <div class="faq-item">
+      <input type="checkbox" class="faq-toggle" id="faq4">
+      <label class="faq-label" for="faq4">¿Mis conversaciones son privadas? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">Sí. Las sesiones están vinculadas a tu cuenta y solo vos podés acceder a ellas. No las compartimos ni las usamos para entrenar modelos.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
+
+</body>
+</html>

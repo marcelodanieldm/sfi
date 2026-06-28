@@ -10,6 +10,12 @@ from core.controllers.ats_controller import (
     api_reenviar_email_reporte,
 )
 from core.controllers.hotmart_controller import webhook_hotmart
+from core.controllers.mentor_ia_controller import (
+    mentor_ia, mentor_ia_checkout, mentor_ia_checkout_success, mentor_ia_checkout_cancel,
+    mentor_ia_chat,
+    mentor_ia_api_new_session, mentor_ia_api_send_message,
+    webhook_stripe_mentoria,
+)
 from core.controllers.ebook_controller import ebook
 from core.controllers.soft_skills_controller import soft_skills
 from core.controllers.mentoring_controller import mentoring
@@ -26,6 +32,9 @@ __all__ = [
     'descargar_pdf_reporte',
     'PaymentSuccessView', 'check_payment_status', 'api_reenviar_email_reporte',
     'webhook_hotmart',
+    'mentor_ia', 'mentor_ia_checkout', 'mentor_ia_checkout_success', 'mentor_ia_checkout_cancel',
+    'mentor_ia_chat', 'mentor_ia_api_new_session', 'mentor_ia_api_send_message',
+    'webhook_stripe_mentoria',
     'ebook', 'soft_skills', 'mentoring', 'premium', 'dashboard',
     'login_view', 'logout_view', 'panel_admin',
 ]

@@ -22,6 +22,16 @@ urlpatterns = [
     path('webhooks/stripe/', views.webhook_stripe, name='webhook_stripe'),
     path('webhooks/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
     path('api/webhooks/hotmart/', views.webhook_hotmart, name='webhook_hotmart'),
+
+    # MentorIA
+    path('mentor-ia/',                          views.mentor_ia,                    name='mentor_ia'),
+    path('mentor-ia/checkout/',                 views.mentor_ia_checkout,           name='mentor_ia_checkout'),
+    path('mentor-ia/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
+    path('mentor-ia/checkout/cancel/',          views.mentor_ia_checkout_cancel,    name='mentor_ia_checkout_cancel'),
+    path('mentor-ia/chat/',                     views.mentor_ia_chat,               name='mentor_ia_chat'),
+    path('mentor-ia/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),
+    path('mentor-ia/api/message/<uuid:session_id>/', views.mentor_ia_api_send_message, name='mentor_ia_api_send_message'),
+    path('mentor-ia/api/webhook/',              views.webhook_stripe_mentoria,      name='webhook_stripe_mentoria'),
     # Página de confirmación de pago + polling de estado
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/', views.PaymentSuccessView.as_view(), name='payment_success_page'),
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/status/', views.check_payment_status, name='check_payment_status'),

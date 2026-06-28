@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from core.models import User, Categoria, Habilidad, Mentor, MentoriaReserva, SuscripcionPremium, CVAnalisis, AnalysisReport, Ebook, EbookOrder
+from core.models import User, Categoria, Habilidad, Mentor, MentoriaReserva, SuscripcionPremium, CVAnalisis, AnalysisReport, Ebook, EbookOrder, MentorIASubscription, MentorIASession, MentorIAMessage
 
 
 @admin.register(User)
@@ -102,3 +102,30 @@ class EbookOrderAdmin(admin.ModelAdmin):
         ('Financiero',  {'fields': ('purchase_price', 'purchase_currency')}),
         ('Auditoría',   {'fields': ('hotmart_payload', 'approved_at', 'created_at', 'updated_at')}),
     )
+
+
+@admin.register(MentorIASubscription)
+class MentorIASubscriptionAdmin(admin.ModelAdmin):
+    list_display    = ['user', 'status', 'stripe_subscription_id', 'current_period_end', 'created_at']
+    list_filter     = ['status']
+    search_fields   = ['user__email', 'stripe_customer_id', 'stripe_subscription_id']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(MentorIASession)
+class MentorIASessionAdmin(admin.ModelAdmin):
+    list_display  = ['user', 'tipo', 'created_at']
+    list_filter   = ['tipo']
+    search_fields = ['user__email']
+    readonly_fields = ['id', 'created_at', 'updated_at']
+
+
+@admin.register(MentorIAMessage)
+class MentorIAMessageAdmin(admin.ModelAdmin):
+    list_display  = ['session', 'rol', 'contenido_short', 'created_at']
+    list_filter   = ['rol']
+    readonly_fields = ['id', 'created_at']
+
+    def contenido_short(self, obj):
+        return obj.contenido[:80]
+    contenido_short.short_description = 'Contenido'

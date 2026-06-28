@@ -320,3 +320,85 @@ class EbookOrder(models.Model):
     def __str__(self):
         return f'{self.hotmart_transaction} — {self.buyer_email} [{self.get_status_display()}]'
 
+
+# ─────────────────────────────────────────────
+#  MentorIA
+#  Coach de Soft Skills IT disponible 24/7.
+#  Suscripción mensual via Stripe + chat con IA.
+# ─────────────────────────────────────────────
+class MentorIASubscription(models.Model):
+    STATUS_CHOICES = [
+        ('active',    'Activa'),
+        ('inactive',  'Inactiva'),
+        ('canceled',  'Cancelada'),
+        ('past_due',  'Pago vencido'),
+        ('trialing',  'En prueba'),
+    ]
+
+    user                   = models.OneToOneField('core.User', on_delete=models.CASCADE, related_name='mentoria_subscription')
+    stripe_customer_id     = models.CharField(max_length=100, blank=True)
+    stripe_subscription_id = models.CharField(max_length=100, blank=True, db_index=True)
+    status                 = models.CharField(max_length=20, choices=STATUS_CHOICES, default='inactive')
+    current_period_end     = models.DateTimeField(null=True, blank=True)
+    created_at             = models.DateTimeField(auto_now_add=True)
+    updated_at             = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = 'Suscripción MentorIA'
+        verbose_name_plural = 'Suscripciones MentorIA'
+        ordering            = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.email} — {self.get_status_display()}'
+
+    @property
+    def is_active(self):
+        from django.utils import timezone
+        if self.status != 'active':
+            return False
+        if self.current_period_end and self.current_period_end < timezone.now():
+            return False
+        return True
+
+
+class MentorIASession(models.Model):
+    TIPO_CHOICES = [
+        ('entrevistas',    'Entrevistas de trabajo'),
+        ('resolucion',     'Resolución de problemas'),
+        ('trabajo_equipo', 'Trabajo en equipo'),
+        ('comunicacion',   'Comunicación asertiva'),
+        ('proactividad',   'Proactividad'),
+    ]
+
+    id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user       = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='mentoria_sessions')
+    tipo       = models.CharField(max_length=30, choices=TIPO_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = 'Sesión MentorIA'
+        verbose_name_plural = 'Sesiones MentorIA'
+        ordering            = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.email} — {self.get_tipo_display()} ({self.created_at.date()})'
+
+
+class MentorIAMessage(models.Model):
+    ROL_CHOICES = [('user', 'Usuario'), ('assistant', 'MentorIA')]
+
+    id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    session    = models.ForeignKey(MentorIASession, on_delete=models.CASCADE, related_name='messages')
+    rol        = models.CharField(max_length=10, choices=ROL_CHOICES)
+    contenido  = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name        = 'Mensaje MentorIA'
+        verbose_name_plural = 'Mensajes MentorIA'
+        ordering            = ['created_at']
+
+    def __str__(self):
+        return f'[{self.rol}] {self.contenido[:60]}'
+
