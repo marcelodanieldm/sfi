@@ -245,19 +245,32 @@ def mentor_ia_mp_checkout(request):
 
     sdk = _mp_sdk()
 
-    preapproval_data = {
-        'reason':        'MentorIA — Coach de Soft Skills IT',
-        'payer_email':   request.user.email,
-        'auto_recurring': {
-            'frequency':          1,
-            'frequency_type':     'months',
-            'transaction_amount': amount,
-            'currency_id':        currency,
-        },
-        'back_url': f'{site_url}/mentor-ia/mp/checkout/success/',
-        'status':   'pending',
-        'external_reference': str(request.user.id),
-    }
+    plan_id = getattr(settings, 'MP_PREAPPROVAL_PLAN_ID', '')
+
+    if plan_id:
+        # Con Plan ID (recomendado) — equivalente a STRIPE_MENTORIA_PRICE_ID
+        preapproval_data = {
+            'preapproval_plan_id': plan_id,
+            'payer_email':         request.user.email,
+            'back_url':            f'{site_url}/mentor-ia/mp/checkout/success/',
+            'status':              'pending',
+            'external_reference':  str(request.user.id),
+        }
+    else:
+        # Sin Plan ID — precio definido directamente (fallback)
+        preapproval_data = {
+            'reason':      'MentorIA — Coach de Soft Skills IT',
+            'payer_email': request.user.email,
+            'auto_recurring': {
+                'frequency':          1,
+                'frequency_type':     'months',
+                'transaction_amount': amount,
+                'currency_id':        currency,
+            },
+            'back_url':           f'{site_url}/mentor-ia/mp/checkout/success/',
+            'status':             'pending',
+            'external_reference': str(request.user.id),
+        }
 
     try:
         result = sdk.preapproval().create(preapproval_data)
