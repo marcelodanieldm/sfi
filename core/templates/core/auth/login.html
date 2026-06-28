@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceder — SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6}
+:root{
+  --bg:#111827;--card:#1f2937;--border:#374151;--dim:#2d3748;
+  --accent:#34d399;--glow:rgba(52,211,153,.12);
+  --muted:#9ca3af;--faint:#6b7280;--red:#f87171;
+  --mono:'JetBrains Mono',monospace;--r:8px;
+}
+
+/* ── Layout centrado ── */
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px}
+.brand{font-family:var(--mono);font-size:.9rem;font-weight:600;margin-bottom:32px;color:#f3f4f6}
+.brand span{color:var(--accent)}
+.card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+
+/* ── Tabs ── */
+.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)}
+.tab-btn{padding:14px;font-size:.85rem;font-weight:600;font-family:var(--mono);background:transparent;border:none;cursor:pointer;color:var(--faint);transition:color .2s,background .2s;letter-spacing:.03em}
+.tab-btn.active{color:var(--accent);background:rgba(52,211,153,.06);border-bottom:2px solid var(--accent)}
+
+/* ── Form ── */
+.form-body{padding:28px 28px 24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.75rem;font-weight:600;font-family:var(--mono);color:var(--muted);margin-bottom:6px;letter-spacing:.05em}
+.field input{width:100%;background:#111827;border:1px solid var(--border);border-radius:var(--r);color:#f3f4f6;font-size:.88rem;padding:11px 14px;outline:none;transition:border-color .2s;font-family:'Inter',sans-serif}
+.field input:focus{border-color:var(--accent)}
+.field input::placeholder{color:var(--faint)}
+.field-hint{font-size:.7rem;color:var(--faint);margin-top:4px}
+.error-list{list-style:none;margin-top:4px}
+.error-list li{font-size:.72rem;color:var(--red);display:flex;gap:4px;align-items:flex-start}
+.error-list li::before{content:'⚠';flex-shrink:0}
+
+.msg-error{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:6px;padding:10px 14px;font-size:.8rem;color:var(--red);margin-bottom:16px}
+
+.btn-submit{width:100%;padding:13px;background:var(--accent);color:#0d1117;font-weight:700;font-family:var(--mono);font-size:.88rem;border:none;border-radius:var(--r);cursor:pointer;transition:background .2s,transform .1s;letter-spacing:.03em;margin-top:4px}
+.btn-submit:hover{background:#6ee7b7;transform:translateY(-1px)}
+
+.divider{text-align:center;font-size:.72rem;color:var(--faint);margin:16px 0;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border)}
+.divider::before{left:0}
+.divider::after{right:0}
+
+.footer-note{text-align:center;font-size:.75rem;color:var(--faint);padding:0 28px 20px}
+.footer-note a{color:var(--accent)}
+.back{display:block;text-align:center;margin-top:24px;font-size:.75rem;color:var(--faint)}
+.back a{color:var(--accent);text-decoration:none}
+
+/* ── Responsive ── */
+@media(max-width:480px){
+  .form-body{padding:22px 18px 18px}
+  .footer-note{padding:0 18px 16px}
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <a href="/" class="brand">Skills<span>For</span>IT</a>
+
+  <div class="card">
+    <div class="tabs">
+      <button class="tab-btn {% if active_tab == 'login' %}active{% endif %}" onclick="switchTab('login')">Iniciar sesión</button>
+      <button class="tab-btn {% if active_tab == 'register' %}active{% endif %}" onclick="switchTab('register')">Registrarse</button>
+    </div>
+
+    <!-- ── Login ── -->
+    <div id="tab-login" {% if active_tab != 'login' %}style="display:none"{% endif %}>
+      <form method="POST" class="form-body">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="login">
+        <input type="hidden" name="next" value="{{ next }}">
+
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="msg-error">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <div class="field">
+          <label>EMAIL</label>
+          <input type="email" name="username" placeholder="tu@email.com" required autofocus>
+        </div>
+        <div class="field">
+          <label>CONTRASEÑA</label>
+          <input type="password" name="password" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Entrar →</button>
+      </form>
+
+      <div class="divider">o</div>
+      <p class="footer-note">¿No tenés cuenta? <a href="#" onclick="switchTab('register');return false">Registrate gratis</a></p>
+      <p class="footer-note"><a href="{% url 'core:password_reset' %}">Olvidé mi contraseña</a></p>
+    </div>
+
+    <!-- ── Register ── -->
+    <div id="tab-register" {% if active_tab != 'register' %}style="display:none"{% endif %}>
+      <form method="POST" class="form-body">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="register">
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="field">
+          <label>EMAIL</label>
+          <input type="email" name="email" placeholder="tu@email.com" value="{{ form_register.email.value|default:'' }}" required>
+          {% if form_register.email.errors %}
+            <ul class="error-list">{% for e in form_register.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+        <div class="field">
+          <label>CONTRASEÑA</label>
+          <input type="password" name="password1" placeholder="Mínimo 8 caracteres" required>
+          {% if form_register.password1.errors %}
+            <ul class="error-list">{% for e in form_register.password1.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+        <div class="field">
+          <label>REPETIR CONTRASEÑA</label>
+          <input type="password" name="password2" placeholder="Repetí la contraseña" required>
+          {% if form_register.password2.errors %}
+            <ul class="error-list">{% for e in form_register.password2.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn-submit">Crear cuenta →</button>
+      </form>
+
+      <div class="divider">o</div>
+      <p class="footer-note">¿Ya tenés cuenta? <a href="#" onclick="switchTab('login');return false">Iniciá sesión</a></p>
+    </div>
+  </div>
+
+  <span class="back"><a href="/">← Volver al inicio</a></span>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.getElementById('tab-login').style.display    = tab === 'login'    ? '' : 'none';
+  document.getElementById('tab-register').style.display = tab === 'register' ? '' : 'none';
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+  });
+}
+</script>
+</body>
+</html>
