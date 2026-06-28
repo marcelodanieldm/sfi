@@ -103,6 +103,9 @@ textarea::placeholder{color:var(--faint)}
     <span class="logo">Skills<span>For</span>IT — <span style="color:var(--muted)">MentorIA</span></span>
     <div class="header-right">
       <a href="{% url 'core:inicio' %}">← Inicio</a>
+      <button id="portalBtn" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        Gestionar suscripción ↗
+      </button>
     </div>
   </header>
 
@@ -144,6 +147,31 @@ textarea::placeholder{color:var(--faint)}
 
 <script>
 const CSRF = '{{ csrf_token }}';
+
+// ── Portal de Stripe ──────────────────────────────────────────────────────
+document.getElementById('portalBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('portalBtn');
+  btn.textContent = 'Redirigiendo...';
+  btn.disabled = true;
+  try {
+    const res  = await fetch('/api/v1/payments/portal', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert(data.error || 'No se pudo abrir el portal.');
+      btn.textContent = 'Gestionar suscripción ↗';
+      btn.disabled = false;
+    }
+  } catch {
+    alert('Error de conexión. Intentá de nuevo.');
+    btn.textContent = 'Gestionar suscripción ↗';
+    btn.disabled = false;
+  }
+});
 let sessionId = null;
 let isLoading = false;
 
