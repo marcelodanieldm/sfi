@@ -14,7 +14,7 @@ Landing page estática que muestra los eBooks disponibles. La entrega del PDF oc
 ### 2. ATS Evaluator (`/ats-evaluator/`)
 Herramienta de análisis de CVs con IA. El usuario sube su CV, el sistema lo evalúa con dos agentes de IA (parsing + recomendaciones) y ofrece un informe premium detrás de un pago único (Stripe o MercadoPago).
 
-### 3. MentorIA (`/mentor-ia/`)
+### 3. MentorIA (`/mentoria/`)
 Coach de soft skills IT disponible 24/7 por texto. Suscripción mensual de USD $9.99 procesada por Stripe o MercadoPago. El chat evalúa al usuario en 5 áreas con IA y genera un informe estructurado con la Respuesta Perfecta a nivel Staff/Principal Dev.
 
 ---
@@ -83,18 +83,18 @@ sfi/
 ### MentorIA — Chat
 | Método | URL | Descripción |
 |--------|-----|-------------|
-| GET | `/mentor-ia/` | Landing / paywall |
-| GET | `/mentor-ia/chat/` | Interfaz de chat (requiere suscripción activa) |
-| POST | `/mentor-ia/api/session/` | Crea sesión y obtiene mensaje inicial de la IA |
-| POST | `/mentor-ia/api/message/<id>/` | Envía mensaje y recibe respuesta de la IA |
+| GET | `/mentoria/` | Landing / paywall |
+| GET | `/mentoria/chat/` | Interfaz de chat (requiere suscripción activa) |
+| POST | `/mentoria/api/session/` | Crea sesión y obtiene mensaje inicial de la IA |
+| POST | `/mentoria/api/message/<id>/` | Envía mensaje y recibe respuesta de la IA |
 
 ### Pagos — Checkout
 | Método | URL | Descripción |
 |--------|-----|-------------|
 | POST | `/api/v1/payments/create-session` | URL de checkout (Stripe o MP) |
 | POST | `/api/v1/payments/portal` | URL del portal de autogestión de Stripe |
-| POST | `/mentor-ia/checkout/` | Checkout directo Stripe |
-| POST | `/mentor-ia/mp/checkout/` | Checkout directo MercadoPago |
+| POST | `/mentoria/checkout/` | Checkout directo Stripe |
+| POST | `/mentoria/mp/checkout/` | Checkout directo MercadoPago |
 
 ### Webhooks
 | Método | URL | Descripción |
@@ -129,10 +129,10 @@ Antes de modificar la DB, verifica idempotencia en la tabla `ProcessedPayment`. 
 ```
 skillsforit.online/mentoria  (HTML estático)
   → /login/                  (Django — login o registro)
-  → /mentor-ia/              (Django — paywall)
+  → /mentoria/              (Django — paywall)
   → Stripe o MercadoPago     (checkout externo)
   → webhook activa suscripción en DB
-  → /mentor-ia/chat/         (Django — chat con Claude claude-haiku-4-5)
+  → /mentoria/chat/         (Django — chat con Claude claude-haiku-4-5)
 ```
 
 El chat bloquea el input mientras la IA genera el informe. El informe sigue esta estructura:

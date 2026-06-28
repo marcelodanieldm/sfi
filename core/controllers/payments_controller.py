@@ -95,8 +95,8 @@ def _create_stripe_session(user, site_url: str) -> str:
     params = {
         'mode':        'subscription',
         'line_items':  [{'price': price_id, 'quantity': 1}],
-        'success_url': f'{site_url}/mentor-ia/checkout/success/?session_id={{CHECKOUT_SESSION_ID}}',
-        'cancel_url':  f'{site_url}/mentor-ia/',
+        'success_url': f'{site_url}/mentoria/checkout/success/?session_id={{CHECKOUT_SESSION_ID}}',
+        'cancel_url':  f'{site_url}/mentoria/',
         'metadata':    {'user_id': str(user.id)},
     }
     if customer_id:
@@ -129,7 +129,7 @@ def _create_mp_session(user, site_url: str) -> str:
             'transaction_amount': amount,
             'currency_id':        currency,
         },
-        'back_url':           f'{site_url}/mentor-ia/mp/checkout/success/',
+        'back_url':           f'{site_url}/mentoria/mp/checkout/success/',
         'status':             'pending',
         'external_reference': str(user.id),
     }
@@ -279,7 +279,7 @@ def create_portal_session(request):
     # ── Crear sesión del portal ───────────────────────────────────────────
     stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
     site_url = getattr(settings, 'SITE_URL', 'https://skillsforit.online')
-    return_url = f'{site_url}/mentor-ia/'
+    return_url = f'{site_url}/mentoria/'
 
     try:
         portal_session = stripe.billing_portal.Session.create(

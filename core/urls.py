@@ -29,19 +29,19 @@ urlpatterns = [
     path('api/v1/webhooks/mercadopago/', views.mercadopago_webhook, name='mercadopago_webhook'),
 
     # MentorIA — MercadoPago checkout
-    path('mentor-ia/mp/checkout/', views.mentor_ia_mp_checkout, name='mentor_ia_mp_checkout'),
-    path('mentor-ia/mp/checkout/success/', views.mentor_ia_mp_checkout_success, name='mentor_ia_mp_checkout_success'),
-    path('mentor-ia/mp/checkout/cancel/', views.mentor_ia_mp_checkout_cancel, name='mentor_ia_mp_checkout_cancel'),
+    path('mentoria/mp/checkout/', views.mentor_ia_mp_checkout, name='mentor_ia_mp_checkout'),
+    path('mentoria/mp/checkout/success/', views.mentor_ia_mp_checkout_success, name='mentor_ia_mp_checkout_success'),
+    path('mentoria/mp/checkout/cancel/', views.mentor_ia_mp_checkout_cancel, name='mentor_ia_mp_checkout_cancel'),
 
     # MentorIA
-    path('mentor-ia/',                          views.mentor_ia,                    name='mentor_ia'),
-    path('mentor-ia/checkout/',                 views.mentor_ia_checkout,           name='mentor_ia_checkout'),
-    path('mentor-ia/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
-    path('mentor-ia/checkout/cancel/',          views.mentor_ia_checkout_cancel,    name='mentor_ia_checkout_cancel'),
-    path('mentor-ia/chat/',                     views.mentor_ia_chat,               name='mentor_ia_chat'),
-    path('mentor-ia/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),
-    path('mentor-ia/api/message/<uuid:session_id>/', views.mentor_ia_api_send_message, name='mentor_ia_api_send_message'),
-    path('mentor-ia/api/webhook/',              views.webhook_stripe_mentoria,      name='webhook_stripe_mentoria'),
+    path('mentoria/',                          views.mentor_ia,                    name='mentor_ia'),
+    path('mentoria/checkout/',                 views.mentor_ia_checkout,           name='mentor_ia_checkout'),
+    path('mentoria/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
+    path('mentoria/checkout/cancel/',          views.mentor_ia_checkout_cancel,    name='mentor_ia_checkout_cancel'),
+    path('mentoria/chat/',                     views.mentor_ia_chat,               name='mentor_ia_chat'),
+    path('mentoria/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),
+    path('mentoria/api/message/<uuid:session_id>/', views.mentor_ia_api_send_message, name='mentor_ia_api_send_message'),
+    path('mentoria/api/webhook/',              views.webhook_stripe_mentoria,      name='webhook_stripe_mentoria'),
     # Página de confirmación de pago + polling de estado
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/', views.PaymentSuccessView.as_view(), name='payment_success_page'),
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/status/', views.check_payment_status, name='check_payment_status'),

@@ -2,14 +2,14 @@
 MentorIA — Coach de Soft Skills IT disponible 24/7.
 
 Rutas:
-  GET  /mentor-ia/                    → landing (o redirect a chat si es suscriptor)
-  POST /mentor-ia/checkout/           → crea sesión de checkout en Stripe
-  GET  /mentor-ia/checkout/success/   → retorno desde Stripe, activa suscripción
-  GET  /mentor-ia/checkout/cancel/    → cancelación del checkout
-  GET  /mentor-ia/chat/               → interfaz de chat (requiere suscripción)
-  POST /mentor-ia/api/session/        → crea sesión de evaluación + mensaje inicial de la IA
-  POST /mentor-ia/api/message/<id>/   → envía mensaje del usuario, devuelve respuesta de la IA
-  POST /mentor-ia/api/webhook/        → webhook de Stripe para gestionar suscripciones
+  GET  /mentoria/                    → landing (o redirect a chat si es suscriptor)
+  POST /mentoria/checkout/           → crea sesión de checkout en Stripe
+  GET  /mentoria/checkout/success/   → retorno desde Stripe, activa suscripción
+  GET  /mentoria/checkout/cancel/    → cancelación del checkout
+  GET  /mentoria/chat/               → interfaz de chat (requiere suscripción)
+  POST /mentoria/api/session/        → crea sesión de evaluación + mensaje inicial de la IA
+  POST /mentoria/api/message/<id>/   → envía mensaje del usuario, devuelve respuesta de la IA
+  POST /mentoria/api/webhook/        → webhook de Stripe para gestionar suscripciones
 """
 
 import json
@@ -132,7 +132,7 @@ def _stripe_client():
 
 def mentor_ia(request):
     """
-    GET /mentor-ia/
+    GET /mentoria/
     Si el usuario está autenticado y tiene suscripción activa → redirect al chat.
     Si no → landing con planes y CTA de checkout.
     """
@@ -153,7 +153,7 @@ def mentor_ia(request):
 @require_POST
 def mentor_ia_checkout(request):
     """
-    POST /mentor-ia/checkout/
+    POST /mentoria/checkout/
     Crea una sesión de checkout en Stripe para la suscripción mensual.
     """
     _stripe_client()
@@ -171,8 +171,8 @@ def mentor_ia_checkout(request):
         params = {
             'mode': 'subscription',
             'line_items': [{'price': price_id, 'quantity': 1}],
-            'success_url': f'{site_url}/mentor-ia/checkout/success/?session_id={{CHECKOUT_SESSION_ID}}',
-            'cancel_url': f'{site_url}/mentor-ia/',
+            'success_url': f'{site_url}/mentoria/checkout/success/?session_id={{CHECKOUT_SESSION_ID}}',
+            'cancel_url': f'{site_url}/mentoria/',
             'metadata': {'user_id': str(request.user.id)},
         }
         if customer_id:
@@ -191,7 +191,7 @@ def mentor_ia_checkout(request):
 @login_required
 def mentor_ia_checkout_success(request):
     """
-    GET /mentor-ia/checkout/success/
+    GET /mentoria/checkout/success/
     Retorno desde Stripe tras checkout exitoso.
     Activa la suscripción localmente si el webhook aún no llegó.
     """
@@ -230,7 +230,7 @@ def _mp_sdk():
 @require_POST
 def mentor_ia_mp_checkout(request):
     """
-    POST /mentor-ia/mp/checkout/
+    POST /mentoria/mp/checkout/
     Crea un Preapproval de MercadoPago para la suscripción mensual
     y redirige al usuario al init_point de pago.
     """
@@ -252,7 +252,7 @@ def mentor_ia_mp_checkout(request):
         preapproval_data = {
             'preapproval_plan_id': plan_id,
             'payer_email':         request.user.email,
-            'back_url':            f'{site_url}/mentor-ia/mp/checkout/success/',
+            'back_url':            f'{site_url}/mentoria/mp/checkout/success/',
             'status':              'pending',
             'external_reference':  str(request.user.id),
         }
@@ -267,7 +267,7 @@ def mentor_ia_mp_checkout(request):
                 'transaction_amount': amount,
                 'currency_id':        currency,
             },
-            'back_url':           f'{site_url}/mentor-ia/mp/checkout/success/',
+            'back_url':           f'{site_url}/mentoria/mp/checkout/success/',
             'status':             'pending',
             'external_reference': str(request.user.id),
         }
@@ -300,7 +300,7 @@ def mentor_ia_mp_checkout(request):
 @login_required
 def mentor_ia_mp_checkout_success(request):
     """
-    GET /mentor-ia/mp/checkout/success/
+    GET /mentoria/mp/checkout/success/
     MercadoPago redirige aquí tras el pago. El estado real llega por webhook;
     mostramos el chat y dejamos que el webhook active la suscripción.
     """
@@ -345,7 +345,7 @@ def _activate_subscription(user, stripe_customer_id, stripe_subscription):
 @login_required
 def mentor_ia_chat(request):
     """
-    GET /mentor-ia/chat/
+    GET /mentoria/chat/
     Interfaz de chat. Requiere suscripción activa.
     """
     if not _is_subscriber(request.user):
@@ -365,7 +365,7 @@ def mentor_ia_chat(request):
 @csrf_exempt
 def mentor_ia_api_new_session(request):
     """
-    POST /mentor-ia/api/session/
+    POST /mentoria/api/session/
     Body JSON: {"tipo": "entrevistas"}
     Crea una sesión, pide a la IA el mensaje de apertura y lo devuelve.
     """
@@ -416,7 +416,7 @@ def mentor_ia_api_new_session(request):
 @csrf_exempt
 def mentor_ia_api_send_message(request, session_id):
     """
-    POST /mentor-ia/api/message/<session_id>/
+    POST /mentoria/api/message/<session_id>/
     Body JSON: {"message": "Mi respuesta..."}
     Guarda el mensaje del usuario, consulta la IA con el historial completo
     y devuelve la respuesta.
@@ -469,7 +469,7 @@ def mentor_ia_api_send_message(request, session_id):
 @require_POST
 def webhook_stripe_mentoria(request):
     """
-    POST /mentor-ia/api/webhook/
+    POST /mentoria/api/webhook/
     Maneja eventos de Stripe para mantener el estado de suscripción sincronizado.
     """
     _stripe_client()

@@ -322,7 +322,7 @@ async function doSend() {
   showTyping();
 
   try {
-    const res = await fetch(`/mentor-ia/api/message/${sessionId}/`, {
+    const res = await fetch(`/mentoria/api/message/${sessionId}/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
       body: JSON.stringify({ message: text }),
