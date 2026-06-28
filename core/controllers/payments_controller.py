@@ -1,5 +1,6 @@
 """
 Endpoints de pagos:
+  GET  /api/v1/auth/status              → estado de autenticación y suscripción (para frontends estáticos)
   POST /api/v1/payments/create-session  → genera URL de checkout (Stripe o MP)
   POST /api/v1/payments/portal          → genera URL del portal de autogestión Stripe
 
@@ -29,6 +30,7 @@ import stripe
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -299,3 +301,42 @@ def create_portal_session(request):
     except stripe.error.StripeError as exc:
         logger.error('Stripe portal error: %s', exc)
         return JsonResponse({'error': 'Error al conectar con Stripe.'}, status=503)
+
+
+# ────────────────────────────────────────────────────────────────────────────
+#  Estado de autenticación y suscripción (para frontends estáticos)
+# ────────────────────────────────────────────────────────────────────────────
+
+@require_GET
+def auth_status(request):
+    """
+    GET /api/v1/auth/status
+
+    Permite que la landing estática sepa qué mostrar sin requerir Django templates.
+    No requiere autenticación — responde para usuarios anónimos también.
+    Setea la cookie CSRF para que los POST de pago funcionen desde la misma página.
+
+    Respuesta:
+      {
+        "authenticated": true|false,
+        "is_subscriber": true|false
+      }
+    """
+    from django.middleware.csrf import get_token
+    from core.models import MentorIASubscription
+
+    # Forzar creación de cookie CSRF para los POST de pago que vienen después
+    get_token(request)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'authenticated': False, 'is_subscriber': False})
+
+    try:
+        is_subscriber = request.user.mentoria_subscription.is_active
+    except MentorIASubscription.DoesNotExist:
+        is_subscriber = False
+
+    return JsonResponse({
+        'authenticated': True,
+        'is_subscriber': is_subscriber,
+    })

@@ -151,7 +151,7 @@ footer a{color:var(--accent)}
   <div class="nav-links">
     <a href="https://skillsforit.online/">Inicio</a>
     <a href="https://skillsforit.online/ebook/">eBooks</a>
-    <a href="https://skillsforit.online/login/" class="btn btn-outline">Iniciar sesión</a>
+    <a id="nav-auth-btn" href="https://skillsforit.online/login/" class="btn btn-outline">Iniciar sesión</a>
   </div>
 </nav>
 
@@ -159,7 +159,7 @@ footer a{color:var(--accent)}
   <span class="hero-kicker">// TU COACH DE SOFT SKILLS IT · 24/7 · POR TEXTO</span>
   <h1>Las habilidades blandas que te frenan<br>tienen una <em>solución concreta</em>.</h1>
   <p>MentorIA simula situaciones reales de trabajo y te da feedback específico sobre comunicación, entrevistas, trabajo en equipo y más. Sin teoría vacía. Sin horarios.</p>
-  <div class="hero-cta">
+  <div class="hero-cta" id="hero-cta">
     <a href="https://skillsforit.online/login/" class="btn btn-lg">Comenzar ahora →</a>
     <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>
   </div>
@@ -216,11 +216,11 @@ footer a{color:var(--accent)}
       <li>Nuevos escenarios cada vez — nunca se repite</li>
       <li>Sin contratos ni compromisos de permanencia</li>
     </ul>
-    <div style="display:flex;flex-direction:column;gap:10px;width:100%">
-      <a href="https://skillsforit.online/login/" class="btn btn-lg" style="width:100%;justify-content:center">💳 Pagar con tarjeta (Stripe) →</a>
-      <a href="https://skillsforit.online/login/" style="width:100%;padding:14px 32px;font-size:.9rem;font-weight:700;font-family:var(--mono);background:#009ee3;color:#fff;border-radius:var(--r);display:flex;align-items:center;justify-content:center;transition:background .2s;text-decoration:none">🇦🇷 Pagar con MercadoPago →</a>
+    <div id="pricing-cta" style="display:flex;flex-direction:column;gap:10px;width:100%">
+      <!-- JS rellena este bloque según el estado del usuario -->
+      <a href="https://skillsforit.online/login/" class="btn btn-lg" style="width:100%;justify-content:center">Comenzar ahora →</a>
     </div>
-    <p class="login-note">¿Ya tenés cuenta? <a href="https://skillsforit.online/login/">Iniciá sesión</a>. &nbsp;·&nbsp; Pago 100% seguro · Stripe o MercadoPago.</p>
+    <p class="login-note" id="pricing-note">Pago 100% seguro · Stripe o MercadoPago.</p>
   </div>
 </section>
 
@@ -253,6 +253,110 @@ footer a{color:var(--accent)}
 <footer>
   <p>© 2025 SkillsForIT · <a href="https://skillsforit.online/">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
 </footer>
+
+<script>
+const BASE = 'https://skillsforit.online';
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function getCsrf() {
+  const match = document.cookie.match(/csrftoken=([^;]+)/);
+  return match ? match[1] : '';
+}
+
+function btnStripe(label) {
+  return `<button onclick="pay('stripe')" class="btn btn-lg" style="width:100%;justify-content:center;border:none;cursor:pointer">${label}</button>`;
+}
+function btnMP(label) {
+  return `<button onclick="pay('mercadopago')" style="width:100%;padding:14px 32px;font-size:.9rem;font-weight:700;font-family:'JetBrains Mono',monospace;background:#009ee3;color:#fff;border:none;border-radius:8px;cursor:pointer;transition:background .2s">${label}</button>`;
+}
+function btnChat() {
+  return `<a href="${BASE}/mentoria/chat/" class="btn btn-lg" style="width:100%;justify-content:center">💬 Ir al chat de MentorIA →</a>`;
+}
+function btnLogin(label) {
+  return `<a href="${BASE}/login/" class="btn btn-lg" style="width:100%;justify-content:center">${label}</a>`;
+}
+
+// ── Pago con pasarela ────────────────────────────────────────────────────────
+
+async function pay(pasarela) {
+  const btn = event.currentTarget;
+  const original = btn.textContent;
+  btn.textContent = 'Redirigiendo...';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch(`${BASE}/api/v1/payments/create-session`, {
+      method:      'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken':  getCsrf(),
+      },
+      body: JSON.stringify({ pasarela }),
+    });
+    const data = await res.json();
+    if (data.url) { window.location.href = data.url; return; }
+    if (data.error) alert(data.error);
+  } catch { alert('Error de conexión. Intentá de nuevo.'); }
+
+  btn.textContent = original;
+  btn.disabled = false;
+}
+
+// ── Estado del usuario ───────────────────────────────────────────────────────
+
+async function initUI() {
+  let authenticated = false, is_subscriber = false;
+
+  try {
+    const res  = await fetch(`${BASE}/api/v1/auth/status`, { credentials: 'include' });
+    const data = await res.json();
+    authenticated = data.authenticated;
+    is_subscriber = data.is_subscriber;
+  } catch { /* sin conexión a Django: muestra estado anónimo */ }
+
+  const heroCta    = document.getElementById('hero-cta');
+  const pricingCta = document.getElementById('pricing-cta');
+  const pricingNote = document.getElementById('pricing-note');
+  const navBtn      = document.getElementById('nav-auth-btn');
+
+  if (is_subscriber) {
+    // ── Suscriptor activo: ir al chat ───────────────────────────────────────
+    heroCta.innerHTML = `
+      ${btnChat()}
+      <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>`;
+
+    pricingCta.innerHTML   = btnChat();
+    pricingNote.innerHTML  = '✅ Tu suscripción está activa. ¡Bienvenido!';
+    navBtn.textContent     = 'Ir al chat →';
+    navBtn.href            = `${BASE}/mentoria/chat/`;
+    navBtn.classList.replace('btn-outline', 'btn');
+
+  } else if (authenticated) {
+    // ── Logueado sin suscripción: mostrar opciones de pago ─────────────────
+    heroCta.innerHTML = `
+      ${btnStripe('💳 Suscribirme con Stripe →')}
+      <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>`;
+
+    pricingCta.innerHTML  = btnStripe('💳 Pagar con tarjeta (Stripe) →') + btnMP('🇦🇷 Pagar con MercadoPago →');
+    pricingNote.innerHTML = 'Pago 100% seguro · Stripe o MercadoPago. <a href="' + BASE + '/mentoria/" style="color:var(--accent)">Gestionar suscripción</a>';
+    navBtn.textContent    = 'Mi cuenta';
+    navBtn.href           = `${BASE}/mentoria/`;
+
+  } else {
+    // ── Anónimo: login / registro ───────────────────────────────────────────
+    heroCta.innerHTML = `
+      ${btnLogin('Comenzar ahora →')}
+      <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>`;
+
+    pricingCta.innerHTML  = btnLogin('Crear cuenta y suscribirme →');
+    pricingNote.innerHTML = '¿Ya tenés cuenta? <a href="' + BASE + '/login/" style="color:var(--accent)">Iniciá sesión</a>. &nbsp;·&nbsp; Pago seguro via Stripe o MercadoPago.';
+  }
+}
+
+initUI();
+</script>
 
 </body>
 </html>

@@ -22,6 +22,7 @@ urlpatterns = [
     path('webhooks/stripe/', views.webhook_stripe, name='webhook_stripe'),
     path('webhooks/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
     path('api/webhooks/hotmart/', views.webhook_hotmart, name='webhook_hotmart'),
+    path('api/v1/auth/status', views.auth_status, name='auth_status'),
     path('api/v1/payments/create-session', views.create_payment_session, name='create_payment_session'),
     path('api/v1/payments/portal', views.create_portal_session, name='create_portal_session'),
     path('api/v1/webhooks/payments', views.unified_webhook, name='unified_webhook'),
