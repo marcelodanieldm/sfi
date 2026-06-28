@@ -81,13 +81,66 @@ nav{background:rgba(17,24,39,.95);backdrop-filter:blur(8px);border-bottom:1px so
 .faq-toggle:checked~.faq-body{max-height:300px}
 footer{border-top:1px solid var(--dim);padding:28px 32px;text-align:center;font-size:.78rem;color:var(--faint)}
 footer a{color:var(--accent)}
-@media(max-width:768px){
+/* ── Tablet (≤ 860px) ── */
+@media(max-width:860px){
   .eval-grid{grid-template-columns:repeat(2,1fr)}
   .eval-grid .eval-card:last-child{grid-column:1/-1}
-  .steps{grid-template-columns:1fr}
-  nav{padding:12px 18px}
-  .hero{padding:60px 18px 40px}
-  .how-section,.faq-section,.pricing-section,.eval-section{padding:48px 18px}
+  .steps{grid-template-columns:1fr;gap:32px}
+  .how-section,.faq-section,.pricing-section,.eval-section{padding:52px 28px}
+  .hero{padding:64px 28px 48px}
+  .hero h1{font-size:clamp(1.8rem,3.5vw,2.6rem)}
+}
+
+/* ── Mobile (≤ 540px) ── */
+@media(max-width:540px){
+  /* Nav: ocultar links secundarios, mantener logo + botón */
+  nav{padding:12px 16px}
+  .nav-logo{font-size:.8rem}
+  .nav-links a:not(.btn){display:none}
+  .nav-links .btn{padding:8px 14px;font-size:.75rem}
+
+  /* Hero */
+  .hero{padding:48px 16px 36px}
+  .hero-kicker{font-size:.65rem;letter-spacing:.1em}
+  .hero h1{font-size:1.75rem;line-height:1.2}
+  .hero p{font-size:.9rem}
+  .hero-cta{flex-direction:column;align-items:stretch}
+  .hero-cta .btn{text-align:center;justify-content:center}
+  .price-badge{font-size:.75rem;padding:6px 14px}
+
+  /* Evaluación: 1 columna en mobile */
+  .eval-grid{grid-template-columns:1fr}
+  .eval-grid .eval-card:last-child{grid-column:auto}
+  .eval-section{padding:44px 16px}
+  .eval-card{padding:16px 14px;display:flex;align-items:center;gap:14px;text-align:left}
+  .eval-icon{font-size:1.4rem;margin-bottom:0;flex-shrink:0}
+
+  /* Cómo funciona */
+  .how-section{padding:44px 16px}
+  .how-section h2,.eval-section h2,.pricing-section h2,.faq-section h2{font-size:1.2rem}
+  .step-num{width:34px;height:34px;font-size:.78rem}
+  .step h3{font-size:.85rem}
+  .step p{font-size:.77rem}
+
+  /* Pricing */
+  .pricing-section{padding:44px 16px}
+  .pricing-card{padding:24px 20px}
+  .pricing-price{font-size:2.6rem}
+  .pricing-features li{font-size:.78rem}
+
+  /* Botones de pago: apilados y a ancho completo */
+  .pricing-cta a,.pricing-cta div>a{
+    display:flex;align-items:center;justify-content:center;
+    width:100%;padding:13px 20px;font-size:.82rem
+  }
+
+  /* FAQ */
+  .faq-section{padding:44px 16px}
+  .faq-label{font-size:.8rem;padding:12px 14px}
+  .faq-body-inner{font-size:.77rem}
+
+  /* Footer */
+  footer{padding:20px 16px;font-size:.72rem}
 }
 </style>
 </head>
