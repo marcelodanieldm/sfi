@@ -12,6 +12,7 @@ from core.controllers.ats_controller import (
 from core.controllers.hotmart_controller import webhook_hotmart
 from core.controllers.stripe_webhook_controller import stripe_webhook
 from core.controllers.mercadopago_webhook_controller import mercadopago_webhook
+from core.controllers.payments_controller import create_payment_session
 from core.controllers.mentor_ia_controller import (
     mentor_ia, mentor_ia_checkout, mentor_ia_checkout_success, mentor_ia_checkout_cancel,
     mentor_ia_mp_checkout, mentor_ia_mp_checkout_success, mentor_ia_mp_checkout_cancel,
@@ -37,6 +38,7 @@ __all__ = [
     'webhook_hotmart',
     'stripe_webhook',
     'mercadopago_webhook',
+    'create_payment_session',
     'mentor_ia', 'mentor_ia_checkout', 'mentor_ia_checkout_success', 'mentor_ia_checkout_cancel',
     'mentor_ia_mp_checkout', 'mentor_ia_mp_checkout_success', 'mentor_ia_mp_checkout_cancel',
     'mentor_ia_chat', 'mentor_ia_api_new_session', 'mentor_ia_api_send_message',
