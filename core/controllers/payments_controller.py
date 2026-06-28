@@ -1,5 +1,7 @@
 """
-Endpoints seguros de checkout — POST /api/v1/payments/create-session
+Endpoints de pagos:
+  POST /api/v1/payments/create-session  → genera URL de checkout (Stripe o MP)
+  POST /api/v1/payments/portal          → genera URL del portal de autogestión Stripe
 
 Unifica Stripe y MercadoPago en un solo endpoint que devuelve la URL de pago.
 Útil para frontends estáticos o SPAs que llaman a la API y redirigen via JS.
@@ -225,3 +227,75 @@ def create_payment_session(request):
     except Exception as exc:
         logger.error('Error en create-session (gateway=%s): %s', gateway, exc)
         return JsonResponse({'error': 'Error al crear la sesión de pago'}, status=500)
+
+
+# ────────────────────────────────────────────────────────────────────────────
+#  Portal de autogestión de Stripe
+# ────────────────────────────────────────────────────────────────────────────
+
+@csrf_exempt
+@login_required
+@require_POST
+def create_portal_session(request):
+    """
+    POST /api/v1/payments/portal
+
+    Genera una URL temporal del Stripe Customer Portal para que el usuario
+    pueda gestionar su suscripción (cambiar plan, cancelar, actualizar tarjeta).
+
+    No recibe body — el stripe_customer_id se obtiene de la sesión autenticada.
+
+    Respuesta 200:
+      { "url": "https://billing.stripe.com/session/..." }
+
+    Respuestas de error:
+      400 — el usuario no tiene suscripción Stripe registrada
+      429 — rate limit superado
+      503 — error al contactar Stripe
+    """
+    # ── Rate limiting ──────────────────────────────────────────────────────
+    ip = _client_ip(request)
+    if not _check_rate_limit(ip):
+        return JsonResponse(
+            {'error': 'Demasiadas solicitudes. Esperá un minuto e intentá de nuevo.'},
+            status=429,
+        )
+
+    # ── Obtener stripe_customer_id desde DB ───────────────────────────────
+    from core.models import MentorIASubscription
+    try:
+        sub = request.user.mentoria_subscription
+    except MentorIASubscription.DoesNotExist:
+        return JsonResponse({'error': 'No tenés una suscripción registrada.'}, status=400)
+
+    customer_id = sub.stripe_customer_id
+    if not customer_id:
+        return JsonResponse(
+            {'error': 'Tu suscripción no está vinculada a Stripe. '
+                      'Si pagaste por MercadoPago, gestioná desde la app de MP.'},
+            status=400,
+        )
+
+    # ── Crear sesión del portal ───────────────────────────────────────────
+    stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
+    site_url = getattr(settings, 'SITE_URL', 'https://skillsforit.online')
+    return_url = f'{site_url}/mentor-ia/'
+
+    try:
+        portal_session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=return_url,
+        )
+        logger.info('Portal Stripe creado: customer=%s user=%s', customer_id, request.user.id)
+        return JsonResponse({'url': portal_session.url})
+
+    except stripe.error.InvalidRequestError as exc:
+        logger.error('Stripe portal InvalidRequest: %s', exc)
+        return JsonResponse(
+            {'error': 'No se pudo abrir el portal. Verificá que el Customer Portal '
+                      'esté habilitado en tu dashboard de Stripe.'},
+            status=503,
+        )
+    except stripe.error.StripeError as exc:
+        logger.error('Stripe portal error: %s', exc)
+        return JsonResponse({'error': 'Error al conectar con Stripe.'}, status=503)
