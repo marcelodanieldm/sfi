@@ -22,6 +22,7 @@ urlpatterns = [
     path('webhooks/stripe/', views.webhook_stripe, name='webhook_stripe'),
     path('webhooks/mercadopago/', views.webhook_mercadopago, name='webhook_mercadopago'),
     path('api/webhooks/hotmart/', views.webhook_hotmart, name='webhook_hotmart'),
+    path('api/v1/webhooks/stripe/', views.stripe_webhook, name='stripe_webhook'),
 
     # MentorIA
     path('mentor-ia/',                          views.mentor_ia,                    name='mentor_ia'),

@@ -10,6 +10,7 @@ from core.controllers.ats_controller import (
     api_reenviar_email_reporte,
 )
 from core.controllers.hotmart_controller import webhook_hotmart
+from core.controllers.stripe_webhook_controller import stripe_webhook
 from core.controllers.mentor_ia_controller import (
     mentor_ia, mentor_ia_checkout, mentor_ia_checkout_success, mentor_ia_checkout_cancel,
     mentor_ia_chat,
@@ -32,6 +33,7 @@ __all__ = [
     'descargar_pdf_reporte',
     'PaymentSuccessView', 'check_payment_status', 'api_reenviar_email_reporte',
     'webhook_hotmart',
+    'stripe_webhook',
     'mentor_ia', 'mentor_ia_checkout', 'mentor_ia_checkout_success', 'mentor_ia_checkout_cancel',
     'mentor_ia_chat', 'mentor_ia_api_new_session', 'mentor_ia_api_send_message',
     'webhook_stripe_mentoria',
