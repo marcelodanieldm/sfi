@@ -124,4 +124,10 @@ MP_SUBSCRIPTION_CURRENCY = os.environ.get('MP_SUBSCRIPTION_CURRENCY', 'ARS')
 
 HOTMART_WEBHOOK_TOKEN = os.environ.get('HOTMART_WEBHOOK_TOKEN', '')
 
+# ── Proxy del campus (Donweb) ─────────────────────────────────────────────────
+# IP o dominio directo del servidor Donweb (NO el dominio principal una vez
+# que Railway tome el control de skillsforit.online).
+# Ejemplo: 'http://181.xxx.xxx.xxx' o 'https://donweb-origin.skillsforit.online'
+CAMPUS_ORIGIN = os.environ.get('CAMPUS_ORIGIN', '')
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -10,6 +10,7 @@ from core.controllers.ats_controller import (
     api_reenviar_email_reporte,
 )
 from core.controllers.hotmart_controller import webhook_hotmart
+from core.controllers.proxy_controller import campus_proxy
 from core.controllers.stripe_webhook_controller import stripe_webhook
 from core.controllers.mercadopago_webhook_controller import mercadopago_webhook
 from core.controllers.payments_controller import create_payment_session, create_portal_session, auth_status
@@ -36,7 +37,7 @@ __all__ = [
     'webhook_stripe', 'webhook_mercadopago',
     'descargar_pdf_reporte',
     'PaymentSuccessView', 'check_payment_status', 'api_reenviar_email_reporte',
-    'webhook_hotmart',
+    'webhook_hotmart', 'campus_proxy',
     'stripe_webhook',
     'mercadopago_webhook',
     'create_payment_session', 'create_portal_session', 'auth_status',
