@@ -1,7 +1,6 @@
 django>=4.2,<5.0
 python-dotenv>=1.0
 requests>=2.31
-django-revproxy>=0.12
 gunicorn>=21.2
 whitenoise>=6.6
 dj-database-url>=2.1

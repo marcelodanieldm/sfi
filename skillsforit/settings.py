@@ -133,14 +133,4 @@ MP_SUBSCRIPTION_CURRENCY = os.environ.get('MP_SUBSCRIPTION_CURRENCY', 'ARS')
 
 HOTMART_WEBHOOK_TOKEN = os.environ.get('HOTMART_WEBHOOK_TOKEN', '')
 
-# ── Proxy del campus (Donweb) ─────────────────────────────────────────────────
-# IP o dominio directo del servidor Donweb (NO el dominio principal una vez
-# que Railway tome el control de skillsforit.online).
-# Ejemplo: 'http://181.xxx.xxx.xxx' o 'https://donweb-origin.skillsforit.online'
-CAMPUS_ORIGIN = os.environ.get('CAMPUS_ORIGIN', '')
-
-# Necesario para que django-revproxy reenvíe el host original al upstream
-# (Moodle lo usa para construir sus URLs internas).
-USE_X_FORWARDED_HOST = True
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
