@@ -58,6 +58,16 @@ header{background:rgba(17,24,39,.98);border-bottom:1px solid var(--dim);padding:
 .msg.assistant .msg-bubble{background:var(--bg);border:1px solid var(--dim);border-top-left-radius:4px}
 .msg-bubble p{margin-bottom:8px}
 .msg-bubble p:last-child{margin-bottom:0}
+/* ── Markdown en burbujas de la IA ── */
+.msg.assistant .msg-bubble h3{font-size:.95rem;font-weight:700;color:var(--text);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--dim)}
+.msg.assistant .msg-bubble h3:first-child{margin-top:0}
+.msg.assistant .msg-bubble h4{font-size:.85rem;font-weight:600;color:var(--accent);margin:10px 0 4px}
+.msg.assistant .msg-bubble ul,.msg.assistant .msg-bubble ol{padding-left:18px;margin:6px 0}
+.msg.assistant .msg-bubble li{margin-bottom:4px;line-height:1.55}
+.msg.assistant .msg-bubble strong{color:var(--text);font-weight:600}
+.msg.assistant .msg-bubble em{color:var(--muted);font-style:italic}
+.msg.assistant .msg-bubble blockquote{border-left:3px solid var(--accent);margin:8px 0;padding:6px 12px;background:rgba(52,211,153,.05);border-radius:0 var(--r) var(--r) 0;color:var(--muted);font-style:italic}
+.msg.assistant .msg-bubble code{font-family:var(--mono);font-size:.8rem;background:var(--dim);padding:1px 5px;border-radius:3px;color:var(--accent)}
 
 /* ── Typing indicator ── */
 .typing{align-self:flex-start;display:flex;gap:10px;align-items:flex-end}
@@ -145,8 +155,11 @@ textarea::placeholder{color:var(--faint)}
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/marked@13/marked.min.js"></script>
 <script>
 const CSRF = '{{ csrf_token }}';
+
+marked.use({ breaks: true, gfm: true });
 
 // ── Portal de Stripe ──────────────────────────────────────────────────────
 document.getElementById('portalBtn').addEventListener('click', async () => {
@@ -242,6 +255,10 @@ function hideTyping() {
 }
 
 // ── Append message ────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
 function appendMessage(role, text) {
   if (emptyState) emptyState.style.display = 'none';
 
@@ -249,14 +266,13 @@ function appendMessage(role, text) {
   div.className = `msg ${role}`;
 
   const avatar = role === 'user' ? '👤' : '🤖';
-  const html = text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\n\n+/g,'</p><p>')
-    .replace(/\n/g,'<br>');
+  const html = role === 'assistant'
+    ? marked.parse(text)
+    : `<p>${escapeHtml(text).replace(/\n/g,'<br>')}</p>`;
 
   div.innerHTML = `
     <div class="msg-avatar">${avatar}</div>
-    <div class="msg-bubble"><p>${html}</p></div>`;
+    <div class="msg-bubble">${html}</div>`;
 
   chatArea.appendChild(div);
   chatArea.scrollTop = chatArea.scrollHeight;

@@ -15,7 +15,7 @@ Rutas:
 import json
 import logging
 
-import anthropic
+import openai
 import stripe
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -117,8 +117,8 @@ def _is_subscriber(user):
     return sub is not None and sub.is_active
 
 
-def _anthropic_client():
-    return anthropic.Anthropic(api_key=getattr(settings, 'ANTHROPIC_API_KEY', ''))
+def _openai_client():
+    return openai.OpenAI(api_key=getattr(settings, 'OPENAI_API_KEY', ''))
 
 
 def _stripe_client():
@@ -384,16 +384,18 @@ def mentor_ia_api_new_session(request):
     session = MentorIASession.objects.create(user=request.user, tipo=tipo)
 
     try:
-        client = _anthropic_client()
-        response = client.messages.create(
-            model='claude-haiku-4-5',
+        client = _openai_client()
+        response = client.chat.completions.create(
+            model='gpt-4o-mini',
             max_tokens=1024,
-            system=_SYSTEM_PROMPTS[tipo],
-            messages=[{'role': 'user', 'content': 'Comenzá la sesión de evaluación.'}],
+            messages=[
+                {'role': 'system',  'content': _SYSTEM_PROMPTS[tipo]},
+                {'role': 'user',    'content': 'Comenzá la sesión de evaluación.'},
+            ],
         )
-        ai_text = response.content[0].text
+        ai_text = response.choices[0].message.content
     except Exception as exc:
-        logger.error('Anthropic API error en nueva sesión: %s', exc)
+        logger.error('OpenAI API error en nueva sesión: %s', exc)
         session.delete()
         return JsonResponse({'error': 'Error al conectar con la IA'}, status=502)
 
@@ -444,16 +446,18 @@ def mentor_ia_api_send_message(request, session_id):
     ]
 
     try:
-        client = _anthropic_client()
-        response = client.messages.create(
-            model='claude-haiku-4-5',
+        client = _openai_client()
+        response = client.chat.completions.create(
+            model='gpt-4o-mini',
             max_tokens=1024,
-            system=_SYSTEM_PROMPTS[session.tipo],
-            messages=history,
+            messages=[
+                {'role': 'system', 'content': _SYSTEM_PROMPTS[session.tipo]},
+                *history,
+            ],
         )
-        ai_text = response.content[0].text
+        ai_text = response.choices[0].message.content
     except Exception as exc:
-        logger.error('Anthropic API error al enviar mensaje: %s', exc)
+        logger.error('OpenAI API error al enviar mensaje: %s', exc)
         return JsonResponse({'error': 'Error al conectar con la IA'}, status=502)
 
     MentorIAMessage.objects.create(session=session, rol='assistant', contenido=ai_text)

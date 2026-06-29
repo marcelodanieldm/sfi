@@ -2,7 +2,7 @@
 
 Plataforma de formación para profesionales IT. Incluye un catálogo de eBooks vendidos vía Hotmart, un evaluador de CVs con IA y **mentorIA**, un coach de soft skills con suscripción mensual.
 
-**Stack:** Python · Django 4.2 · Anthropic Claude · Stripe · MercadoPago · Hotmart
+**Stack:** Python · Django 4.2 · OpenAI gpt-4o-mini · Stripe · MercadoPago · Hotmart
 
 ---
 
@@ -132,7 +132,7 @@ skillsforit.online/mentoria  (HTML estático)
   → /mentoria/              (Django — paywall)
   → Stripe o MercadoPago     (checkout externo)
   → webhook activa suscripción en DB
-  → /mentoria/chat/         (Django — chat con Claude claude-haiku-4-5)
+  → /mentoria/chat/         (Django — chat con OpenAI gpt-4o-mini)
 ```
 
 El chat bloquea el input mientras la IA genera el informe. El informe sigue esta estructura:
@@ -153,8 +153,9 @@ ALLOWED_HOSTS=skillsforit.online,.railway.app
 DEBUG=False
 SITE_URL=https://skillsforit.online
 
-# IA
-ANTHROPIC_API_KEY=sk-ant-...
+# IA — OpenAI
+# Obtené tu key en: https://platform.openai.com/api-keys
+OPENAI_API_KEY=sk-proj-...
 
 # Email (Resend)
 RESEND_API_KEY=re_...
@@ -185,8 +186,9 @@ HOTMART_WEBHOOK_TOKEN=...
 git clone https://github.com/marcelodanieldm/sfi.git
 cd sfi
 pip install -r requirements.txt
-cp .env.example .env   # completar variables
+cp .env.example .env        # copiar y completar variables (mínimo: OPENAI_API_KEY)
 python manage.py migrate
+python manage.py create_test_user   # crea demo@skillsforit.com con suscripción activa
 python manage.py runserver
 ```
 

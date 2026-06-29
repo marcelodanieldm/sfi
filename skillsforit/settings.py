@@ -1,7 +1,11 @@
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
 
 # ── Seguridad ────────────────────────────────────────────────────────────────
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-insecure-key-cambiar-en-produccion')
@@ -25,7 +29,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -104,7 +108,7 @@ if not DEBUG:
     CSRF_COOKIE_SECURE      = True
 
 # ── Claves de terceros (desde variables de entorno) ───────────────────────────
-ANTHROPIC_API_KEY   = os.environ.get('ANTHROPIC_API_KEY', '')
+OPENAI_API_KEY      = os.environ.get('OPENAI_API_KEY', '')
 RESEND_API_KEY      = os.environ.get('RESEND_API_KEY', '')
 DEFAULT_FROM_EMAIL  = os.environ.get('DEFAULT_FROM_EMAIL', 'SkillsForIT <info@skillsforit.com>')
 EBOOK_WELCOME_COUPON = os.environ.get('EBOOK_WELCOME_COUPON', 'SKILLS20')
@@ -129,5 +133,9 @@ HOTMART_WEBHOOK_TOKEN = os.environ.get('HOTMART_WEBHOOK_TOKEN', '')
 # que Railway tome el control de skillsforit.online).
 # Ejemplo: 'http://181.xxx.xxx.xxx' o 'https://donweb-origin.skillsforit.online'
 CAMPUS_ORIGIN = os.environ.get('CAMPUS_ORIGIN', '')
+
+# Necesario para que django-revproxy reenvíe el host original al upstream
+# (Moodle lo usa para construir sus URLs internas).
+USE_X_FORWARDED_HOST = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
