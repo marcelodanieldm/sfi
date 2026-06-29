@@ -113,6 +113,8 @@ def _get_subscription(user):
 
 
 def _is_subscriber(user):
+    if user.is_superuser:
+        return True
     sub = _get_subscription(user)
     return sub is not None and sub.is_active
 
