@@ -76,6 +76,10 @@ AUTH_USER_MODEL = 'core.User'
 LOGIN_URL       = '/login/'
 LOGIN_REDIRECT_URL = '/mentoria/'
 
+AUTHENTICATION_BACKENDS = [
+    'core.controllers.auth_controller.EmailBackend',
+]
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},

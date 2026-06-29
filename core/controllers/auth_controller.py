@@ -1,9 +1,23 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import redirect, render
 
 from core.models import User
+
+
+class EmailBackend(ModelBackend):
+    """Permite autenticar con email en lugar de username."""
+
+    def authenticate(self, request, username=None, password=None, **kwargs):
+        try:
+            user = User.objects.get(email__iexact=username)
+        except User.DoesNotExist:
+            return None
+        if user.check_password(password) and self.user_can_authenticate(user):
+            return user
+        return None
 
 
 class RegisterForm(UserCreationForm):
@@ -46,38 +60,32 @@ def login_view(request):
 
         if action == 'register':
             form_register = RegisterForm(request.POST)
-            form_login    = AuthenticationForm()
             if form_register.is_valid():
                 user = form_register.save()
-                login(request, user)
+                login(request, user, backend='core.controllers.auth_controller.EmailBackend')
                 return redirect(next_url)
-            # Muestra tab registro con errores
             return render(request, 'core/auth/login.html', {
-                'form_login':    form_login,
                 'form_register': form_register,
                 'active_tab':    'register',
                 'next':          next_url,
             })
 
         else:  # login
-            form_login    = AuthenticationForm(request, data=request.POST)
-            form_register = RegisterForm()
-            if form_login.is_valid():
-                login(request, form_login.get_user())
+            email    = request.POST.get('username', '').strip()
+            password = request.POST.get('password', '')
+            user     = authenticate(request, username=email, password=password)
+            if user is not None:
+                login(request, user)
                 return redirect(next_url)
             messages.error(request, 'Email o contraseña incorrectos.')
             return render(request, 'core/auth/login.html', {
-                'form_login':    form_login,
-                'form_register': form_register,
-                'active_tab':    'login',
-                'next':          next_url,
+                'active_tab': 'login',
+                'next':       next_url,
             })
 
     return render(request, 'core/auth/login.html', {
-        'form_login':    AuthenticationForm(),
-        'form_register': RegisterForm(),
-        'active_tab':    'login',
-        'next':          next_url,
+        'active_tab': 'login',
+        'next':       next_url,
     })
 
 
