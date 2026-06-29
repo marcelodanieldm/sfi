@@ -78,6 +78,7 @@ LOGIN_REDIRECT_URL = '/mentoria/'
 
 AUTHENTICATION_BACKENDS = [
     'core.controllers.auth_controller.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 AUTH_PASSWORD_VALIDATORS = [

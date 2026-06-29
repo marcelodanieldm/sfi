@@ -51,9 +51,9 @@ class RegisterForm(UserCreationForm):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('core:mentor_ia')
+        return redirect('/mentoria/')
 
-    next_url = request.GET.get('next', 'core:mentor_ia')
+    next_url = request.GET.get('next', '/mentoria/')
 
     if request.method == 'POST':
         action = request.POST.get('action', 'login')
@@ -79,13 +79,15 @@ def login_view(request):
                 return redirect(next_url)
             messages.error(request, 'Email o contraseña incorrectos.')
             return render(request, 'core/auth/login.html', {
-                'active_tab': 'login',
-                'next':       next_url,
+                'form_register': RegisterForm(),
+                'active_tab':    'login',
+                'next':          next_url,
             })
 
     return render(request, 'core/auth/login.html', {
-        'active_tab': 'login',
-        'next':       next_url,
+        'form_register': RegisterForm(),
+        'active_tab':    'login',
+        'next':          next_url,
     })
 
 
