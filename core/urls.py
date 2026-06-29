@@ -9,8 +9,6 @@ app_name = 'core'
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
-    path('campus/',            views.campus_proxy, {'path': ''}, name='campus_root'),
-    path('campus/<path:path>', views.campus_proxy,               name='campus_proxy'),
     path('ats-evaluator/', views.ats_evaluator, name='ats_evaluator'),
     path('ats-evaluator/resultado/<uuid:uuid>/', views.ats_resultado, name='ats_resultado'),
     path('ats-evaluator/checkout/<uuid:uuid>/', views.ats_checkout, name='ats_checkout'),
