@@ -414,6 +414,65 @@ class MentorIAMessage(models.Model):
 
 
 # ─────────────────────────────────────────────
+#  Softskills Roleplay
+#  Simulación de situaciones reales para practicar
+#  habilidades blandas con un bot de IA.
+# ─────────────────────────────────────────────
+class SoftskillsScenario(models.Model):
+    CATEGORY_CHOICES = [
+        ('communication',     'Comunicación'),
+        ('leadership',        'Liderazgo'),
+        ('negotiation',       'Negociación'),
+        ('critical-thinking', 'Pensamiento crítico'),
+        ('innovation',        'Innovación'),
+        ('career',            'Desarrollo de carrera'),
+    ]
+
+    category            = models.CharField(max_length=30, choices=CATEGORY_CHOICES, db_index=True)
+    title               = models.CharField(max_length=200)
+    context             = models.TextField()
+    user_role           = models.CharField(max_length=200)
+    bot_role            = models.CharField(max_length=200)
+    initial_bot_message = models.TextField()
+    max_turns           = models.PositiveSmallIntegerField(default=4)
+    created_at          = models.DateTimeField(auto_now_add=True)
+    updated_at          = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = 'Escenario de Roleplay'
+        verbose_name_plural = 'Escenarios de Roleplay'
+        ordering            = ['category', 'title']
+
+    def __str__(self):
+        return f'[{self.get_category_display()}] {self.title}'
+
+
+class RoleplaySession(models.Model):
+    STATUS_CHOICES = [
+        ('in_progress', 'En progreso'),
+        ('completed',   'Completada'),
+    ]
+
+    id               = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user             = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='roleplay_sessions')
+    scenario         = models.ForeignKey(SoftskillsScenario, on_delete=models.CASCADE, related_name='sessions')
+    status           = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    turn_count       = models.PositiveSmallIntegerField(default=0)
+    chat_history     = models.JSONField(default=list)
+    informe_feedback = models.TextField(null=True, blank=True)
+    created_at       = models.DateTimeField(auto_now_add=True)
+    updated_at       = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = 'Sesión de Roleplay'
+        verbose_name_plural = 'Sesiones de Roleplay'
+        ordering            = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.email} — {self.scenario.title} [{self.get_status_display()}]'
+
+
+# ─────────────────────────────────────────────
 #  ProcessedPayment
 #  Tabla de idempotencia: registra eventos de
 #  pago ya procesados para evitar duplicados.

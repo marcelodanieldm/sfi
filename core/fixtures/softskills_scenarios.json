@@ -1,0 +1,182 @@
+[
+  {
+    "model": "core.softskillsscenario",
+    "pk": 1,
+    "fields": {
+      "category": "communication",
+      "title": "Dar feedback negativo a un colega",
+      "context": "Sos tech lead de un equipo de 5 personas. Tu colega Marcos entregó un PR con código de baja calidad por segunda vez esta semana: sin tests, nombres de variables confusos y sin manejo de errores. Tenés que darle feedback claro y constructivo en una reunión 1:1 sin desmotivarlo.",
+      "user_role": "Tech Lead que da el feedback",
+      "bot_role": "Marcos, desarrollador defensivo que tiende a justificarse",
+      "initial_bot_message": "Hola, me dijiste que querías hablar. ¿Qué pasó con el PR? Lo revisé bastante, la verdad no entiendo el problema.",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 2,
+    "fields": {
+      "category": "communication",
+      "title": "Explicar un outage al cliente en una reunión de crisis",
+      "context": "Tu sistema estuvo caído 3 horas ayer por un error en el deploy. El cliente más importante de la empresa pide explicaciones en una videollamada urgente. Tenés que comunicar qué pasó, qué se hizo y qué garantías dás para el futuro, sin excusas pero sin comprometer a la empresa legalmente.",
+      "user_role": "CTO o Engineering Manager de la empresa",
+      "bot_role": "Director de TI del cliente, muy molesto con la situación",
+      "initial_bot_message": "Muy bien, los escucho. Porque honestamente, 3 horas de sistema caído en un martes a la mañana es inaceptable. ¿Qué pasó exactamente y por qué no tuvieron contingencia?",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 3,
+    "fields": {
+      "category": "leadership",
+      "title": "Resolver conflicto entre dos miembros del equipo",
+      "context": "Dos developers de tu equipo, Ana y Pablo, están en conflicto: Ana acusa a Pablo de ignorar sus comentarios en los PR y Pablo dice que Ana es demasiado perfeccionista y frena el avance. El clima del equipo empeoró notablemente esta semana. Tenés una reunión con Pablo para hablar del tema.",
+      "user_role": "Engineering Manager del equipo",
+      "bot_role": "Pablo, desarrollador frustrado con la situación",
+      "initial_bot_message": "Mira, no sé para qué me llamás. Ana es la que tiene el problema, no yo. Yo trabajo bien, pero ella revisa los PR con lupa y siempre encuentra algo. No podemos avanzar así.",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 4,
+    "fields": {
+      "category": "leadership",
+      "title": "Comunicar una decisión técnica impopular al equipo",
+      "context": "La empresa decidió migrar de React a Vue por razones estratégicas de negocio. Tu equipo es 100% React y varios están enojados con la decisión que no los involucró. Tenés que presentar la decisión en la reunión semanal de equipo, manejar la resistencia y lograr compromiso.",
+      "user_role": "Tech Lead a cargo de comunicar la decisión",
+      "bot_role": "Desarrollador senior React muy resistente al cambio",
+      "initial_bot_message": "Escuché algo sobre Vue. Espero que sea un rumor porque llevamos 3 años con React, somos expertos en eso. Si esto es real, yo personalmente creo que es una decisión terrible. ¿Qué está pasando?",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 5,
+    "fields": {
+      "category": "negotiation",
+      "title": "Negociar un aumento de sueldo",
+      "context": "Tenés 2 años en la empresa, lideraste el último proyecto exitoso y sabés que tu salario está un 25% por debajo del mercado según Glassdoor y encuestas de la comunidad. Pediste una reunión con tu manager para hablar de tu compensación.",
+      "user_role": "Desarrollador que busca un aumento",
+      "bot_role": "Manager con presupuesto limitado pero que valora al empleado",
+      "initial_bot_message": "Gracias por pedir esta reunión. Sé que querías hablar de tu situación. ¿De qué se trata?",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 6,
+    "fields": {
+      "category": "negotiation",
+      "title": "Negociar el scope de un proyecto con el cliente",
+      "context": "El cliente quiere agregar 3 funcionalidades nuevas al sprint actual sin mover la fecha de entrega, que ya está ajustada. Tu equipo ya está al 100% de capacidad. Tenés que negociar el alcance sin perder la relación comercial ni prometer lo que no se puede cumplir.",
+      "user_role": "Project Manager o Tech Lead del equipo",
+      "bot_role": "Cliente que presiona para agregar más funcionalidades sin ampliar plazos",
+      "initial_bot_message": "Mira, hablé con el CEO y necesitamos que el módulo de reportes también esté en este sprint. Y si pueden meter el módulo de notificaciones también, sería ideal. La demo es el viernes, no podemos moverla.",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 7,
+    "fields": {
+      "category": "critical-thinking",
+      "title": "Decidir entre dos arquitecturas técnicas bajo presión",
+      "context": "Tu startup necesita elegir entre dos arquitecturas: microservicios (más escalable, más compleja, 3 meses de setup) vs monolito modular (más rápido de lanzar, más simple, pero con deuda técnica futura). El CTO quiere tu recomendación fundamentada esta tarde.",
+      "user_role": "Tech Lead que debe recomendar la arquitectura",
+      "bot_role": "CTO que desafía cada argumento y busca el pensamiento crítico del candidato",
+      "initial_bot_message": "Bien, dime qué pensás. Tenemos que tomar esta decisión hoy porque el inversor quiere ver el roadmap técnico mañana. Yo tengo mi opinión pero quiero escuchar la tuya primero. ¿Microservicios o monolito?",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 8,
+    "fields": {
+      "category": "critical-thinking",
+      "title": "Analizar la causa raíz de un bug en producción",
+      "context": "Hay un bug crítico en producción que afecta el 15% de los pagos. El sistema de logs muestra errores intermitentes en el módulo de pagos. Tu manager y el equipo de negocio están en la llamada esperando tu análisis y plan de acción.",
+      "user_role": "Senior Developer a cargo del diagnóstico",
+      "bot_role": "Manager técnico que hace preguntas difíciles y evalúa el razonamiento",
+      "initial_bot_message": "Tenemos 15 minutos antes de que se una el CEO a esta llamada. ¿Qué sabés hasta ahora del problema y cuál es tu hipótesis principal? Necesito entender tu proceso de análisis.",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 9,
+    "fields": {
+      "category": "innovation",
+      "title": "Proponer una mejora de proceso que nadie pidió",
+      "context": "Identificaste que el proceso de code review del equipo es ineficiente: los PR tardan 3 días en promedio en mergearse. Tenés una idea para implementar un sistema de revisiones asincrónicas con IA. Querés presentársela a tu manager sin haberla pedido y conseguir su apoyo para implementarla.",
+      "user_role": "Desarrollador con una propuesta de mejora",
+      "bot_role": "Manager escéptico con poco tiempo y muchas prioridades",
+      "initial_bot_message": "Tengo 10 minutos entre reuniones. Me dijiste que querías hablar de algo del proceso. Dale, contame, pero resumido porque tengo la reunión de presupuesto en seguida.",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 10,
+    "fields": {
+      "category": "innovation",
+      "title": "Defender una propuesta técnica innovadora ante el board",
+      "context": "Querés proponer que la empresa adopte una IA generativa para automatizar el 40% del testing manual del equipo de QA. El board es conservador y tiene miedo al cambio. Tenés 5 minutos para presentar la idea y manejar las objeciones.",
+      "user_role": "Tech Lead o CTO presentando la iniciativa",
+      "bot_role": "Director de Operaciones conservador y preocupado por los costos y riesgos",
+      "initial_bot_message": "He leído tu propuesta. Mira, entiendo la emoción por estas nuevas tecnologías, pero tengo serias dudas. ¿Cómo garantizamos que la IA no introduzca errores? Y esto seguramente cuesta una fortuna. Convenceme.",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 11,
+    "fields": {
+      "category": "career",
+      "title": "Entrevista técnica con foco en soft skills",
+      "context": "Estás en la ronda final de una entrevista para un puesto de Senior Developer en una empresa de producto. Esta ronda no es técnica, es de cultura y comportamiento. El entrevistador va a hacerte preguntas situacionales para ver cómo manejás situaciones difíciles.",
+      "user_role": "Candidato a Senior Developer",
+      "bot_role": "Head of Engineering evaluando fit cultural y soft skills del candidato",
+      "initial_bot_message": "Hola, gracias por llegar hasta esta instancia. Esta charla no tiene preguntas técnicas, sino que quiero conocerte mejor. Para arrancar: contame de una situación donde tuviste que trabajar con alguien difícil. ¿Cómo lo manejaste?",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.softskillsscenario",
+    "pk": 12,
+    "fields": {
+      "category": "career",
+      "title": "Pedir un ascenso a Staff Engineer",
+      "context": "Llevás 3 años en la empresa como Senior Developer. Creés que estás listo para Staff Engineer: lideraste 2 proyectos cross-team, mentoreaste a 3 juniors y propusiste cambios de arquitectura que se adoptaron. Tu manager nunca lo mencionó proactivamente, así que pediste la reunión vos.",
+      "user_role": "Senior Developer que busca el ascenso a Staff",
+      "bot_role": "Engineering Manager que escucha pero no lo tenía en el roadmap inmediato",
+      "initial_bot_message": "Hola, me alegra que hayas pedido este espacio. Sé que llevas un tiempo sólido en el equipo. ¿Qué querías hablar?",
+      "max_turns": 4,
+      "created_at": "2026-07-02T00:00:00Z",
+      "updated_at": "2026-07-02T00:00:00Z"
+    }
+  }
+]

@@ -43,12 +43,25 @@ urlpatterns = [
     path('mentoria/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),
     path('mentoria/api/message/<uuid:session_id>/', views.mentor_ia_api_send_message, name='mentor_ia_api_send_message'),
     path('mentoria/api/webhook/',              views.webhook_stripe_mentoria,      name='webhook_stripe_mentoria'),
+
+    # Roleplay de Soft Skills — páginas
+    path('roleplay/',                               views.roleplay_selector,   name='roleplay_selector'),
+    path('roleplay/chat/<uuid:session_id>/',        views.roleplay_chat_page,  name='roleplay_chat_page'),
+
+    # Roleplay de Soft Skills — API
+    path('api/v1/roleplay/scenarios/',                              views.roleplay_list_scenarios, name='roleplay_list_scenarios'),
+    path('api/v1/roleplay/sessions/start/',                         views.roleplay_start_session,  name='roleplay_start_session'),
+    path('api/v1/roleplay/sessions/<uuid:session_id>/',             views.roleplay_get_session,    name='roleplay_get_session'),
+    path('api/v1/roleplay/sessions/<uuid:session_id>/message/',     views.roleplay_send_message,   name='roleplay_send_message'),
     # Página de confirmación de pago + polling de estado
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/', views.PaymentSuccessView.as_view(), name='payment_success_page'),
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/status/', views.check_payment_status, name='check_payment_status'),
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/reenviar-email/', views.api_reenviar_email_reporte, name='api_reenviar_email_reporte'),
     path('ebook/', views.ebook, name='ebook'),
+    # Soft Skills SPA — Django sirve el shell para / y todas las subrutas;
+    # Vue Router maneja la navegación interna.
     path('soft-skills/', views.soft_skills, name='soft_skills'),
+    path('soft-skills/<path:subpath>', views.soft_skills),
     path('mentoring/', views.mentoring, name='mentoring'),
     path('premium/', views.premium, name='premium'),
     path('dashboard/', views.dashboard, name='dashboard'),

@@ -28,6 +28,10 @@ from core.controllers.premium_controller import premium
 from core.controllers.dashboard_controller import dashboard
 from core.controllers.auth_controller import login_view, logout_view
 from core.controllers.admin_controller import panel_admin
+from core.controllers.roleplay_controller import (
+    roleplay_list_scenarios, roleplay_start_session, roleplay_send_message,
+    roleplay_selector, roleplay_chat_page, roleplay_get_session,
+)
 
 __all__ = [
     'inicio', 'lista_habilidades', 'detalle_habilidad',
@@ -47,5 +51,7 @@ __all__ = [
     'webhook_stripe_mentoria',
     'ebook', 'soft_skills', 'mentoring', 'premium', 'dashboard',
     'login_view', 'logout_view', 'panel_admin',
+    'roleplay_list_scenarios', 'roleplay_start_session', 'roleplay_send_message',
+    'roleplay_selector', 'roleplay_chat_page', 'roleplay_get_session',
 ]
 

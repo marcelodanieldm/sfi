@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Elegí un escenario — SkillsForIT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'core/dist/scenario-selector.css' %}">
+</head>
+<body>
+
+  {# Punto de montaje de Vue — los datos iniciales van como data-attributes #}
+  <div
+    id="scenario-selector-app"
+    data-category="{{ category }}"
+    data-csrf="{{ csrf_token }}"
+  ></div>
+
+  <script type="module" src="{% static 'core/dist/scenario-selector.js' %}"></script>
+</body>
+</html>

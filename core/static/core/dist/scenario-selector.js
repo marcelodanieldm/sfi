@@ -1,0 +1,1 @@
+import{c as t}from"./chunks/style-DFLeVUEc.js";import o from"./chunks/ScenarioSelector-BjAYcu_u.js";const e=document.getElementById("scenario-selector-app");e&&t(o,{category:e.dataset.category||"",csrfToken:e.dataset.csrf||""}).mount(e);
