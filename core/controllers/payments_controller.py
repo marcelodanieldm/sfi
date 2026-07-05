@@ -20,6 +20,7 @@ Respuesta exitosa:
 Respuesta de error:
   {"error": "mensaje"}, status 4xx
 """
+from __future__ import annotations
 
 import logging
 import threading
