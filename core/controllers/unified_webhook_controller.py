@@ -34,6 +34,8 @@ Variables requeridas en settings:
   MP_ACCESS_TOKEN
 """
 
+from __future__ import annotations
+
 import hashlib
 import hmac
 import json
