@@ -73,6 +73,7 @@ urlpatterns = [
     # Auth
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('auth/google/', views.google_oauth_login, name='google_oauth_login'),
 
     # Panel de administrador
     path('admin/', views.panel_admin, name='panel_admin'),

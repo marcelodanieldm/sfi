@@ -26,7 +26,7 @@ from core.controllers.soft_skills_controller import soft_skills
 from core.controllers.mentoring_controller import mentoring
 from core.controllers.premium_controller import premium
 from core.controllers.dashboard_controller import dashboard
-from core.controllers.auth_controller import login_view, logout_view
+from core.controllers.auth_controller import login_view, logout_view, google_oauth_login
 from core.controllers.admin_controller import panel_admin
 from core.controllers.roleplay_controller import (
     roleplay_list_scenarios, roleplay_start_session, roleplay_send_message,

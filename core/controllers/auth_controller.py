@@ -1,10 +1,25 @@
+import json
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.forms import UserCreationForm
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
 from core.models import User
+
+
+def _unique_username(email):
+    base = email.split('@')[0][:150]
+    username = base
+    counter = 1
+    while User.objects.filter(username=username).exists():
+        username = f'{base}{counter}'
+        counter += 1
+    return username
 
 
 class EmailBackend(ModelBackend):
@@ -49,6 +64,15 @@ class RegisterForm(UserCreationForm):
         return user
 
 
+def _login_ctx(form=None, tab='login', next_url='/mentoria/'):
+    return {
+        'form_register':    form or RegisterForm(),
+        'active_tab':       tab,
+        'next':             next_url,
+        'google_client_id': getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', ''),
+    }
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('/mentoria/')
@@ -64,11 +88,8 @@ def login_view(request):
                 user = form_register.save()
                 login(request, user, backend='core.controllers.auth_controller.EmailBackend')
                 return redirect(next_url)
-            return render(request, 'core/auth/login.html', {
-                'form_register': form_register,
-                'active_tab':    'register',
-                'next':          next_url,
-            })
+            return render(request, 'core/auth/login.html',
+                          _login_ctx(form_register, 'register', next_url))
 
         else:  # login
             email    = request.POST.get('username', '').strip()
@@ -78,20 +99,53 @@ def login_view(request):
                 login(request, user)
                 return redirect(next_url)
             messages.error(request, 'Email o contraseña incorrectos.')
-            return render(request, 'core/auth/login.html', {
-                'form_register': RegisterForm(),
-                'active_tab':    'login',
-                'next':          next_url,
-            })
+            return render(request, 'core/auth/login.html',
+                          _login_ctx(tab='login', next_url=next_url))
 
-    return render(request, 'core/auth/login.html', {
-        'form_register': RegisterForm(),
-        'active_tab':    'login',
-        'next':          next_url,
-    })
+    return render(request, 'core/auth/login.html',
+                  _login_ctx(tab='login', next_url=next_url))
 
 
 def logout_view(request):
     if request.method == 'POST':
         logout(request)
     return redirect('core:mentor_ia')
+
+
+@require_POST
+def google_oauth_login(request):
+    try:
+        data       = json.loads(request.body)
+        credential = data.get('credential', '')
+        next_url   = data.get('next', '/mentoria/')
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
+
+    client_id = getattr(settings, 'GOOGLE_OAUTH_CLIENT_ID', '')
+    if not client_id or not credential:
+        return JsonResponse({'error': 'Google OAuth no configurado.'}, status=503)
+
+    try:
+        from google.oauth2 import id_token
+        from google.auth.transport import requests as google_requests
+        idinfo = id_token.verify_oauth2_token(
+            credential, google_requests.Request(), client_id
+        )
+    except ValueError:
+        return JsonResponse({'error': 'Token de Google inválido.'}, status=400)
+
+    email = idinfo.get('email', '').lower()
+    if not email:
+        return JsonResponse({'error': 'No se pudo obtener el email de Google.'}, status=400)
+
+    user, _ = User.objects.get_or_create(
+        email=email,
+        defaults={
+            'username':   _unique_username(email),
+            'first_name': idinfo.get('given_name', ''),
+            'last_name':  idinfo.get('family_name', ''),
+        },
+    )
+
+    login(request, user, backend='core.controllers.auth_controller.EmailBackend')
+    return JsonResponse({'ok': True, 'next': next_url})
