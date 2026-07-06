@@ -282,7 +282,7 @@ function chooseAnother() {
       ></div>
 
       <!-- ── Buttons ─────────────────────────────────────── -->
-      <div class="flex flex-col sm:flex-row gap-3 pt-4 pb-10">
+      <div class="flex flex-col sm:flex-row gap-3 pt-4 pb-12 sm:pb-10">
         <button
           :disabled="isRetrying"
           class="flex-1 py-3 px-5 bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-60 disabled:cursor-not-allowed text-[#0d1117] text-sm font-semibold rounded-xl transition-colors duration-150 flex items-center justify-center gap-2"

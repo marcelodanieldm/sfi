@@ -80,32 +80,32 @@ async function sendMessage() {
   />
 
   <!-- Chat activo -->
-  <div v-else class="flex flex-col bg-[#0d1117] font-sans antialiased" style="height:calc(100vh - 52px);min-height:0">
+  <div v-else class="flex flex-col bg-[#0d1117] font-sans antialiased" style="height:calc(100vh - 52px);height:calc(100dvh - 52px);min-height:0">
 
     <!-- ── Scenario info bar ──────────────────────────────── -->
-    <header class="flex-none bg-[#111827] border-b border-[#2d3748] px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
+    <header class="flex-none bg-[#111827] border-b border-[#2d3748] px-3 pt-2 pb-1.5 sm:px-4 sm:pt-2.5 sm:pb-2">
       <div class="max-w-3xl mx-auto">
 
-        <div class="flex items-start justify-between gap-3 mb-2">
-          <div class="min-w-0">
-            <h1 class="text-sm font-semibold text-gray-100 leading-snug truncate">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <div class="min-w-0 flex-1">
+            <h1 class="text-xs sm:text-sm font-semibold text-gray-100 leading-snug truncate">
               {{ scenario?.title ?? 'Roleplay' }}
             </h1>
-            <p class="text-xs text-[#6b7280] mt-0.5">
-              <span class="text-blue-400 font-medium">Vos: {{ scenario?.user_role }}</span>
-              <span class="mx-1.5 text-[#374151]">·</span>
-              <span class="text-purple-400 font-medium">Bot: {{ scenario?.bot_role }}</span>
+            <p class="text-[11px] sm:text-xs text-[#6b7280] mt-0.5 truncate">
+              <span class="text-blue-400 font-medium">{{ scenario?.user_role }}</span>
+              <span class="mx-1 text-[#374151]">vs</span>
+              <span class="text-purple-400 font-medium">{{ scenario?.bot_role }}</span>
             </p>
           </div>
 
           <span
-            class="flex-none text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap"
+            class="flex-none text-[11px] sm:text-xs font-medium px-2 py-1 rounded-full whitespace-nowrap"
             style="font-family:'JetBrains Mono',monospace"
             :class="isCompleted
               ? 'bg-[#34d399]/10 text-[#34d399] border border-[#34d399]/20'
               : 'bg-[#1f2937] text-[#9ca3af] border border-[#374151]'"
           >
-            {{ isCompleted ? '✓ Completado' : `Turno ${turnCount} / ${store.maxTurns}` }}
+            {{ isCompleted ? '✓ Listo' : `${turnCount}/${store.maxTurns}` }}
           </span>
         </div>
 
@@ -183,7 +183,7 @@ async function sendMessage() {
     </div>
 
     <!-- ── Input ─────────────────────────────────────────── -->
-    <div class="flex-none bg-[#111827] border-t border-[#2d3748] px-4 py-3">
+    <div class="flex-none bg-[#111827] border-t border-[#2d3748] px-3 py-2.5 sm:px-4 sm:py-3">
       <div class="max-w-3xl mx-auto">
         <div class="flex gap-2 items-end">
 
@@ -193,15 +193,16 @@ async function sendMessage() {
             :disabled="isLoading || isCompleted"
             rows="1"
             placeholder="Escribí tu respuesta…"
-            class="flex-1 resize-none rounded-xl border border-[#374151] bg-[#1f2937] px-3.5 py-2.5 text-sm text-gray-100 placeholder-[#6b7280] leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#34d399]/50 focus:border-[#34d399]/50 disabled:opacity-50 disabled:cursor-not-allowed transition"
-            style="min-height:44px;max-height:120px;overflow-y:auto"
+            class="flex-1 resize-none rounded-xl border border-[#374151] bg-[#1f2937] px-3 py-2.5 sm:px-3.5 text-sm text-gray-100 placeholder-[#6b7280] leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#34d399]/50 focus:border-[#34d399]/50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            style="min-height:44px;max-height:120px;overflow-y:auto;touch-action:manipulation"
             @keydown="onKeydown"
             @input="autoResize"
           ></textarea>
 
           <button
             :disabled="!canSend"
-            class="flex-none w-10 h-10 flex items-center justify-center rounded-xl bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+            class="flex-none w-11 h-11 flex items-center justify-center rounded-xl bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+            style="touch-action:manipulation"
             aria-label="Enviar mensaje"
             @click="sendMessage"
           >
@@ -216,7 +217,7 @@ async function sendMessage() {
 
         </div>
 
-        <p class="text-xs text-[#6b7280] mt-1.5 text-right" style="font-family:'JetBrains Mono',monospace">
+        <p class="hidden sm:block text-xs text-[#6b7280] mt-1.5 text-right" style="font-family:'JetBrains Mono',monospace">
           Enter para enviar · Shift+Enter para nueva línea
         </p>
       </div>

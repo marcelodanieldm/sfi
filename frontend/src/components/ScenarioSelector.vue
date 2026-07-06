@@ -111,12 +111,13 @@ async function startSession(scenario) {
   <div class="min-h-[calc(100vh-52px)] bg-[#0d1117] font-sans">
 
     <!-- ── Category tab bar (sticky under nav) ──────────────── -->
-    <div class="bg-[#111827] border-b border-[#2d3748] px-4 py-2.5 sticky top-[52px] z-10">
-      <div class="max-w-5xl mx-auto flex gap-2 overflow-x-auto -mx-4 px-4" style="scrollbar-width:none">
+    <div class="bg-[#111827] border-b border-[#2d3748] px-4 py-2 sticky top-[52px] z-10">
+      <div class="max-w-5xl mx-auto flex gap-2 overflow-x-auto -mx-4 px-4" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
         <button
           v-for="cat in CATEGORIES"
           :key="cat.slug"
-          class="flex-none text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-150 whitespace-nowrap"
+          class="flex-none text-xs font-semibold px-3.5 py-2 min-h-[36px] rounded-full border transition-all duration-150 whitespace-nowrap"
+          style="touch-action:manipulation"
           :class="activeCategory === cat.slug
             ? 'bg-[#34d399] text-[#0d1117] border-[#34d399]'
             : 'bg-transparent text-[#9ca3af] border-[#374151] hover:border-[#34d399] hover:text-[#34d399]'"
@@ -179,7 +180,7 @@ async function startSession(scenario) {
         <article
           v-for="scenario in scenarios"
           :key="scenario.id"
-          class="bg-[#1f2937] rounded-xl border border-[#374151] p-5 flex flex-col hover:border-[#34d399]/40 hover:-translate-y-0.5 transition-all duration-200"
+          class="bg-[#1f2937] rounded-xl border border-[#374151] p-4 sm:p-5 flex flex-col hover:border-[#34d399]/40 hover:-translate-y-0.5 transition-all duration-200"
         >
           <!-- Category badge -->
           <span class="self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 bg-[#111827] text-[#34d399] border border-[#34d399]/20" style="font-family:'JetBrains Mono',monospace">
@@ -217,8 +218,8 @@ async function startSession(scenario) {
           <!-- CTA -->
           <button
             :disabled="startingId === scenario.id"
-            class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold text-[#0d1117] bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 flex items-center justify-center gap-2"
-            style="font-family:'JetBrains Mono',monospace"
+            class="w-full py-3 px-4 rounded-lg text-sm font-semibold text-[#0d1117] bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 flex items-center justify-center gap-2"
+            style="font-family:'JetBrains Mono',monospace;touch-action:manipulation;min-height:44px"
             @click="startSession(scenario)"
           >
             <svg
