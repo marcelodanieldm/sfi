@@ -21,11 +21,12 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
 
 /* ── Header ── */
 header{background:rgba(17,24,39,.98);border-bottom:1px solid var(--dim);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
-.logo{font-family:var(--mono);font-size:.85rem;font-weight:600}
+.logo{font-family:var(--mono);font-size:.85rem;font-weight:600;white-space:nowrap}
 .logo span{color:var(--accent)}
-.header-right{display:flex;align-items:center;gap:12px}
-.header-right a{font-size:.75rem;color:var(--muted);font-family:var(--mono)}
+.header-right{display:flex;align-items:center;gap:8px;min-width:0}
+.header-right a{font-size:.7rem;color:var(--muted);font-family:var(--mono);white-space:nowrap;transition:color .2s}
 .header-right a:hover{color:var(--accent)}
+@media(max-width:540px){.nav-hide-mobile{display:none!important}}
 
 /* ── Tipo selector ── */
 .tipo-bar{background:var(--bg);border-bottom:1px solid var(--dim);padding:10px 20px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
@@ -113,8 +114,8 @@ textarea::placeholder{color:var(--faint)}
     <span class="logo">Skills<span>For</span>IT</span>
     <div class="header-right">
       <a href="{% url 'core:mentor_ia_chat' %}" style="font-family:var(--mono);font-size:.7rem;color:var(--accent);background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.3);border-radius:6px;padding:5px 12px;text-decoration:none">MentorIA</a>
-      <a href="{% url 'core:roleplay_selector' %}" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;text-decoration:none;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Roleplay</a>
-      <a href="{% url 'core:mentor_ia_subscription' %}" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Mi suscripción</a>
+      <a href="{% url 'core:roleplay_selector' %}" class="nav-hide-mobile" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;text-decoration:none;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Roleplay</a>
+      <a href="{% url 'core:mentor_ia_subscription' %}" class="nav-hide-mobile" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">Mi suscripción</a>
       <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
         {% csrf_token %}
         <button type="submit" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Cerrar sesión</button>

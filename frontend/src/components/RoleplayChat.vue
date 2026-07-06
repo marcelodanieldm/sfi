@@ -80,10 +80,10 @@ async function sendMessage() {
   />
 
   <!-- Chat activo -->
-  <div v-else class="flex flex-col bg-[#0d1117] font-sans antialiased" style="height:calc(100vh - 52px)">
+  <div v-else class="flex flex-col bg-[#0d1117] font-sans antialiased" style="height:calc(100vh - 52px);min-height:0">
 
     <!-- ── Scenario info bar ──────────────────────────────── -->
-    <header class="flex-none bg-[#111827] border-b border-[#2d3748] px-4 pt-3 pb-2.5">
+    <header class="flex-none bg-[#111827] border-b border-[#2d3748] px-3 pt-2.5 pb-2 sm:px-4 sm:pt-3 sm:pb-2.5">
       <div class="max-w-3xl mx-auto">
 
         <div class="flex items-start justify-between gap-3 mb-2">

@@ -10,19 +10,31 @@
   <link rel="stylesheet" href="{% static 'core/dist/style.css' %}">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0d1117;font-family:'Inter',sans-serif;overflow:hidden}
+    body{background:#0d1117;font-family:'Inter',sans-serif}
+    .site-header{background:rgba(17,24,39,.98);border-bottom:1px solid #2d3748;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50;flex-shrink:0}
+    .site-logo{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;color:#f3f4f6;white-space:nowrap}
+    .site-logo span{color:#34d399}
+    .site-nav{display:flex;align-items:center;gap:8px}
+    .nav-link{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap;transition:border-color .2s,color .2s}
+    .nav-link:hover{border-color:#34d399;color:#34d399}
+    .nav-link.active{color:#34d399;background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3)}
+    .btn-logout{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s}
+    .btn-logout:hover{border-color:#f87171;color:#f87171}
+    @media(max-width:540px){
+      .nav-hide-mobile{display:none}
+    }
   </style>
 </head>
 <body>
 
-<header style="background:rgba(17,24,39,.98);border-bottom:1px solid #2d3748;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:relative;z-index:50;flex-shrink:0">
-  <span style="font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;color:#f3f4f6">Skills<span style="color:#34d399">For</span>IT</span>
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap">
-    <a href="{% url 'core:mentor_ia_chat' %}" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap">MentorIA</a>
-    <a href="{% url 'core:roleplay_selector' %}" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#34d399;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.3);border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap">← Roleplay</a>
+<header class="site-header">
+  <span class="site-logo">Skills<span>For</span>IT</span>
+  <div class="site-nav">
+    <a href="{% url 'core:mentor_ia_chat' %}" class="nav-link nav-hide-mobile">MentorIA</a>
+    <a href="{% url 'core:roleplay_selector' %}" class="nav-link active">← Roleplay</a>
     <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
       {% csrf_token %}
-      <button type="submit" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap">Cerrar sesión</button>
+      <button type="submit" class="btn-logout">Cerrar sesión</button>
     </form>
   </div>
 </header>

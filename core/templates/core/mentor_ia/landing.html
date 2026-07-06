@@ -153,10 +153,19 @@ footer a{color:var(--accent)}
   .features-grid{grid-template-columns:1fr 1fr}
   .steps{grid-template-columns:1fr;gap:20px}
   .divider-section{padding:40px 20px}
+  .term-body{min-height:180px}
+}
+@media(max-width:600px){
+  .nav-links a:not(.btn){display:none}
+  .nav-links{gap:10px}
 }
 @media(max-width:480px){
   .features-grid{grid-template-columns:1fr}
   .how-tabs{max-width:100%}
+  .hero h1{font-size:1.9rem}
+  .hero-sub{font-size:.95rem}
+  .pricing-card{padding:28px 20px}
+  .cta-stack .btn-lg{padding:12px 16px;font-size:.8rem}
 }
 </style>
 </head>

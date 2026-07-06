@@ -148,7 +148,7 @@ function chooseAnother() {
 </script>
 
 <template>
-  <div class="bg-[#0d1117] py-8 px-4 overflow-y-auto" style="min-height:calc(100vh - 52px)">
+  <div class="bg-[#0d1117] py-8 px-4" style="min-height:calc(100vh - 52px)">
     <div class="max-w-2xl mx-auto space-y-4">
 
       <!-- ── Header card (gradient stays) ──────────────────── -->
