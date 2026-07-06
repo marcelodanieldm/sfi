@@ -112,6 +112,14 @@ if not DEBUG:
     SESSION_COOKIE_SECURE   = True
     CSRF_COOKIE_SECURE      = True
 
+# ── Email (Resend SMTP relay) ─────────────────────────────────────────────────
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST          = 'smtp.resend.com'
+EMAIL_PORT          = 465
+EMAIL_USE_SSL       = True
+EMAIL_HOST_USER     = 'resend'
+EMAIL_HOST_PASSWORD = os.environ.get('RESEND_API_KEY', '')
+
 # ── Claves de terceros (desde variables de entorno) ───────────────────────────
 OPENAI_API_KEY      = os.environ.get('OPENAI_API_KEY', '')
 RESEND_API_KEY      = os.environ.get('RESEND_API_KEY', '')

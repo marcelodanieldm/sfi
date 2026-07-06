@@ -82,6 +82,7 @@ urlpatterns = [
          PasswordResetView.as_view(
              template_name='core/auth/password_reset.html',
              email_template_name='core/auth/password_reset_email.html',
+             html_email_template_name='core/auth/password_reset_email_html.html',
              subject_template_name='core/auth/password_reset_subject.txt',
              success_url='/password-reset/done/',
          ),
