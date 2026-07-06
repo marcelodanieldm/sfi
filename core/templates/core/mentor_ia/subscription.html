@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Suscripción | SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6}
+:root{
+  --bg:#111827;--card:#1f2937;--border:#374151;--dim:#2d3748;
+  --accent:#34d399;--glow:rgba(52,211,153,.12);
+  --muted:#9ca3af;--faint:#6b7280;--red:#f87171;--yellow:#fbbf24;
+  --mono:'JetBrains Mono',monospace;--r:8px;
+}
+
+/* ── Header ── */
+header{background:rgba(17,24,39,.98);border-bottom:1px solid var(--dim);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:10}
+.logo{font-family:var(--mono);font-size:.85rem;font-weight:600}
+.logo span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:10px}
+.header-right a{font-size:.75rem;color:var(--muted);font-family:var(--mono);text-decoration:none;transition:color .2s}
+.header-right a:hover{color:var(--accent)}
+.btn-logout{font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;transition:border-color .2s,color .2s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* ── Main ── */
+main{max-width:560px;margin:48px auto;padding:0 20px 60px}
+h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
+.subtitle{font-size:.82rem;color:var(--muted);margin-bottom:32px}
+
+/* ── Status card ── */
+.status-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:28px}
+.status-card.active{border-color:rgba(52,211,153,.3)}
+.status-card.canceled{border-color:rgba(248,113,113,.2)}
+
+.status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.status-badge{font-family:var(--mono);font-size:.7rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.05em}
+.badge-active{background:rgba(52,211,153,.12);color:var(--accent);border:1px solid rgba(52,211,153,.3)}
+.badge-inactive{background:rgba(156,163,175,.08);color:var(--muted);border:1px solid var(--border)}
+.badge-canceled{background:rgba(248,113,113,.08);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.badge-past_due{background:rgba(251,191,36,.08);color:var(--yellow);border:1px solid rgba(251,191,36,.2)}
+
+.provider-logo{font-family:var(--mono);font-size:.75rem;color:var(--faint);letter-spacing:.03em}
+
+.info-grid{display:grid;gap:10px}
+.info-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem}
+.info-label{color:var(--muted)}
+.info-value{color:var(--text);font-weight:500}
+
+/* ── Actions ── */
+.actions{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.btn{width:100%;padding:13px;border-radius:var(--r);font-family:var(--mono);font-size:.85rem;font-weight:700;border:none;cursor:pointer;transition:background .2s,transform .1s,opacity .2s;letter-spacing:.02em}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--accent);color:#0d1117}
+.btn-primary:hover:not(:disabled){background:#6ee7b7}
+.btn-stripe{background:#635bff;color:#fff}
+.btn-stripe:hover:not(:disabled){background:#7c75ff}
+.btn-mp{background:#009ee3;color:#fff}
+.btn-mp:hover:not(:disabled){background:#33b5ed}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.btn-danger:hover:not(:disabled){background:rgba(248,113,113,.06);border-color:var(--red)}
+
+.divider{border:none;border-top:1px solid var(--dim);margin:28px 0}
+
+.plans-title{font-family:var(--mono);font-size:.8rem;color:var(--muted);letter-spacing:.05em;margin-bottom:16px}
+.plan-card{background:var(--card);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:20px;margin-bottom:16px}
+.plan-name{font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--accent);margin-bottom:4px}
+.plan-price{font-size:1.4rem;font-weight:700;margin-bottom:4px}
+.plan-price span{font-size:.8rem;font-weight:400;color:var(--muted)}
+.plan-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-bottom:16px}
+
+.hint{font-size:.75rem;color:var(--faint);line-height:1.5;margin-top:8px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:var(--r);font-size:.82rem;font-family:var(--mono);opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none;z-index:100}
+.toast.ok{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:var(--accent)}
+.toast.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+.toast.show{opacity:1;transform:none}
+
+/* ── Modal de confirmación ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:380px;width:90%;text-align:center}
+.modal h3{font-family:var(--mono);font-size:.95rem;margin-bottom:10px}
+.modal p{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.modal-btns{display:flex;gap:10px}
+.modal-btns .btn{flex:1;padding:11px}
+
+@media(max-width:480px){main{margin-top:28px}}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="logo">Skills<span>For</span>IT — <span style="color:var(--muted)">MentorIA</span></span>
+  <div class="header-right">
+    {% if sub and sub.is_active %}
+    <a href="{% url 'core:mentor_ia_chat' %}">← Volver al chat</a>
+    {% endif %}
+    <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
+      {% csrf_token %}
+      <button type="submit" class="btn-logout">Cerrar sesión</button>
+    </form>
+  </div>
+</header>
+
+<main>
+  <h1>Mi suscripción</h1>
+  <p class="subtitle">Gestioná tu plan de MentorIA</p>
+
+  <!-- Estado actual -->
+  {% if sub %}
+  <div class="status-card {% if sub.is_active %}active{% elif sub.status == 'canceled' %}canceled{% endif %}">
+    <div class="status-row">
+      <span class="status-badge
+        {% if sub.is_active %}badge-active
+        {% elif sub.status == 'canceled' %}badge-canceled
+        {% elif sub.status == 'past_due' %}badge-past_due
+        {% else %}badge-inactive{% endif %}">
+        {{ sub.get_status_display|upper }}
+      </span>
+      <span class="provider-logo">via {{ sub.get_payment_provider_display }}</span>
+    </div>
+    <div class="info-grid">
+      {% if sub.current_period_end %}
+      <div class="info-row">
+        <span class="info-label">{% if sub.is_active %}Próxima renovación{% else %}Acceso hasta{% endif %}</span>
+        <span class="info-value">{{ sub.current_period_end|date:"d/m/Y" }}</span>
+      </div>
+      {% endif %}
+      <div class="info-row">
+        <span class="info-label">Plan</span>
+        <span class="info-value">MentorIA · U$D {{ precio }}/mes</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Acciones según estado -->
+  {% if sub and sub.is_active %}
+
+    {% if sub.payment_provider == 'stripe' %}
+    <div class="actions">
+      <button class="btn btn-primary" id="portalBtn">Gestionar suscripción con Stripe ↗</button>
+    </div>
+    <p class="hint">Desde el portal de Stripe podés cambiar tu plan, actualizar el método de pago o cancelar tu suscripción.</p>
+
+    {% elif sub.payment_provider == 'mercadopago' %}
+    <div class="actions">
+      <button class="btn btn-danger" id="cancelMpBtn">Cancelar suscripción</button>
+    </div>
+    <p class="hint">Tu acceso continuará activo hasta el {{ sub.current_period_end|date:"d/m/Y" }}. Para cambiar el método de pago hacelo desde la app de MercadoPago.</p>
+    {% endif %}
+
+  {% else %}
+
+    <hr class="divider">
+    <p class="plans-title">PLANES DISPONIBLES</p>
+
+    <div class="plan-card">
+      <p class="plan-name">MentorIA Pro</p>
+      <p class="plan-price">U$D {{ precio }}<span>/mes</span></p>
+      <p class="plan-desc">Coach de Soft Skills IT disponible 24/7 · Evaluaciones ilimitadas · Feedback personalizado por IA · Cancela cuando quieras</p>
+
+      <div class="actions">
+        <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="margin:0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-stripe">Pagar con Stripe</button>
+        </form>
+        <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="margin:0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-mp">Pagar con MercadoPago</button>
+        </form>
+      </div>
+    </div>
+
+  {% endif %}
+</main>
+
+<!-- Modal confirmación cancelación MP -->
+<div class="modal-overlay" id="cancelModal">
+  <div class="modal">
+    <h3>¿Cancelar suscripción?</h3>
+    <p>Tu acceso continuará hasta fin del período actual. Esta acción no se puede deshacer.</p>
+    <div class="modal-btns">
+      <button class="btn btn-danger" id="confirmCancelBtn">Sí, cancelar</button>
+      <button class="btn" id="closeCancelBtn" style="background:var(--border);color:var(--text)">Volver</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CSRF = '{{ csrf_token }}';
+
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => { t.className = `toast ${type}`; }, 3500);
+}
+
+{% if sub and sub.is_active and sub.payment_provider == 'stripe' %}
+document.getElementById('portalBtn').addEventListener('click', async function() {
+  this.textContent = 'Redirigiendo...';
+  this.disabled = true;
+  try {
+    const res = await fetch('{% url "core:create_portal_session" %}', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF, 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      showToast(data.error || 'Error al abrir el portal', 'err');
+      this.textContent = 'Gestionar suscripción con Stripe ↗';
+      this.disabled = false;
+    }
+  } catch {
+    showToast('Error de conexión', 'err');
+    this.textContent = 'Gestionar suscripción con Stripe ↗';
+    this.disabled = false;
+  }
+});
+{% endif %}
+
+{% if sub and sub.is_active and sub.payment_provider == 'mercadopago' %}
+const overlay = document.getElementById('cancelModal');
+document.getElementById('cancelMpBtn').addEventListener('click', () => {
+  overlay.classList.add('open');
+});
+document.getElementById('closeCancelBtn').addEventListener('click', () => {
+  overlay.classList.remove('open');
+});
+document.getElementById('confirmCancelBtn').addEventListener('click', async function() {
+  this.textContent = 'Cancelando...';
+  this.disabled = true;
+  try {
+    const res = await fetch('{% url "core:mentor_ia_mp_cancel" %}', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    overlay.classList.remove('open');
+    if (data.ok) {
+      showToast('Suscripción cancelada. La página se actualizará en 2 segundos.');
+      setTimeout(() => location.reload(), 2000);
+    } else {
+      showToast(data.error || 'Error al cancelar', 'err');
+      this.textContent = 'Sí, cancelar';
+      this.disabled = false;
+    }
+  } catch {
+    showToast('Error de conexión', 'err');
+    this.textContent = 'Sí, cancelar';
+    this.disabled = false;
+  }
+});
+{% endif %}
+</script>
+</body>
+</html>

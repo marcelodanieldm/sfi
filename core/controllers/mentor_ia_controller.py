@@ -345,6 +345,39 @@ def _activate_subscription(user, stripe_customer_id, stripe_subscription):
 # ────────────────────────────────────────────────────────────────────────────
 
 @login_required
+def mentor_ia_subscription(request):
+    """GET /mentoria/suscripcion/ — Página de gestión de suscripción."""
+    sub = _get_subscription(request.user)
+    return render(request, 'core/mentor_ia/subscription.html', {
+        'sub': sub,
+        'precio': PRECIO_MENSUAL,
+    })
+
+
+@login_required
+@require_POST
+@csrf_exempt
+def mentor_ia_mp_cancel(request):
+    """POST /mentoria/mp/cancel/ — Cancela el preapproval activo de MercadoPago."""
+    sub = _get_subscription(request.user)
+    if not sub or sub.payment_provider != 'mercadopago' or not sub.mp_preapproval_id:
+        return JsonResponse({'error': 'No tenés una suscripción de MercadoPago activa.'}, status=400)
+
+    try:
+        sdk = _mp_sdk()
+        result = sdk.preapproval().update(sub.mp_preapproval_id, {'status': 'cancelled'})
+        if result['status'] not in (200, 201):
+            logger.error('MP cancel error: %s', result)
+            return JsonResponse({'error': 'Error al cancelar en MercadoPago.'}, status=500)
+        sub.status = 'canceled'
+        sub.save(update_fields=['status', 'updated_at'])
+        return JsonResponse({'ok': True})
+    except Exception as exc:
+        logger.error('MP cancel error: %s', exc)
+        return JsonResponse({'error': 'Error al cancelar la suscripción.'}, status=500)
+
+
+@login_required
 def mentor_ia_chat(request):
     """
     GET /mentoria/chat/
