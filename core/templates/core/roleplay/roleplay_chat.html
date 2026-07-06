@@ -13,11 +13,6 @@
 </head>
 <body>
 
-  {#
-    Los datos del escenario se pasan con el filtro json_script de Django,
-    que escapa correctamente el JSON para prevenir XSS.
-    El entry point roleplay-chat.js los lee via document.getElementById('scenario-data').
-  #}
   {{ scenario_json|json_script:"scenario-data" }}
 
   {# Punto de montaje — datos simples como data-attributes #}
