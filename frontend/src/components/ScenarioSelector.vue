@@ -140,7 +140,7 @@ async function startSession(scenario) {
         <!-- left arrow -->
         <button
           v-show="showCatLeft"
-          class="cat-arr cat-l"
+          class="absolute left-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center rounded-full cursor-pointer p-0 bg-[rgba(17,24,39,.92)] border border-[#374151] text-[#9ca3af] hover:text-[#34d399] hover:border-[#34d399] hover:bg-[#111827] transition-colors duration-200"
           aria-label="Desplazar izquierda"
           tabindex="-1"
           @click="scrollCats(-160)"
@@ -172,7 +172,7 @@ async function startSession(scenario) {
         <!-- right arrow -->
         <button
           v-show="showCatRight"
-          class="cat-arr cat-r"
+          class="absolute right-1 top-1/2 -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center rounded-full cursor-pointer p-0 bg-[rgba(17,24,39,.92)] border border-[#374151] text-[#9ca3af] hover:text-[#34d399] hover:border-[#34d399] hover:bg-[#111827] transition-colors duration-200"
           aria-label="Desplazar derecha"
           tabindex="-1"
           @click="scrollCats(160)"
@@ -296,23 +296,3 @@ async function startSession(scenario) {
   </div>
 </template>
 
-<style scoped>
-.cat-arr {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(17, 24, 39, .92);
-  border: 1px solid #374151;
-  border-radius: 50%;
-  color: #9ca3af;
-  cursor: pointer;
-  padding: 0;
-  transition: color .2s, border-color .2s, background .2s;
-}
-.cat-arr:hover { color: #34d399; border-color: #34d399; background: #111827; }
-.cat-l { left: 4px; }
-.cat-r { right: 4px; }
-</style>
