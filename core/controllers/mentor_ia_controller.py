@@ -18,7 +18,8 @@ import logging
 import openai
 import stripe
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required as _login_required
+login_required = _login_required(redirect_field_name='')
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
