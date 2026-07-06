@@ -107,6 +107,9 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 ).split(',')
 
 # ── Seguridad en producción ───────────────────────────────────────────────────
+CSRF_COOKIE_SAMESITE    = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE   = True
