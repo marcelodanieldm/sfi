@@ -8,41 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   {% load static %}
   <link rel="stylesheet" href="{% static 'core/dist/style.css' %}">
-  <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0d1117;font-family:'Inter',sans-serif}
-    .site-header{background:rgba(17,24,39,.98);border-bottom:1px solid #2d3748;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50}
-    .site-logo{font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;color:#f3f4f6;white-space:nowrap}
-    .site-logo span{color:#34d399}
-    .site-nav{display:flex;align-items:center;gap:8px}
-    .nav-link{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap;transition:border-color .2s,color .2s}
-    .nav-link:hover{border-color:#34d399;color:#34d399}
-    .nav-link.active{color:#34d399;background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3)}
-    .btn-logout{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s}
-    .btn-logout:hover{border-color:#f87171;color:#f87171}
-    @media(max-width:720px){.nav-hide-tablet{display:none}}
-    @media(max-width:540px){.nav-hide-mobile{display:none}}
-  </style>
 </head>
-<body>
+<body style="background:#0d1117;font-family:'Inter',sans-serif">
 
-<header class="site-header">
-  <span class="site-logo">Skills<span>For</span>IT</span>
-  <div class="site-nav">
-    <a href="{% url 'core:mentor_ia_chat' %}" class="nav-link nav-hide-mobile">MentorIA</a>
-    <a href="{% url 'core:roleplay_selector' %}" class="nav-link active">Roleplay</a>
-    <a href="{% url 'core:mentor_ia_subscription' %}" class="nav-link nav-hide-mobile nav-hide-tablet">Mi suscripción</a>
-    <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
-      {% csrf_token %}
-      <button type="submit" class="btn-logout">Cerrar sesión</button>
-    </form>
-  </div>
-</header>
+{% include 'core/partials/_nav.html' with active='roleplay' active_label='Roleplay' %}
 
-<div
-  id="scenario-selector-app"
-  data-category="{{ category }}"
-  data-csrf="{{ csrf_token }}"
+<div id="scenario-selector-app"
+     data-category="{{ category }}"
+     data-csrf="{{ csrf_token }}"
 ></div>
 
 <script type="module" src="{% static 'core/dist/scenario-selector.js' %}"></script>

@@ -1,0 +1,159 @@
+{# Shared site nav — include at top of <body>                              #}
+{# Usage: {% include 'core/partials/_nav.html' with active='mentoria'      #}
+{#          active_label='MentorIA' %}                                      #}
+{# active options: mentoria | roleplay | subscription                      #}
+<style id="sfi-nav-css">
+/* ── SkillsForIT Navigation ── */
+.sfi-hdr{
+  background:rgba(17,24,39,.98);
+  border-bottom:1px solid #2d3748;
+  height:52px;padding:0 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;flex-shrink:0;
+}
+.sfi-logo{
+  font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;
+  color:#f3f4f6;text-decoration:none;white-space:nowrap;flex-shrink:0;
+}
+.sfi-logo em{color:#34d399;font-style:normal}
+
+/* nav pills */
+.sfi-nav{display:flex;align-items:center;gap:6px}
+.np{
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;
+  color:#9ca3af;background:transparent;
+  border:1px solid #374151;border-radius:6px;
+  padding:6px 11px;line-height:1;
+  text-decoration:none;white-space:nowrap;cursor:pointer;
+  transition:border-color .2s,color .2s,background .2s;
+  display:inline-block;
+}
+.np:hover{border-color:#34d399;color:#34d399}
+.np.on{color:#34d399;background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3)}
+.np.danger:hover{border-color:#f87171;color:#f87171}
+
+/* hamburger button */
+.sfi-ham{
+  display:none;width:38px;height:38px;
+  align-items:center;justify-content:center;
+  background:transparent;border:1px solid #374151;
+  border-radius:6px;cursor:pointer;padding:0;flex-shrink:0;
+  transition:border-color .2s;
+}
+.sfi-ham:hover,.sfi-ham[aria-expanded="true"]{border-color:#34d399}
+.sfi-ham svg{display:block;pointer-events:none;transition:stroke .2s}
+.sfi-ham:hover svg,.sfi-ham[aria-expanded="true"] svg{stroke:#34d399}
+
+/* active page badge (mobile only) */
+.sfi-badge{
+  display:none;
+  font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:600;
+  color:#34d399;background:rgba(52,211,153,.06);
+  border:1px solid rgba(52,211,153,.25);border-radius:6px;
+  padding:5px 10px;white-space:nowrap;
+}
+.sfi-mob{display:none;align-items:center;gap:8px}
+
+/* dropdown */
+.sfi-drop{
+  display:none;flex-direction:column;
+  position:fixed;top:52px;left:0;right:0;
+  background:rgba(13,17,23,.97);
+  border-bottom:1px solid #2d3748;
+  z-index:199;padding:10px 16px 16px;gap:6px;
+  box-shadow:0 16px 40px rgba(0,0,0,.55);
+}
+.sfi-drop.open{display:flex}
+.sfi-drop .np{
+  padding:13px 16px;border-radius:8px;
+  font-size:.8rem;display:block;
+  text-align:left;width:100%;
+}
+.sfi-drop form{margin:0;width:100%}
+.sfi-drop .np.danger{
+  color:#f87171;border-color:rgba(248,113,113,.2);background:transparent;
+}
+.sfi-drop .np.danger:hover{background:rgba(248,113,113,.06);border-color:#f87171}
+.sfi-drop-sep{height:1px;background:#2d3748;margin:2px 0;flex-shrink:0}
+
+.sfi-ovl{display:none;position:fixed;inset:52px 0 0;z-index:198}
+.sfi-ovl.open{display:block}
+
+/* breakpoints */
+@media(max-width:720px){
+  .sfi-nav-d{display:none}
+  .sfi-mob{display:flex}
+  .sfi-ham{display:flex}
+  .sfi-badge{display:inline-block}
+  .sfi-hdr{padding:0 16px}
+}
+@media(max-width:480px){
+  .sfi-logo{font-size:.8rem}
+  .sfi-badge{font-size:.65rem;padding:4px 8px}
+}
+</style>
+
+<header class="sfi-hdr">
+  <a href="{% url 'core:mentor_ia' %}" class="sfi-logo">Skills<em>For</em>IT</a>
+
+  <nav class="sfi-nav sfi-nav-d" aria-label="Principal">
+    <a href="{% url 'core:mentor_ia_chat' %}"       class="np {% if active == 'mentoria'     %}on{% endif %}">MentorIA</a>
+    <a href="{% url 'core:roleplay_selector' %}"    class="np {% if active == 'roleplay'     %}on{% endif %}">Roleplay</a>
+    <a href="{% url 'core:mentor_ia_subscription' %}" class="np {% if active == 'subscription' %}on{% endif %}">Mi suscripción</a>
+    <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
+      {% csrf_token %}
+      <button type="submit" class="np danger">Salir</button>
+    </form>
+  </nav>
+
+  <div class="sfi-mob">
+    {% if active_label %}<span class="sfi-badge">{{ active_label }}</span>{% endif %}
+    <button class="sfi-ham" id="sfiHam" aria-label="Menú" aria-expanded="false" type="button">
+      <svg id="sfiIco" width="18" height="18" viewBox="0 0 18 18" fill="none"
+           stroke="#9ca3af" stroke-width="1.75" stroke-linecap="round">
+        <line x1="2"  y1="4.5"  x2="16" y2="4.5"/>
+        <line x1="2"  y1="9"    x2="16" y2="9"/>
+        <line x1="2"  y1="13.5" x2="16" y2="13.5"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<nav class="sfi-drop" id="sfiDrop" aria-label="Menú móvil">
+  <a href="{% url 'core:mentor_ia_chat' %}"       class="np {% if active == 'mentoria'     %}on{% endif %}">🤖 MentorIA</a>
+  <a href="{% url 'core:roleplay_selector' %}"    class="np {% if active == 'roleplay'     %}on{% endif %}">🎭 Roleplay</a>
+  <a href="{% url 'core:mentor_ia_subscription' %}" class="np {% if active == 'subscription' %}on{% endif %}">💳 Mi suscripción</a>
+  <div class="sfi-drop-sep"></div>
+  <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
+    {% csrf_token %}
+    <button type="submit" class="np danger">⏻ Cerrar sesión</button>
+  </form>
+</nav>
+<div class="sfi-ovl" id="sfiOvl"></div>
+
+<script>
+(function(){
+  var ham=document.getElementById('sfiHam'),
+      drop=document.getElementById('sfiDrop'),
+      ovl=document.getElementById('sfiOvl'),
+      ico=document.getElementById('sfiIco'),
+      open=false;
+  var LINES='<line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>';
+  var CROSS='<line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/>';
+  function show(){
+    open=true;
+    drop.classList.add('open');ovl.classList.add('open');
+    ham.setAttribute('aria-expanded','true');
+    ico.innerHTML=CROSS;
+  }
+  function hide(){
+    open=false;
+    drop.classList.remove('open');ovl.classList.remove('open');
+    ham.setAttribute('aria-expanded','false');
+    ico.innerHTML=LINES;
+  }
+  ham.addEventListener('click',function(){open?hide():show();});
+  ovl.addEventListener('click',hide);
+  drop.querySelectorAll('a').forEach(function(a){a.addEventListener('click',hide);});
+}());
+</script>
