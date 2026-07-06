@@ -21,7 +21,16 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
-from core.models import RoleplaySession, SoftskillsScenario
+from core.models import MentorIASubscription, RoleplaySession, SoftskillsScenario
+
+
+def _is_subscriber(user):
+    if user.is_superuser:
+        return True
+    try:
+        return user.mentoria_subscription.is_active
+    except MentorIASubscription.DoesNotExist:
+        return False
 from core.services.roleplay_engine import RoleplayEngineService
 
 logger = logging.getLogger(__name__)
@@ -40,9 +49,10 @@ _VALID_CATEGORIES = {
 def roleplay_selector(request):
     """
     GET /roleplay/?category=<slug>
-    Renderiza el selector de escenarios. El parámetro category es opcional;
-    Vue lo usa para filtrar el catálogo via API en el cliente.
+    Renderiza el selector de escenarios. Requiere suscripción activa.
     """
+    if not _is_subscriber(request.user):
+        return redirect('core:mentor_ia_subscription')
     category = request.GET.get('category', '').strip()
     if category and category not in _VALID_CATEGORIES:
         category = ''
@@ -55,9 +65,10 @@ def roleplay_selector(request):
 def roleplay_chat_page(request, session_id):
     """
     GET /roleplay/chat/<uuid:session_id>/
-    Renderiza la interfaz de chat para una sesión existente.
-    Verifica que la sesión pertenezca al usuario actual.
+    Renderiza la interfaz de chat. Requiere suscripción activa.
     """
+    if not _is_subscriber(request.user):
+        return redirect('core:mentor_ia_subscription')
     session = get_object_or_404(RoleplaySession.objects.select_related('scenario'),
                                 pk=session_id, user=request.user)
     scenario = session.scenario

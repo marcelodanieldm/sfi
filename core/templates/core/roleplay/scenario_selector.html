@@ -3,21 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Elegí un escenario — SkillsForIT</title>
+  <title>Roleplay de Soft Skills — SkillsForIT</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   {% load static %}
   <link rel="stylesheet" href="{% static 'core/dist/style.css' %}">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0d1117;font-family:'Inter',sans-serif}
+  </style>
 </head>
 <body>
 
-  {# Punto de montaje de Vue — los datos iniciales van como data-attributes #}
-  <div
-    id="scenario-selector-app"
-    data-category="{{ category }}"
-    data-csrf="{{ csrf_token }}"
-  ></div>
+<header style="background:rgba(17,24,39,.98);border-bottom:1px solid #2d3748;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:50">
+  <span style="font-family:'JetBrains Mono',monospace;font-size:.85rem;font-weight:600;color:#f3f4f6">Skills<span style="color:#34d399">For</span>IT</span>
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap">
+    <a href="{% url 'core:mentor_ia_chat' %}" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap">MentorIA</a>
+    <a href="{% url 'core:roleplay_selector' %}" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#34d399;background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.3);border-radius:6px;padding:5px 12px;text-decoration:none;white-space:nowrap">Roleplay</a>
+    <a href="{% url 'core:mentor_ia_subscription' %}" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;text-decoration:none;white-space:nowrap;display:none" id="subLink">Mi suscripción</a>
+    <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
+      {% csrf_token %}
+      <button type="submit" style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#9ca3af;background:transparent;border:1px solid #374151;border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap">Cerrar sesión</button>
+    </form>
+  </div>
+</header>
 
-  <script type="module" src="{% static 'core/dist/scenario-selector.js' %}"></script>
+<div
+  id="scenario-selector-app"
+  data-category="{{ category }}"
+  data-csrf="{{ csrf_token }}"
+></div>
+
+<script type="module" src="{% static 'core/dist/scenario-selector.js' %}"></script>
+<script>
+  // Mostrar "Mi suscripción" solo en pantallas anchas
+  if (window.innerWidth >= 640) {
+    document.getElementById('subLink').style.display = 'inline';
+  }
+</script>
 </body>
 </html>

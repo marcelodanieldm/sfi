@@ -14,46 +14,24 @@ const router = useRouter()
 const route  = useRoute()
 const store  = useRoleplayStore()
 
-// ── Estado ────────────────────────────────────────────────────
 const scenarios   = ref([])
 const isLoading   = ref(true)
 const error       = ref(null)
 const startingId  = ref(null)
 
-// Categoría activa: viene del router si está disponible, si no del prop
 const activeCategory = computed(() =>
   route?.params?.category ?? props.category ?? ''
 )
 
-// ── Catálogo de categorías para los tabs ──────────────────────
 const CATEGORIES = [
-  { slug: '',                 label: 'Todas',              color: 'gray'    },
-  { slug: 'communication',   label: 'Comunicación',        color: 'blue'    },
-  { slug: 'leadership',      label: 'Liderazgo',           color: 'yellow'  },
-  { slug: 'negotiation',     label: 'Negociación',         color: 'emerald' },
-  { slug: 'critical-thinking', label: 'Pensamiento Crítico', color: 'purple'},
-  { slug: 'innovation',      label: 'Innovación',          color: 'orange'  },
-  { slug: 'career',          label: 'Carrera',             color: 'indigo'  },
+  { slug: '',                   label: 'Todas'              },
+  { slug: 'communication',      label: 'Comunicación'       },
+  { slug: 'leadership',         label: 'Liderazgo'          },
+  { slug: 'negotiation',        label: 'Negociación'        },
+  { slug: 'critical-thinking',  label: 'Pensamiento Crítico'},
+  { slug: 'innovation',         label: 'Innovación'         },
+  { slug: 'career',             label: 'Carrera'            },
 ]
-
-const TAB_ACTIVE = {
-  gray:    'bg-gray-800    text-white border-gray-800',
-  blue:    'bg-blue-600    text-white border-blue-600',
-  yellow:  'bg-yellow-500  text-white border-yellow-500',
-  emerald: 'bg-emerald-600 text-white border-emerald-600',
-  purple:  'bg-purple-600  text-white border-purple-600',
-  orange:  'bg-orange-500  text-white border-orange-500',
-  indigo:  'bg-indigo-600  text-white border-indigo-600',
-}
-const TAB_INACTIVE = {
-  gray:    'bg-white text-gray-700 border-gray-200 hover:bg-gray-50',
-  blue:    'bg-white text-blue-700 border-blue-100 hover:bg-blue-50',
-  yellow:  'bg-white text-yellow-700 border-yellow-100 hover:bg-yellow-50',
-  emerald: 'bg-white text-emerald-700 border-emerald-100 hover:bg-emerald-50',
-  purple:  'bg-white text-purple-700 border-purple-100 hover:bg-purple-50',
-  orange:  'bg-white text-orange-700 border-orange-100 hover:bg-orange-50',
-  indigo:  'bg-white text-indigo-700 border-indigo-100 hover:bg-indigo-50',
-}
 
 const CATEGORY_LABELS = {
   'communication':     'Comunicación',
@@ -64,7 +42,6 @@ const CATEGORY_LABELS = {
   'career':            'Carrera',
 }
 
-// ── Fetch de escenarios ───────────────────────────────────────
 onMounted(fetchScenarios)
 watch(activeCategory, fetchScenarios)
 
@@ -86,13 +63,10 @@ async function fetchScenarios() {
   }
 }
 
-// ── Navegación entre categorías ───────────────────────────────
 function selectCategory(slug) {
   if (router) {
-    const dest = slug ? `/skills/${slug}` : '/skills'
-    router.push(dest)
+    router.push(slug ? `/skills/${slug}` : '/skills')
   } else {
-    // standalone: recarga con query param
     const url = new URL(window.location.href)
     if (slug) url.searchParams.set('category', slug)
     else url.searchParams.delete('category')
@@ -100,7 +74,6 @@ function selectCategory(slug) {
   }
 }
 
-// ── Iniciar simulación ────────────────────────────────────────
 async function startSession(scenario) {
   startingId.value = scenario.id
   try {
@@ -135,73 +108,61 @@ async function startSession(scenario) {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-[calc(100vh-52px)] bg-[#0d1117] font-sans">
 
-    <!-- ── Cabecera con título ────────────────────────────────── -->
-    <div class="bg-white border-b border-gray-200 px-4 pt-8 pb-0">
-      <div class="max-w-5xl mx-auto">
-        <p class="text-xs font-semibold tracking-widest text-indigo-500 uppercase mb-1">
-          Roleplay de Soft Skills
-        </p>
-        <h1 class="text-2xl font-bold text-gray-900 mb-5">
-          {{ activeCategory ? (CATEGORY_LABELS[activeCategory] ?? 'Escenarios') : 'Todos los escenarios' }}
-        </h1>
-
-        <!-- ── Tabs de categoría (scroll horizontal en mobile) ── -->
-        <div class="flex gap-2 overflow-x-auto pb-px scrollbar-hide -mx-4 px-4">
-          <button
-            v-for="cat in CATEGORIES"
-            :key="cat.slug"
-            class="flex-none text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-150 whitespace-nowrap"
-            :class="activeCategory === cat.slug
-              ? TAB_ACTIVE[cat.color]
-              : TAB_INACTIVE[cat.color]"
-            @click="selectCategory(cat.slug)"
-          >
-            {{ cat.label }}
-          </button>
-        </div>
-
-        <!-- Línea separadora bajo los tabs -->
-        <div class="h-px bg-gray-200 mt-0 -mx-4"></div>
+    <!-- ── Category tab bar (sticky under nav) ──────────────── -->
+    <div class="bg-[#111827] border-b border-[#2d3748] px-4 py-2.5 sticky top-[52px] z-10">
+      <div class="max-w-5xl mx-auto flex gap-2 overflow-x-auto -mx-4 px-4" style="scrollbar-width:none">
+        <button
+          v-for="cat in CATEGORIES"
+          :key="cat.slug"
+          class="flex-none text-xs font-semibold px-3.5 py-1.5 rounded-full border transition-all duration-150 whitespace-nowrap"
+          :class="activeCategory === cat.slug
+            ? 'bg-[#34d399] text-[#0d1117] border-[#34d399]'
+            : 'bg-transparent text-[#9ca3af] border-[#374151] hover:border-[#34d399] hover:text-[#34d399]'"
+          @click="selectCategory(cat.slug)"
+        >
+          {{ cat.label }}
+        </button>
       </div>
     </div>
 
-    <!-- ── Contenido ──────────────────────────────────────────── -->
-    <div class="max-w-5xl mx-auto px-4 py-8">
+    <!-- ── Content ───────────────────────────────────────────── -->
+    <div class="max-w-5xl mx-auto px-4 py-6">
 
-      <!-- Subtítulo con conteo -->
-      <p v-if="!isLoading && !error" class="text-gray-500 text-sm mb-6">
+      <!-- Subtitle + count -->
+      <p v-if="!isLoading && !error" class="text-[#6b7280] text-sm mb-6" style="font-family:'JetBrains Mono',monospace">
         {{ scenarios.length }} simulaciones disponibles
         <template v-if="activeCategory">
-          en <strong class="text-gray-700">{{ CATEGORY_LABELS[activeCategory] }}</strong>
+          · <span class="text-[#9ca3af]">{{ CATEGORY_LABELS[activeCategory] }}</span>
         </template>
-        · Orden aleatorio en cada visita
       </p>
 
-      <!-- Skeletons de carga -->
-      <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Skeletons -->
+      <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
           v-for="n in 6"
           :key="n"
-          class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 animate-pulse"
+          class="bg-[#1f2937] rounded-xl border border-[#374151] p-5 animate-pulse"
         >
-          <div class="h-4 bg-gray-200 rounded w-3/4 mb-3"></div>
-          <div class="h-3 bg-gray-200 rounded w-full mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-4/5 mb-5"></div>
+          <div class="h-3 bg-[#374151] rounded w-1/3 mb-3"></div>
+          <div class="h-4 bg-[#374151] rounded w-3/4 mb-3"></div>
+          <div class="h-3 bg-[#374151] rounded w-full mb-2"></div>
+          <div class="h-3 bg-[#374151] rounded w-4/5 mb-5"></div>
           <div class="flex gap-2 mb-5">
-            <div class="h-5 bg-gray-200 rounded-full w-28"></div>
-            <div class="h-5 bg-gray-200 rounded-full w-28"></div>
+            <div class="h-5 bg-[#374151] rounded-full w-28"></div>
+            <div class="h-5 bg-[#374151] rounded-full w-24"></div>
           </div>
-          <div class="h-9 bg-gray-200 rounded-lg"></div>
+          <div class="h-9 bg-[#374151] rounded-lg"></div>
         </div>
       </div>
 
       <!-- Error -->
       <div v-else-if="error" class="text-center py-20">
-        <p class="text-red-500 text-sm mb-4">{{ error }}</p>
+        <p class="text-red-400 text-sm mb-4" style="font-family:'JetBrains Mono',monospace">{{ error }}</p>
         <button
-          class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+          class="px-4 py-2 bg-[#34d399] text-[#0d1117] text-sm font-semibold rounded-lg hover:bg-[#6ee7b7] transition-colors"
+          style="font-family:'JetBrains Mono',monospace"
           @click="fetchScenarios"
         >
           Reintentar
@@ -210,40 +171,40 @@ async function startSession(scenario) {
 
       <!-- Sin resultados -->
       <div v-else-if="scenarios.length === 0" class="text-center py-20">
-        <p class="text-gray-400 text-sm">No hay escenarios disponibles para esta categoría.</p>
+        <p class="text-[#6b7280] text-sm" style="font-family:'JetBrains Mono',monospace">No hay escenarios para esta categoría.</p>
       </div>
 
       <!-- Grid de tarjetas -->
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <article
           v-for="scenario in scenarios"
           :key="scenario.id"
-          class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          class="bg-[#1f2937] rounded-xl border border-[#374151] p-5 flex flex-col hover:border-[#34d399]/40 hover:-translate-y-0.5 transition-all duration-200"
         >
-          <!-- Categoría badge -->
-          <span class="self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 bg-indigo-50 text-indigo-700">
+          <!-- Category badge -->
+          <span class="self-start text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2 bg-[#111827] text-[#34d399] border border-[#34d399]/20" style="font-family:'JetBrains Mono',monospace">
             {{ CATEGORY_LABELS[scenario.category] ?? scenario.category }}
           </span>
 
-          <!-- Título -->
-          <h2 class="text-base font-semibold text-gray-900 mb-2 leading-snug">
+          <!-- Title -->
+          <h2 class="text-sm font-semibold text-gray-100 mb-2 leading-snug">
             {{ scenario.title }}
           </h2>
 
-          <!-- Contexto (máx. 3 líneas) -->
-          <p class="text-gray-500 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
+          <!-- Context -->
+          <p class="text-[#9ca3af] text-xs leading-relaxed mb-4 flex-1 line-clamp-3">
             {{ scenario.context }}
           </p>
 
           <!-- Roles -->
           <div class="flex flex-wrap gap-2 mb-3">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1e3a5f] text-blue-300">
               <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
               </svg>
               Vos: {{ scenario.user_role }}
             </span>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-[#2d1b69] text-purple-300">
               <svg class="w-3 h-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
               </svg>
@@ -251,12 +212,13 @@ async function startSession(scenario) {
             </span>
           </div>
 
-          <p class="text-xs text-gray-400 mb-4">{{ scenario.max_turns }} turnos de práctica</p>
+          <p class="text-xs text-[#6b7280] mb-4" style="font-family:'JetBrains Mono',monospace">{{ scenario.max_turns }} turnos</p>
 
           <!-- CTA -->
           <button
             :disabled="startingId === scenario.id"
-            class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 flex items-center justify-center gap-2"
+            class="w-full py-2.5 px-4 rounded-lg text-sm font-semibold text-[#0d1117] bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 flex items-center justify-center gap-2"
+            style="font-family:'JetBrains Mono',monospace"
             @click="startSession(scenario)"
           >
             <svg

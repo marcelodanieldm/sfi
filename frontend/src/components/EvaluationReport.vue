@@ -4,7 +4,6 @@ import { marked } from 'marked'
 import { useRouter } from 'vue-router'
 import { useRoleplayStore } from '../stores/useRoleplayStore'
 
-// ── Props ────────────────────────────────────────────────────
 const props = defineProps({
   reportMarkdown: { type: String,  required: true },
   scenarioTitle:  { type: String,  default: '' },
@@ -15,33 +14,11 @@ const props = defineProps({
 
 const emit = defineEmits(['retry', 'choose-another'])
 
-const router = useRouter()          // undefined en modo standalone
+const router = useRouter()
 const store  = useRoleplayStore()
 
 const isRetrying = ref(false)
 
-// ── Parser de secciones del informe ─────────────────────────
-/*
-  El informe de la IA sigue este esquema:
-    ### 🎯 Informe de Feedback de SkillsForIT
-    **Escenario evaluado:** ...
-    **Rol del usuario:** ...
-
-    #### 🟢 Aspectos Positivos
-    *   Punto 1...
-
-    #### 🔴 Áreas de Mejora
-    *   Área 1...
-
-    #### 🚀 La Respuesta Perfecta (Nivel Senior)
-    "Texto..."
-
-    #### 💡 ¿Por qué esta respuesta es más efectiva?
-    Explicación...
-
-    #### 📊 Puntuación de Soft Skills
-    **Comunicación:** 7/10 · **Asertividad:** 6/10 ...
-*/
 const parsed = computed(() => parseReport(props.reportMarkdown))
 
 function parseReport(md) {
@@ -97,7 +74,6 @@ function inferType(line) {
   return 'default'
 }
 
-// Renderizado completo como fallback si el parser no detecta secciones
 const fallbackHtml = computed(() =>
   parsed.value.sections.length === 0 ? marked.parse(props.reportMarkdown ?? '') : ''
 )
@@ -121,12 +97,11 @@ function scoreBarClass(value, max) {
 
 function scoreTextClass(value, max) {
   const pct = value / max
-  if (pct >= 0.8) return 'text-emerald-600 font-bold'
-  if (pct >= 0.6) return 'text-amber-600 font-bold'
-  return 'text-red-500 font-bold'
+  if (pct >= 0.8) return 'text-[#34d399] font-bold'
+  if (pct >= 0.6) return 'text-amber-400 font-bold'
+  return 'text-red-400 font-bold'
 }
 
-// ── Acciones ─────────────────────────────────────────────────
 async function retry() {
   const csrf = store.csrfToken || props.csrfToken
   if (!props.scenarioId || !csrf) {
@@ -146,11 +121,9 @@ async function retry() {
     emit('retry')
 
     if (router) {
-      // SPA: popula el store y navega sin recargar
       store.initSession(data.session_id, data.scenario, data.initial_bot_message)
       router.push(`/roleplay/${data.session_id}`)
     } else {
-      // Standalone: redirección clásica Django
       window.location.href = `/roleplay/chat/${data.session_id}/`
     }
   } catch {
@@ -162,15 +135,12 @@ async function retry() {
 
 function chooseAnother() {
   emit('choose-another')
-  // Limpia el estado de la simulación antes de salir
   store.resetSession()
 
   if (router) {
-    // Vuelve al catálogo filtrado si había categoría, o al catálogo general
     const dest = props.category ? `/skills/${props.category}` : '/skills'
     router.push(dest)
   } else {
-    // Standalone: redirección clásica
     const base = props.category ? `/roleplay/?category=${props.category}` : '/roleplay/'
     window.location.href = base
   }
@@ -178,71 +148,70 @@ function chooseAnother() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 py-10 px-4">
+  <div class="bg-[#0d1117] py-8 px-4 overflow-y-auto" style="min-height:calc(100vh - 52px)">
     <div class="max-w-2xl mx-auto space-y-4">
 
-      <!-- ── Tarjeta encabezado (gradiente) ─────────────────── -->
-      <div class="bg-gradient-to-br from-indigo-600 to-violet-600 text-white rounded-2xl p-6 shadow-lg">
-        <p class="text-xs font-mono uppercase tracking-widest text-indigo-200 mb-1">
+      <!-- ── Header card (gradient stays) ──────────────────── -->
+      <div class="bg-gradient-to-br from-indigo-700 to-violet-700 text-white rounded-2xl p-6 shadow-lg">
+        <p class="text-xs uppercase tracking-widest text-indigo-200 mb-1" style="font-family:'JetBrains Mono',monospace">
           Informe Final · SkillsForIT
         </p>
         <h1 class="text-lg font-bold leading-snug mb-3">
           {{ parsed.title || '🎯 Informe de Feedback' }}
         </h1>
-        <!-- Metadata: Escenario evaluado, Rol del usuario -->
         <div
           class="text-sm text-indigo-100 [&_strong]:text-white [&_p]:mb-0"
           v-html="parsed.metaHtml"
         ></div>
       </div>
 
-      <!-- ── Secciones del informe ────────────────────────────── -->
+      <!-- ── Report sections ─────────────────────────────── -->
       <template v-for="section in parsed.sections" :key="section.heading">
 
         <!-- 🟢 Aspectos Positivos -->
         <section
           v-if="section.type === 'positive'"
-          class="border-l-4 border-green-500 bg-green-50 p-5 rounded-r-xl"
+          class="border-l-4 border-green-500 bg-[#1f2937] p-5 rounded-r-xl"
           aria-label="Aspectos positivos"
         >
           <div class="flex items-center gap-2 mb-3">
             <span class="text-lg leading-none" aria-hidden="true">🟢</span>
-            <h2 class="text-sm font-semibold text-green-800">{{ section.heading }}</h2>
+            <h2 class="text-sm font-semibold text-green-400">{{ section.heading }}</h2>
           </div>
           <div
-            class="prose prose-sm max-w-none text-green-900 prose-li:marker:text-green-500"
+            class="prose prose-sm prose-invert max-w-none prose-li:marker:text-green-500 prose-p:text-[#9ca3af] prose-li:text-[#9ca3af]"
             v-html="section.html"
           ></div>
         </section>
 
-        <!-- 🔴 Áreas / Oportunidades de Mejora -->
+        <!-- 🔴 Áreas de Mejora -->
         <section
           v-else-if="section.type === 'improvement'"
-          class="border-l-4 border-amber-500 bg-amber-50 p-5 rounded-r-xl"
+          class="border-l-4 border-amber-500 bg-[#1f2937] p-5 rounded-r-xl"
           aria-label="Áreas de mejora"
         >
           <div class="flex items-center gap-2 mb-3">
             <span class="text-lg leading-none" aria-hidden="true">🔴</span>
-            <h2 class="text-sm font-semibold text-amber-800">{{ section.heading }}</h2>
+            <h2 class="text-sm font-semibold text-amber-400">{{ section.heading }}</h2>
           </div>
           <div
-            class="prose prose-sm max-w-none text-amber-900 prose-li:marker:text-amber-500"
+            class="prose prose-sm prose-invert max-w-none prose-li:marker:text-amber-500 prose-p:text-[#9ca3af] prose-li:text-[#9ca3af]"
             v-html="section.html"
           ></div>
         </section>
 
-        <!-- 🚀 Sugerencias del Coach / La Respuesta Perfecta -->
+        <!-- 🚀 La Respuesta Perfecta -->
         <section
           v-else-if="section.type === 'coach'"
-          class="bg-slate-900 text-slate-100 p-6 rounded-xl shadow-md"
+          class="bg-[#0d1117] border border-[#374151] text-gray-200 p-6 rounded-xl"
           aria-label="Sugerencias del coach"
         >
           <div class="flex items-center gap-2 mb-4">
             <span class="text-lg leading-none" aria-hidden="true">🚀</span>
-            <h2 class="text-sm font-semibold text-slate-100 tracking-wide">{{ section.heading }}</h2>
+            <h2 class="text-sm font-semibold text-gray-100 tracking-wide">{{ section.heading }}</h2>
           </div>
           <div
-            class="prose prose-sm prose-invert max-w-none prose-p:text-slate-300 prose-blockquote:border-violet-400 prose-blockquote:text-violet-200"
+            class="prose prose-sm prose-invert max-w-none prose-blockquote:border-[#34d399] prose-blockquote:text-[#34d399]/90 prose-p:text-[#9ca3af]"
             v-html="section.html"
           ></div>
         </section>
@@ -250,38 +219,38 @@ function chooseAnother() {
         <!-- 💡 ¿Por qué es más efectiva? -->
         <section
           v-else-if="section.type === 'why'"
-          class="border-l-4 border-indigo-400 bg-indigo-50 p-5 rounded-r-xl"
+          class="border-l-4 border-indigo-500 bg-[#1f2937] p-5 rounded-r-xl"
           aria-label="Por qué esta respuesta es más efectiva"
         >
           <div class="flex items-center gap-2 mb-3">
             <span class="text-lg leading-none" aria-hidden="true">💡</span>
-            <h2 class="text-sm font-semibold text-indigo-800">{{ section.heading }}</h2>
+            <h2 class="text-sm font-semibold text-indigo-400">{{ section.heading }}</h2>
           </div>
           <div
-            class="prose prose-sm max-w-none text-indigo-900"
+            class="prose prose-sm prose-invert max-w-none prose-p:text-[#9ca3af]"
             v-html="section.html"
           ></div>
         </section>
 
-        <!-- 📊 Puntuación de Soft Skills -->
+        <!-- 📊 Puntuación -->
         <section
           v-else-if="section.type === 'score' && section.scores?.length"
-          class="bg-white rounded-xl border border-gray-100 shadow-sm p-5"
+          class="bg-[#1f2937] rounded-xl border border-[#374151] p-5"
           aria-label="Puntuación"
         >
           <div class="flex items-center gap-2 mb-5">
             <span class="text-lg leading-none" aria-hidden="true">📊</span>
-            <h2 class="text-sm font-semibold text-gray-800">{{ section.heading }}</h2>
+            <h2 class="text-sm font-semibold text-gray-100">{{ section.heading }}</h2>
           </div>
           <div class="space-y-4">
             <div v-for="score in section.scores" :key="score.label">
               <div class="flex justify-between items-baseline mb-1.5">
-                <span class="text-sm text-gray-700 font-medium">{{ score.label }}</span>
+                <span class="text-sm text-[#9ca3af] font-medium">{{ score.label }}</span>
                 <span :class="['text-sm tabular-nums', scoreTextClass(score.value, score.max)]">
                   {{ score.value }}/{{ score.max }}
                 </span>
               </div>
-              <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden" role="progressbar"
+              <div class="w-full bg-[#374151] rounded-full h-2 overflow-hidden" role="progressbar"
                 :aria-valuenow="score.value" :aria-valuemax="score.max" :aria-label="score.label">
                 <div
                   :class="['h-full rounded-full transition-all duration-700 ease-out', scoreBarClass(score.value, score.max)]"
@@ -292,32 +261,32 @@ function chooseAnother() {
           </div>
         </section>
 
-        <!-- Sección genérica (fallback) -->
+        <!-- Genérica -->
         <section
           v-else
-          class="bg-white rounded-xl border border-gray-100 shadow-sm p-5"
+          class="bg-[#1f2937] rounded-xl border border-[#374151] p-5"
         >
           <div class="flex items-center gap-2 mb-3">
-            <h2 class="text-sm font-semibold text-gray-800">{{ section.heading }}</h2>
+            <h2 class="text-sm font-semibold text-gray-100">{{ section.heading }}</h2>
           </div>
-          <div class="prose prose-sm max-w-none text-gray-700" v-html="section.html"></div>
+          <div class="prose prose-sm prose-invert max-w-none prose-p:text-[#9ca3af]" v-html="section.html"></div>
         </section>
 
       </template>
 
-      <!-- Fallback: si el parser no extrajo secciones, renderizar todo como prose -->
+      <!-- Fallback -->
       <div
         v-if="parsed.sections.length === 0"
-        class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 prose prose-sm max-w-none text-gray-700"
+        class="bg-[#1f2937] rounded-xl border border-[#374151] p-6 prose prose-sm prose-invert max-w-none"
         v-html="fallbackHtml"
       ></div>
 
-      <!-- ── Botones de acción ──────────────────────────────── -->
+      <!-- ── Buttons ─────────────────────────────────────── -->
       <div class="flex flex-col sm:flex-row gap-3 pt-4 pb-10">
-        <!-- Reintentar: misma sesión con el mismo escenario -->
         <button
           :disabled="isRetrying"
-          class="flex-1 py-3 px-5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors duration-150 flex items-center justify-center gap-2"
+          class="flex-1 py-3 px-5 bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-60 disabled:cursor-not-allowed text-[#0d1117] text-sm font-semibold rounded-xl transition-colors duration-150 flex items-center justify-center gap-2"
+          style="font-family:'JetBrains Mono',monospace"
           @click="retry"
         >
           <svg
@@ -333,9 +302,9 @@ function chooseAnother() {
           <span>{{ isRetrying ? 'Iniciando...' : '🔄 Reintentar' }}</span>
         </button>
 
-        <!-- Volver al catálogo -->
         <button
-          class="flex-1 py-3 px-5 bg-white hover:bg-gray-50 active:bg-gray-100 border border-gray-300 hover:border-gray-400 text-gray-700 text-sm font-semibold rounded-xl transition-colors duration-150 flex items-center justify-center gap-2"
+          class="flex-1 py-3 px-5 bg-[#1f2937] hover:bg-[#2d3748] border border-[#374151] hover:border-[#34d399]/40 text-gray-200 text-sm font-semibold rounded-xl transition-colors duration-150 flex items-center justify-center gap-2"
+          style="font-family:'JetBrains Mono',monospace"
           @click="chooseAnother"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">

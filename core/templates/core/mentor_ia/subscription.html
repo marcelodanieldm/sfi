@@ -111,12 +111,10 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
 <body>
 
 <header>
-  <span class="logo">Skills<span>For</span>IT — <span style="color:var(--muted)">MentorIA</span></span>
+  <span class="logo">Skills<span>For</span>IT</span>
   <div class="header-right">
-    {% if sub and sub.is_active %}
-    <a href="{% url 'core:mentor_ia_chat' %}">← Volver al chat</a>
-    {% endif %}
-    <a href="{% url 'core:mentor_ia_chat' %}" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;text-decoration:none;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Ir al chat</a>
+    <a href="{% url 'core:mentor_ia_chat' %}" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;text-decoration:none;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">MentorIA</a>
+    <a href="{% url 'core:roleplay_selector' %}" style="font-family:var(--mono);font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;padding:5px 12px;text-decoration:none;transition:border-color .2s,color .2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Roleplay</a>
     <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
       {% csrf_token %}
       <button type="submit" class="btn-logout">Cerrar sesión</button>
@@ -126,7 +124,7 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
 
 <main>
   <h1>Mi suscripción</h1>
-  <p class="subtitle">Gestioná tu plan de MentorIA</p>
+  <p class="subtitle">Gestioná tu plan de SkillsForIT Pro</p>
 
   <!-- Estado actual -->
   {% if sub %}
@@ -178,9 +176,9 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
     <p class="plans-title">PLANES DISPONIBLES</p>
 
     <div class="plan-card">
-      <p class="plan-name">MentorIA Pro</p>
+      <p class="plan-name">SkillsForIT Pro</p>
       <p class="plan-price">U$D {{ precio }}<span>/mes</span></p>
-      <p class="plan-desc">Coach de Soft Skills IT disponible 24/7 · Evaluaciones ilimitadas · Feedback personalizado por IA · Cancela cuando quieras</p>
+      <p class="plan-desc">MentorIA (coach IA 24/7) + Roleplay de Soft Skills · Evaluaciones y simulaciones ilimitadas · Feedback personalizado · Cancelá cuando quieras</p>
 
       <div class="actions">
         <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="margin:0">
