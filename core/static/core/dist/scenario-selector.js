@@ -1,1 +1,1 @@
-import{c as t}from"./chunks/style-DFLeVUEc.js";import o from"./chunks/ScenarioSelector-BjAYcu_u.js";const e=document.getElementById("scenario-selector-app");e&&t(o,{category:e.dataset.category||"",csrfToken:e.dataset.csrf||""}).mount(e);
+import{c as s,a as o,u as c}from"./chunks/style-DFLeVUEc.js";import r from"./chunks/ScenarioSelector-BjAYcu_u.js";const t=document.getElementById("scenario-selector-app");if(t){const e=s(r,{category:t.dataset.category||"",csrfToken:t.dataset.csrf||""}),a=o();e.use(a),c(a).init(t.dataset.csrf||""),e.mount(t)}
