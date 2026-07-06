@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useRoleplayStore } from '../stores/useRoleplayStore'
 
@@ -18,6 +18,22 @@ const scenarios   = ref([])
 const isLoading   = ref(true)
 const error       = ref(null)
 const startingId  = ref(null)
+
+const catBar       = ref(null)
+const showCatLeft  = ref(false)
+const showCatRight = ref(false)
+
+function syncCatArrows() {
+  const el = catBar.value
+  if (!el) return
+  const hasFlow = el.scrollWidth > el.clientWidth + 4
+  showCatLeft.value  = hasFlow && el.scrollLeft > 4
+  showCatRight.value = hasFlow && el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+}
+
+function scrollCats(delta) {
+  catBar.value?.scrollBy({ left: delta, behavior: 'smooth' })
+}
 
 const activeCategory = computed(() =>
   route?.params?.category ?? props.category ?? ''
@@ -42,7 +58,14 @@ const CATEGORY_LABELS = {
   'career':            'Carrera',
 }
 
-onMounted(fetchScenarios)
+onMounted(() => {
+  fetchScenarios()
+  setTimeout(syncCatArrows, 80)
+  window.addEventListener('resize', syncCatArrows)
+})
+
+onUnmounted(() => window.removeEventListener('resize', syncCatArrows))
+
 watch(activeCategory, fetchScenarios)
 
 async function fetchScenarios() {
@@ -111,20 +134,52 @@ async function startSession(scenario) {
   <div class="min-h-[calc(100vh-52px)] bg-[#0d1117] font-sans">
 
     <!-- ── Category tab bar (sticky under nav) ──────────────── -->
-    <div class="bg-[#111827] border-b border-[#2d3748] px-4 py-2 sticky top-[52px] z-10">
-      <div class="max-w-5xl mx-auto flex gap-2 overflow-x-auto -mx-4 px-4" style="scrollbar-width:none;-webkit-overflow-scrolling:touch">
+    <div class="bg-[#111827] border-b border-[#2d3748] sticky top-[52px] z-10">
+      <div class="relative max-w-5xl mx-auto">
+
+        <!-- left arrow -->
         <button
-          v-for="cat in CATEGORIES"
-          :key="cat.slug"
-          class="flex-none text-xs font-semibold px-3.5 py-2 min-h-[36px] rounded-full border transition-all duration-150 whitespace-nowrap"
-          style="touch-action:manipulation"
-          :class="activeCategory === cat.slug
-            ? 'bg-[#34d399] text-[#0d1117] border-[#34d399]'
-            : 'bg-transparent text-[#9ca3af] border-[#374151] hover:border-[#34d399] hover:text-[#34d399]'"
-          @click="selectCategory(cat.slug)"
+          v-show="showCatLeft"
+          class="cat-arr cat-l"
+          aria-label="Desplazar izquierda"
+          tabindex="-1"
+          @click="scrollCats(-160)"
         >
-          {{ cat.label }}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
+
+        <!-- scrollable pills -->
+        <div
+          ref="catBar"
+          class="flex gap-2 overflow-x-auto px-4 py-2"
+          style="scrollbar-width:none;-webkit-overflow-scrolling:touch"
+          @scroll="syncCatArrows"
+        >
+          <button
+            v-for="cat in CATEGORIES"
+            :key="cat.slug"
+            class="flex-none text-xs font-semibold px-3.5 py-2 min-h-[36px] rounded-full border transition-all duration-150 whitespace-nowrap"
+            style="touch-action:manipulation"
+            :class="activeCategory === cat.slug
+              ? 'bg-[#34d399] text-[#0d1117] border-[#34d399]'
+              : 'bg-transparent text-[#9ca3af] border-[#374151] hover:border-[#34d399] hover:text-[#34d399]'"
+            @click="selectCategory(cat.slug)"
+          >
+            {{ cat.label }}
+          </button>
+        </div>
+
+        <!-- right arrow -->
+        <button
+          v-show="showCatRight"
+          class="cat-arr cat-r"
+          aria-label="Desplazar derecha"
+          tabindex="-1"
+          @click="scrollCats(160)"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+
       </div>
     </div>
 
@@ -240,3 +295,24 @@ async function startSession(scenario) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.cat-arr {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(17, 24, 39, .92);
+  border: 1px solid #374151;
+  border-radius: 50%;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.cat-arr:hover { color: #34d399; border-color: #34d399; background: #111827; }
+.cat-l { left: 4px; }
+.cat-r { right: 4px; }
+</style>
