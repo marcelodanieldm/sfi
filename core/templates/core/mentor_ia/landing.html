@@ -130,7 +130,7 @@ footer a{color:var(--accent)}
     {% if is_authenticated %}
       <a href="{% url 'core:mentor_ia_checkout' %}" class="btn btn-lg">Comenzar por USD ${{ precio_mensual }}/mes →</a>
     {% else %}
-      <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia' %}" class="btn btn-lg">Comenzar ahora →</a>
+      <a href="#pricing" class="btn btn-lg">Comenzar ahora →</a>
     {% endif %}
     <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>
   </div>
@@ -192,7 +192,7 @@ footer a{color:var(--accent)}
 </section>
 
 <!-- Pricing -->
-<section class="pricing-section">
+<section class="pricing-section" id="pricing">
   <h2>Un precio. Sin sorpresas.</h2>
   <div class="pricing-card">
     <span class="pricing-badge">ACCESO COMPLETO</span>
@@ -223,10 +223,20 @@ footer a{color:var(--accent)}
         </form>
       </div>
     {% else %}
-      <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia' %}" class="btn btn-lg pricing-cta" style="width:100%;justify-content:center">Crear cuenta y suscribirme →</a>
+      <div style="display:flex;flex-direction:column;gap:10px;width:100%">
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_subscription' %}"
+           class="btn btn-lg pricing-cta" style="width:100%;justify-content:center">
+          💳 Registrarme y pagar con Stripe →
+        </a>
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_subscription' %}"
+           style="display:flex;align-items:center;justify-content:center;width:100%;padding:14px 32px;font-size:.9rem;font-weight:700;font-family:var(--mono);background:#009ee3;color:#fff;border:none;border-radius:var(--r);cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;letter-spacing:.02em"
+           onmouseover="this.style.background='#0087c3'" onmouseout="this.style.background='#009ee3'">
+          🇦🇷 Registrarme y pagar con MercadoPago →
+        </a>
+      </div>
     {% endif %}
     <p class="login-note">
-      {% if not is_authenticated %}¿Ya tenés cuenta? <a href="{% url 'core:login' %}">Iniciá sesión</a>.{% endif %}
+      {% if not is_authenticated %}¿Ya tenés cuenta? <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_subscription' %}">Iniciá sesión</a>.{% endif %}
       Pago 100% seguro · Stripe o MercadoPago.
     </p>
   </div>
