@@ -12,7 +12,11 @@ Variables opcionales (con defaults razonables):
   EBOOK_WELCOME_COUPON→ código de cupón enviado en el email de bienvenida
 """
 
+from __future__ import annotations
+
 import logging
+from datetime import datetime, timezone as dt_tz
+from typing import Optional
 
 import resend
 from django.conf import settings
@@ -26,6 +30,11 @@ _FROM = getattr(settings, 'DEFAULT_FROM_EMAIL', 'SkillsForIT <info@skillsforit.c
 _SITE_URL = getattr(settings, 'SITE_URL', 'https://skillsforit.com')
 _SUPPORT_URL = getattr(settings, 'SUPPORT_URL', 'https://skillsforit.com/soporte/')
 _COUPON = getattr(settings, 'EBOOK_WELCOME_COUPON', 'SKILLS20')
+
+_PROVIDER_DISPLAY = {
+    'stripe':       'Stripe',
+    'mercadopago':  'MercadoPago',
+}
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -121,3 +130,92 @@ def send_welcome_ebook_email(order: EbookOrder) -> bool:
             exc,
         )
         return False
+
+
+# ────────────────────────────────────────────────────────────────────────────
+#  Emails de suscripción MentorIA
+# ────────────────────────────────────────────────────────────────────────────
+
+def _user_first_name(user) -> str:
+    name = getattr(user, 'first_name', '') or ''
+    if name.strip():
+        return name.strip().split()[0].capitalize()
+    return user.email.split('@')[0].capitalize()
+
+
+def _format_date(dt: Optional[datetime]) -> str:
+    if not dt:
+        return ''
+    return dt.strftime('%d/%m/%Y')
+
+
+def _send_mentoria_email(to_email: str, subject: str, template: str, context: dict) -> bool:
+    if not _get_resend_client():
+        return False
+    context.setdefault('support_url', _SUPPORT_URL)
+    context.setdefault('site_url', _SITE_URL)
+    html_body = render_to_string(template, context)
+    try:
+        response = resend.Emails.send({
+            'from':    _FROM,
+            'to':      [to_email],
+            'subject': subject,
+            'html':    html_body,
+        })
+        logger.info('MentorIA email enviado [%s] → %s (id=%s)', template, to_email, response.get('id', 'n/a'))
+        return True
+    except resend.exceptions.ResendError as exc:
+        logger.error('Resend error [%s] → %s: %s', template, to_email, exc)
+        return False
+    except Exception as exc:
+        logger.exception('Error inesperado [%s] → %s: %s', template, to_email, exc)
+        return False
+
+
+def send_subscription_confirmation_email(user, provider: str, period_end: Optional[datetime] = None) -> bool:
+    subscription_url = f'{_SITE_URL.rstrip("/")}/mentoria/suscripcion/'
+    chat_url = f'{_SITE_URL.rstrip("/")}/mentoria/chat/'
+    return _send_mentoria_email(
+        to_email=user.email,
+        subject='¡Tu suscripción a MentorIA está activa! 🤖',
+        template='core/emails/mentoria_confirmacion.html',
+        context={
+            'first_name':      _user_first_name(user),
+            'provider_display': _PROVIDER_DISPLAY.get(provider, provider),
+            'period_end_str':  _format_date(period_end),
+            'chat_url':        chat_url,
+            'subscription_url': subscription_url,
+        },
+    )
+
+
+def send_subscription_cancellation_email(user, provider: str) -> bool:
+    subscription_url = f'{_SITE_URL.rstrip("/")}/mentoria/suscripcion/'
+    return _send_mentoria_email(
+        to_email=user.email,
+        subject='Tu suscripción a MentorIA fue cancelada',
+        template='core/emails/mentoria_cancelacion.html',
+        context={
+            'first_name':       _user_first_name(user),
+            'provider_display': _PROVIDER_DISPLAY.get(provider, provider),
+            'subscription_url': subscription_url,
+        },
+    )
+
+
+def send_renewal_reminder_email(user, provider: str, period_end: datetime, days_until_renewal: int) -> bool:
+    subscription_url = f'{_SITE_URL.rstrip("/")}/mentoria/suscripcion/'
+    chat_url = f'{_SITE_URL.rstrip("/")}/mentoria/chat/'
+    return _send_mentoria_email(
+        to_email=user.email,
+        subject=f'Tu suscripción a MentorIA renueva en {days_until_renewal} día{"s" if days_until_renewal != 1 else ""}',
+        template='core/emails/mentoria_recordatorio.html',
+        context={
+            'first_name':         _user_first_name(user),
+            'provider_display':   _PROVIDER_DISPLAY.get(provider, provider),
+            'period_end_str':     _format_date(period_end),
+            'days_until_renewal': days_until_renewal,
+            'chat_url':           chat_url,
+            'subscription_url':   subscription_url,
+        },
+    )

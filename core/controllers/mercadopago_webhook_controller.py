@@ -125,6 +125,11 @@ def _sync_mp_subscription(preapproval_id: str):
         except ValueError:
             pass
 
+    from core.services.email_service import (
+        send_subscription_confirmation_email,
+        send_subscription_cancellation_email,
+    )
+
     defaults = {
         'payment_provider': 'mercadopago',
         'mp_preapproval_id': preapproval_id,
@@ -133,13 +138,24 @@ def _sync_mp_subscription(preapproval_id: str):
         'current_period_end': period_end,
     }
 
+    def _notify(sub, old_status):
+        try:
+            if local_status == 'active' and old_status != 'active':
+                send_subscription_confirmation_email(sub.user, 'mercadopago', period_end)
+            elif local_status == 'canceled' and old_status != 'canceled':
+                send_subscription_cancellation_email(sub.user, 'mercadopago')
+        except Exception as exc:
+            logger.error('Error enviando email MP (preapproval=%s): %s', preapproval_id, exc)
+
     # 1. Buscar por preapproval_id (caso habitual — checkout ya guardó el id)
     sub = MentorIASubscription.objects.filter(mp_preapproval_id=preapproval_id).first()
     if sub:
+        old_status = sub.status
         for field, value in defaults.items():
             setattr(sub, field, value)
         sub.save(update_fields=list(defaults.keys()) + ['updated_at'])
         logger.info('MP sub sincronizada: preapproval=%s status=%s', preapproval_id, local_status)
+        _notify(sub, old_status)
         return
 
     # 2. Buscar por external_reference (= user_id guardado en el checkout)
@@ -147,10 +163,11 @@ def _sync_mp_subscription(preapproval_id: str):
     if external_ref:
         try:
             user = User.objects.get(id=external_ref)
-            sub, _ = MentorIASubscription.objects.update_or_create(
+            sub, created = MentorIASubscription.objects.update_or_create(
                 user=user, defaults=defaults,
             )
             logger.info('MP sub vinculada por external_ref: user=%s status=%s', external_ref, local_status)
+            _notify(sub, '' if created else local_status)
             return
         except User.DoesNotExist:
             pass
@@ -159,10 +176,11 @@ def _sync_mp_subscription(preapproval_id: str):
     if payer_email:
         try:
             user = User.objects.get(email=payer_email.lower().strip())
-            sub, _ = MentorIASubscription.objects.update_or_create(
+            sub, created = MentorIASubscription.objects.update_or_create(
                 user=user, defaults=defaults,
             )
             logger.info('MP sub vinculada por email: %s status=%s', payer_email, local_status)
+            _notify(sub, '' if created else local_status)
             return
         except User.DoesNotExist:
             pass

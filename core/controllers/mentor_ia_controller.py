@@ -525,26 +525,32 @@ def webhook_stripe_mentoria(request):
     event_type = event['type']
     data = event['data']['object']
 
-    if event_type in ('customer.subscription.created', 'customer.subscription.updated'):
-        _handle_subscription_change(data)
+    if event_type == 'customer.subscription.created':
+        _handle_subscription_change(data, is_new=True)
+    elif event_type == 'customer.subscription.updated':
+        _handle_subscription_change(data, is_new=False)
     elif event_type == 'customer.subscription.deleted':
         _handle_subscription_deleted(data)
+    elif event_type == 'invoice.upcoming':
+        _handle_invoice_upcoming(data)
 
     return JsonResponse({'status': 'ok'})
 
 
-def _handle_subscription_change(subscription):
+def _handle_subscription_change(subscription, is_new=False):
+    from datetime import datetime
+    from core.models import User
+    from core.services.email_service import send_subscription_confirmation_email
+
     customer_id = subscription.get('customer', '')
     sub_id = subscription.get('id', '')
     status = subscription.get('status', 'inactive')
 
-    from datetime import datetime
     period_end_ts = subscription.get('current_period_end')
     period_end = timezone.make_aware(
         datetime.utcfromtimestamp(period_end_ts), timezone.utc,
     ) if period_end_ts else None
 
-    from core.models import User
     try:
         existing = MentorIASubscription.objects.get(stripe_subscription_id=sub_id)
         existing.status = status
@@ -557,7 +563,7 @@ def _handle_subscription_change(subscription):
             customer = stripe.Customer.retrieve(customer_id)
             email = customer.get('email', '')
             user = User.objects.get(email=email)
-            MentorIASubscription.objects.update_or_create(
+            sub, _ = MentorIASubscription.objects.update_or_create(
                 user=user,
                 defaults={
                     'stripe_customer_id':     customer_id,
@@ -567,16 +573,54 @@ def _handle_subscription_change(subscription):
                 },
             )
             logger.info('MentorIA subscription created via webhook: %s (%s)', sub_id, email)
+            if is_new and status == 'active':
+                send_subscription_confirmation_email(user, 'stripe', period_end)
         except Exception as exc:
             logger.error('No se pudo vincular suscripción por webhook: %s', exc)
+        return
+
+    if is_new and status == 'active':
+        try:
+            send_subscription_confirmation_email(existing.user, 'stripe', period_end)
+        except Exception as exc:
+            logger.error('Error enviando email de confirmación Stripe: %s', exc)
 
 
 def _handle_subscription_deleted(subscription):
+    from core.services.email_service import send_subscription_cancellation_email
+
     sub_id = subscription.get('id', '')
     try:
         sub = MentorIASubscription.objects.get(stripe_subscription_id=sub_id)
         sub.status = 'canceled'
         sub.save(update_fields=['status', 'updated_at'])
         logger.info('MentorIA subscription canceled: %s', sub_id)
+        try:
+            send_subscription_cancellation_email(sub.user, 'stripe')
+        except Exception as exc:
+            logger.error('Error enviando email de cancelación Stripe: %s', exc)
     except MentorIASubscription.DoesNotExist:
         pass
+
+
+def _handle_invoice_upcoming(invoice):
+    from datetime import datetime
+    from core.services.email_service import send_renewal_reminder_email
+
+    customer_id = invoice.get('customer', '')
+    period_end_ts = invoice.get('period_end') or invoice.get('lines', {}).get('data', [{}])[0].get('period', {}).get('end')
+
+    try:
+        sub = MentorIASubscription.objects.get(stripe_customer_id=customer_id)
+        period_end = sub.current_period_end
+        if not period_end and period_end_ts:
+            period_end = timezone.make_aware(datetime.utcfromtimestamp(period_end_ts), timezone.utc)
+        if period_end:
+            now = timezone.now()
+            days = (period_end - now).days
+            if 0 < days <= 7:
+                send_renewal_reminder_email(sub.user, 'stripe', period_end, days)
+    except MentorIASubscription.DoesNotExist:
+        pass
+    except Exception as exc:
+        logger.error('Error procesando invoice.upcoming: %s', exc)

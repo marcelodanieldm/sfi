@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Suscripción cancelada — MentorIA</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f1f5f9;padding:32px 16px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border-radius:12px 12px 0 0;padding:36px 40px;text-align:center;">
+              <p style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:1px;">
+                Skills<span style="color:#34d399;">For</span>IT — <span style="color:#94a3b8;">MentorIA</span>
+              </p>
+              <p style="margin:8px 0 0;font-size:13px;color:#94a3b8;letter-spacing:0.5px;">
+                Tu mentor de entrevistas con IA
+              </p>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#ffffff;padding:40px 40px 32px;">
+              <p style="margin:0 0 8px;font-size:26px;font-weight:700;color:#0f172a;">
+                Suscripción cancelada
+              </p>
+              <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.6;">
+                Hola, {{ first_name }}. Confirmamos que tu suscripción a <strong>MentorIA</strong>
+                (vía {{ provider_display }}) ha sido cancelada correctamente.
+              </p>
+
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 28px;">
+
+              <!-- Cancellation notice -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                     style="background:#fff7ed;border:1px solid #fdba74;border-radius:10px;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 4px;font-size:12px;font-weight:600;color:#ea580c;text-transform:uppercase;letter-spacing:0.8px;">
+                      Acceso desactivado
+                    </p>
+                    <p style="margin:0;font-size:14px;color:#7c2d12;line-height:1.6;">
+                      Tu acceso al chat de MentorIA ha sido revocado. Si cancelaste por error
+                      o cambiaste de opinión, podés volver a suscribirte en cualquier momento.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Re-subscribe CTA -->
+              <p style="margin:0 0 20px;font-size:14px;color:#475569;line-height:1.6;">
+                ¿Querés retomar la práctica? Volvé a activar tu suscripción con un solo clic.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                <tr>
+                  <td align="center">
+                    <a href="{{ subscription_url }}"
+                       style="display:inline-block;background:#0f172a;color:#34d399;font-size:15px;font-weight:700;
+                              text-decoration:none;border-radius:8px;padding:14px 36px;border:2px solid #34d399;">
+                      Reactivar suscripción
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
+                Si tenés alguna pregunta sobre la cancelación o necesitás asistencia,
+                <a href="{{ support_url }}" style="color:#0ea5e9;">contactá a soporte</a>.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8fafc;border-top:1px solid #e2e8f0;border-radius:0 0 12px 12px;
+                       padding:24px 40px;text-align:center;">
+              <p style="margin:0 0 6px;font-size:13px;color:#64748b;">
+                © 2025 SkillsForIT — Todos los derechos reservados
+              </p>
+              <p style="margin:0;font-size:12px;color:#94a3b8;">
+                <a href="{{ site_url }}" style="color:#0ea5e9;text-decoration:none;">skillsforit.com</a>
+                &nbsp;·&nbsp;
+                <a href="{{ support_url }}" style="color:#0ea5e9;text-decoration:none;">Soporte</a>
+                &nbsp;·&nbsp;
+                <a href="mailto:info@skillsforit.com" style="color:#0ea5e9;text-decoration:none;">info@skillsforit.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
