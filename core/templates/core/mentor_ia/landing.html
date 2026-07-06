@@ -3,275 +3,529 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MentorIA — Tu Coach de Soft Skills IT 24/7 | SkillsForIT</title>
+<title>SkillsForIT Pro — Coach IA + Roleplay de Soft Skills para IT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
 :root{
-  --bg:#111827;--bg2:#1f2937;--card:#374151;--border:#4b5563;--dim:#2d3748;
+  --bg:#111827;--bg2:#1f2937;--card:#1f2937;--border:#374151;--dim:#2d3748;
   --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
-  --accent:#34d399;--accent-dark:#10b981;--glow:rgba(52,211,153,.15);
-  --red:#f87171;--mono:'JetBrains Mono',monospace;--r:8px;
+  --accent:#34d399;--accent-dark:#10b981;--glow:rgba(52,211,153,.12);
+  --mono:'JetBrains Mono',monospace;--r:8px;
 }
 a{color:inherit;text-decoration:none}
 
 /* ── Nav ── */
-nav{background:rgba(17,24,39,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--dim);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:600;color:var(--text)}
+nav{background:rgba(13,17,23,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--dim);padding:0 40px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;height:56px}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text)}
 .nav-logo span{color:var(--accent)}
 .nav-links{display:flex;gap:20px;align-items:center}
 .nav-links a{font-size:.82rem;color:var(--muted);transition:color .2s}
 .nav-links a:hover{color:var(--accent)}
-.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0d1117;font-size:.85rem;font-weight:700;font-family:var(--mono);padding:10px 20px;border-radius:var(--r);border:none;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;letter-spacing:.02em}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0d1117;font-size:.82rem;font-weight:700;font-family:var(--mono);padding:9px 20px;border-radius:var(--r);border:none;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;letter-spacing:.02em;white-space:nowrap}
 .btn:hover{background:#6ee7b7;transform:translateY(-1px)}
-.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent)}
-.btn-outline:hover{background:var(--glow)}
-.btn-lg{padding:14px 32px;font-size:.95rem}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid rgba(52,211,153,.4)}
+.btn-outline:hover{background:var(--glow);border-color:var(--accent)}
+.btn-lg{padding:14px 32px;font-size:.9rem}
+.btn-stripe{background:#635bff;color:#fff}.btn-stripe:hover{background:#7c75ff}
+.btn-mp{background:#009ee3;color:#fff}.btn-mp:hover{background:#0087c3}
 
 /* ── Hero ── */
-.hero{max-width:900px;margin:0 auto;padding:80px 32px 60px;text-align:center;position:relative}
-.hero::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(52,211,153,.07) 0%,transparent 65%);pointer-events:none}
-.hero-kicker{font-family:var(--mono);font-size:.75rem;color:var(--accent);letter-spacing:.15em;margin-bottom:16px;display:block}
-.hero h1{font-size:clamp(2rem,4vw,3.2rem);font-weight:800;line-height:1.15;letter-spacing:-.03em;margin-bottom:20px}
+.hero{max-width:960px;margin:0 auto;padding:90px 40px 70px;text-align:center;position:relative}
+.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse at 50% 40%,rgba(52,211,153,.09) 0%,transparent 60%);pointer-events:none}
+.hero-kicker{font-family:var(--mono);font-size:.72rem;color:var(--accent);letter-spacing:.2em;margin-bottom:18px;display:block;text-transform:uppercase}
+.hero h1{font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:22px}
 .hero h1 em{color:var(--accent);font-style:normal}
-.hero p{font-size:1.05rem;color:var(--muted);max-width:600px;margin:0 auto 36px;line-height:1.75}
-.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.price-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:8px 18px;font-size:.82rem;color:var(--muted);margin-top:24px}
-.price-badge strong{color:var(--accent);font-family:var(--mono)}
+.hero-sub{font-size:1.05rem;color:var(--muted);max-width:620px;margin:0 auto 40px;line-height:1.75}
+.hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:7px 16px;font-size:.78rem;color:var(--muted);margin-top:24px;font-family:var(--mono)}
+.hero-badge strong{color:var(--accent)}
 
-/* ── Eval types ── */
-.eval-section{background:var(--bg);padding:64px 32px}
-.eval-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:8px}
-.eval-section .subtitle{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:40px}
-.eval-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;max-width:1000px;margin:0 auto}
-.eval-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 16px;text-align:center;transition:border-color .2s,transform .15s}
-.eval-card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.eval-icon{font-size:1.6rem;margin-bottom:10px;display:block}
-.eval-card h3{font-size:.82rem;font-weight:600;color:var(--text);line-height:1.3}
+/* ── Products ── */
+.products-section{padding:80px 40px;background:var(--bg)}
+.section-label{font-family:var(--mono);font-size:.7rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;text-align:center;margin-bottom:10px}
+.section-title{font-size:1.5rem;font-weight:700;text-align:center;margin-bottom:6px}
+.section-sub{font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:52px}
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1040px;margin:0 auto}
+
+.product-card{background:#0d1117;border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .25s,transform .2s}
+.product-card:hover{border-color:rgba(52,211,153,.35);transform:translateY(-3px)}
+
+/* Terminal header bar */
+.term-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.term-dots{display:flex;gap:5px}
+.term-dot{width:10px;height:10px;border-radius:50%}
+.term-dot.red{background:#f87171}.term-dot.yellow{background:#fbbf24}.term-dot.green{background:#34d399}
+.term-title{font-family:var(--mono);font-size:.7rem;color:var(--faint);margin-left:6px}
+
+/* Terminal preview area */
+.term-body{padding:20px;flex:1;min-height:220px;position:relative;overflow:hidden}
+.term-line{font-family:var(--mono);font-size:.72rem;margin-bottom:6px;line-height:1.5}
+.term-line.prompt{color:var(--accent)}
+.term-line.out{color:var(--muted)}
+.term-line.dim{color:var(--faint)}
+.term-line.highlight{color:#f3f4f6}
+.term-badge{display:inline-block;font-family:var(--mono);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.06em}
+.tb-blue{background:#1e3a5f;color:#60a5fa}
+.tb-purple{background:#2d1b69;color:#c084fc}
+.tb-green{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)}
+.tb-yellow{background:rgba(251,191,36,.08);color:#fbbf24}
+
+/* Product info below terminal */
+.product-info{padding:22px 24px 26px}
+.product-tag{font-family:var(--mono);font-size:.65rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.product-name{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+.product-desc{font-size:.83rem;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.product-features{list-style:none;display:flex;flex-direction:column;gap:7px}
+.product-features li{display:flex;align-items:center;gap:9px;font-size:.8rem;color:var(--muted)}
+.product-features li::before{content:'→';color:var(--accent);font-family:var(--mono);font-weight:700;flex-shrink:0}
+
+/* ── Divider ── */
+.divider-section{padding:60px 40px;max-width:780px;margin:0 auto;text-align:center}
+.divider-section p{font-size:1.1rem;color:var(--muted);line-height:1.8}
+.divider-section p strong{color:var(--text);font-weight:600}
+
+/* ── Features ── */
+.features-section{background:var(--bg);padding:72px 40px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1000px;margin:0 auto}
+.feat-card{background:#0d1117;border:1px solid var(--border);border-radius:12px;padding:24px 20px;transition:border-color .2s}
+.feat-card:hover{border-color:rgba(52,211,153,.25)}
+.feat-icon{font-size:1.5rem;margin-bottom:12px;display:block}
+.feat-card h3{font-size:.9rem;font-weight:600;margin-bottom:6px}
+.feat-card p{font-size:.78rem;color:var(--muted);line-height:1.6}
 
 /* ── How it works ── */
-.how-section{padding:64px 32px;max-width:900px;margin:0 auto}
-.how-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:40px}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.how-section{padding:72px 40px;max-width:960px;margin:0 auto}
+.how-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;max-width:400px;margin:0 auto 44px}
+.how-tab{flex:1;padding:10px;font-family:var(--mono);font-size:.72rem;font-weight:600;text-align:center;cursor:pointer;background:transparent;border:none;color:var(--muted);transition:background .15s,color .15s;letter-spacing:.04em}
+.how-tab.active{background:var(--accent);color:#0d1117}
+.steps-panel{display:none}.steps-panel.active{display:grid}
+.steps{grid-template-columns:repeat(3,1fr);gap:28px;display:grid}
+.step-num{width:38px;height:38px;border-radius:50%;background:var(--glow);border:1px solid rgba(52,211,153,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.82rem;font-weight:700;color:var(--accent);margin:0 auto 14px}
 .step{text-align:center}
-.step-num{width:40px;height:40px;border-radius:50%;background:var(--glow);border:1px solid rgba(52,211,153,.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.85rem;font-weight:700;color:var(--accent);margin:0 auto 14px}
 .step h3{font-size:.9rem;font-weight:600;margin-bottom:6px}
 .step p{font-size:.8rem;color:var(--muted);line-height:1.55}
 
 /* ── Pricing ── */
-.pricing-section{background:var(--bg);padding:64px 32px}
-.pricing-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:40px}
-.pricing-card{max-width:420px;margin:0 auto;background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:36px;text-align:center;position:relative;overflow:hidden}
-.pricing-card::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:280px;height:160px;background:radial-gradient(ellipse,rgba(52,211,153,.1) 0%,transparent 70%);pointer-events:none}
-.pricing-badge{font-family:var(--mono);font-size:.68rem;color:var(--accent);background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-radius:20px;padding:4px 12px;display:inline-block;margin-bottom:20px;letter-spacing:.08em}
-.pricing-price{font-size:3.2rem;font-weight:800;font-family:var(--mono);color:var(--text);line-height:1}
-.pricing-price sup{font-size:1.2rem;font-weight:600;vertical-align:top;margin-top:8px}
-.pricing-price span{font-size:.9rem;font-weight:400;color:var(--muted)}
-.pricing-desc{color:var(--muted);font-size:.85rem;margin:12px 0 24px}
-.pricing-features{text-align:left;margin-bottom:28px}
-.pricing-features li{display:flex;align-items:center;gap:10px;font-size:.83rem;color:var(--muted);padding:7px 0;border-bottom:1px solid var(--dim)}
-.pricing-features li:last-child{border-bottom:none}
-.pricing-features li::before{content:'✓';color:var(--accent);font-weight:700;flex-shrink:0}
-.pricing-cta{width:100%}
-.login-note{text-align:center;margin-top:16px;font-size:.78rem;color:var(--faint)}
+.pricing-section{background:var(--bg);padding:80px 40px}
+.pricing-card{max-width:460px;margin:0 auto;background:#0d1117;border:1px solid rgba(52,211,153,.3);border-radius:16px;padding:40px;text-align:center;position:relative;overflow:hidden}
+.pricing-card::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:320px;height:200px;background:radial-gradient(ellipse,rgba(52,211,153,.08) 0%,transparent 70%);pointer-events:none}
+.pricing-badge{font-family:var(--mono);font-size:.65rem;color:var(--accent);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:20px;padding:4px 14px;display:inline-block;margin-bottom:20px;letter-spacing:.1em;text-transform:uppercase}
+.pricing-price{font-size:3.4rem;font-weight:800;font-family:var(--mono);color:var(--text);line-height:1}
+.pricing-price sup{font-size:1.2rem;font-weight:600;vertical-align:top;margin-top:10px}
+.pricing-price span{font-size:.85rem;font-weight:400;color:var(--muted)}
+.pricing-tagline{color:var(--muted);font-size:.82rem;margin:10px 0 26px}
+.pricing-includes{text-align:left;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:26px}
+.pricing-includes-title{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.pricing-features{list-style:none;display:flex;flex-direction:column;gap:9px}
+.pricing-features li{display:flex;align-items:flex-start;gap:9px;font-size:.82rem;color:var(--muted);line-height:1.4}
+.pricing-features li::before{content:'✓';color:var(--accent);font-family:var(--mono);font-weight:700;flex-shrink:0;margin-top:1px}
+.pricing-features li strong{color:var(--text)}
+.cta-stack{display:flex;flex-direction:column;gap:10px;width:100%}
+.login-note{text-align:center;margin-top:14px;font-size:.75rem;color:var(--faint);font-family:var(--mono)}
 .login-note a{color:var(--accent)}
 
 /* ── FAQ ── */
-.faq-section{padding:64px 32px;max-width:700px;margin:0 auto}
-.faq-section h2{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:32px}
-.faq-item{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:2px}
+.faq-section{padding:72px 40px;max-width:700px;margin:0 auto}
+.faq-item{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:3px}
 .faq-toggle{display:none}
-.faq-label{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;font-size:.85rem;font-weight:500;transition:background .15s}
+.faq-label{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;font-size:.84rem;font-weight:500;transition:background .15s}
 .faq-label:hover{background:var(--card)}
 .faq-arrow{color:var(--accent);font-family:var(--mono);font-size:.7rem;transition:transform .25s}
 .faq-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
-.faq-body-inner{padding:0 18px 14px;font-size:.8rem;color:var(--muted);line-height:1.65;border-top:1px solid var(--dim);padding-top:12px}
+.faq-body-inner{padding:12px 18px 14px;font-size:.8rem;color:var(--muted);line-height:1.65;border-top:1px solid var(--dim)}
 .faq-toggle:checked~.faq-label .faq-arrow{transform:rotate(180deg)}
-.faq-toggle:checked~.faq-body{max-height:300px}
+.faq-toggle:checked~.faq-body{max-height:400px}
 
 /* ── Footer ── */
-footer{border-top:1px solid var(--dim);padding:28px 32px;text-align:center;font-size:.78rem;color:var(--faint)}
+footer{border-top:1px solid var(--dim);padding:28px 40px;text-align:center;font-size:.75rem;color:var(--faint)}
 footer a{color:var(--accent)}
 
+/* ── Responsive ── */
 @media(max-width:768px){
-  .eval-grid{grid-template-columns:repeat(2,1fr)}
-  .eval-grid .eval-card:last-child{grid-column:1/-1}
-  .steps{grid-template-columns:1fr}
-  nav{padding:12px 18px}
-  .hero{padding:60px 18px 40px}
-  .how-section,.faq-section,.pricing-section,.eval-section{padding:48px 18px}
+  nav{padding:0 18px}
+  .hero{padding:64px 20px 50px}
+  .products-section,.features-section,.how-section,.pricing-section,.faq-section{padding:56px 20px}
+  .products-grid{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr;gap:20px}
+  .divider-section{padding:40px 20px}
+}
+@media(max-width:480px){
+  .features-grid{grid-template-columns:1fr}
+  .how-tabs{max-width:100%}
 }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════════════════
+     NAV
+════════════════════════════════════════════════════════════ -->
 <nav>
-  <span class="nav-logo">Skills<span>For</span>IT — <span style="color:var(--muted)">MentorIA</span></span>
+  <span class="nav-logo">Skills<span>For</span>IT</span>
   <div class="nav-links">
     <a href="{% url 'core:inicio' %}">Inicio</a>
-    <a href="{% url 'core:ebook' %}">eBooks</a>
+    <a href="#productos">Productos</a>
+    <a href="#pricing">Precios</a>
     {% if is_authenticated %}
       <a href="{% url 'core:mentor_ia_checkout' %}" class="btn">Suscribirme →</a>
     {% else %}
       <a href="{% url 'core:login' %}" class="btn btn-outline">Iniciar sesión</a>
+      <a href="#pricing" class="btn">Comenzar →</a>
     {% endif %}
   </div>
 </nav>
 
-<!-- Hero -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════════ -->
 <section class="hero">
-  <span class="hero-kicker">// TU COACH DE SOFT SKILLS IT · 24/7 · POR TEXTO</span>
-  <h1>Las habilidades blandas que te frenan<br>tienen una <em>solución concreta</em>.</h1>
-  <p>MentorIA simula situaciones reales de trabajo y te da feedback específico sobre comunicación, entrevistas, trabajo en equipo y más. Sin teoría vacía. Sin horarios.</p>
+  <div class="hero-glow"></div>
+  <span class="hero-kicker">// SkillsForIT Pro · Coach IA + Roleplay · 24/7</span>
+  <h1>Entrenate en las soft skills<br>que separan al dev mediocre<br>del <em>referente del equipo</em>.</h1>
+  <p class="hero-sub">
+    Dos herramientas de práctica intensiva basadas en IA. MentorIA evalúa tus respuestas con feedback real. El Roleplay te pone en conversaciones difíciles donde tenés que actuar — no solo responder.
+  </p>
   <div class="hero-cta">
     {% if is_authenticated %}
       <a href="{% url 'core:mentor_ia_checkout' %}" class="btn btn-lg">Comenzar por USD ${{ precio_mensual }}/mes →</a>
     {% else %}
       <a href="#pricing" class="btn btn-lg">Comenzar ahora →</a>
     {% endif %}
-    <a href="#como-funciona" class="btn btn-outline btn-lg">Ver cómo funciona</a>
+    <a href="#productos" class="btn btn-outline btn-lg">Ver los productos ↓</a>
   </div>
   <div>
-    <span class="price-badge">
-      <strong>USD ${{ precio_mensual }}</strong>/mes · cancelá cuando quieras
+    <span class="hero-badge">
+      <strong>USD ${{ precio_mensual }}</strong>/mes · ambas herramientas · cancelá cuando quieras
     </span>
   </div>
 </section>
 
-<!-- Tipos de evaluación -->
-<section class="eval-section">
-  <h2>5 áreas de evaluación</h2>
-  <p class="subtitle">Elegís el área y MentorIA crea un escenario real para trabajarla</p>
-  <div class="eval-grid">
-    <div class="eval-card">
-      <span class="eval-icon">🎯</span>
-      <h3>Entrevistas de trabajo</h3>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRODUCTS
+════════════════════════════════════════════════════════════ -->
+<section class="products-section" id="productos">
+  <p class="section-label">// lo que incluye</p>
+  <h2 class="section-title">Dos productos. Un solo plan.</h2>
+  <p class="section-sub">Cada herramienta trabaja un ángulo diferente de las mismas habilidades.</p>
+
+  <div class="products-grid">
+
+    <!-- ── MentorIA ── -->
+    <div class="product-card">
+      <div class="term-bar">
+        <div class="term-dots">
+          <div class="term-dot red"></div>
+          <div class="term-dot yellow"></div>
+          <div class="term-dot green"></div>
+        </div>
+        <span class="term-title">mentoria — evaluación IA</span>
+      </div>
+      <div class="term-body">
+        <div class="term-line prompt">$ mentoria start --area comunicacion</div>
+        <div class="term-line dim">─────────────────────────────────────</div>
+        <div class="term-line out" style="margin-top:8px">
+          <span class="term-badge tb-purple">🤖 MentorIA</span>
+        </div>
+        <div class="term-line highlight" style="margin-top:6px;line-height:1.55;font-size:.71rem">"Tu Tech Lead acaba de pedirte una estimación para mañana. Sabés que el task toma 5 días. ¿Qué le escribís exactamente?"</div>
+        <div class="term-line out" style="margin-top:12px">
+          <span class="term-badge tb-blue">👤 Vos</span>
+        </div>
+        <div class="term-line" style="margin-top:6px;color:#d1d5db;font-size:.71rem;line-height:1.55">"Hola Marcos, estuve revisando la tarea y necesito ser directo: con lo relevado, el mínimo realista son 5 días. Puedo darte un breakdown detallado hoy a las 3pm si querés ajustar el scope."</div>
+        <div class="term-line dim" style="margin-top:10px">Evaluando respuesta… <span style="color:var(--accent)">██████████ 100%</span></div>
+        <div class="term-line" style="margin-top:6px;color:#34d399;font-size:.71rem">✓ Comunicación: 9/10 · Asertividad: 8/10 · Propone solución: ✓</div>
+      </div>
+      <div class="product-info">
+        <p class="product-tag">Producto 01</p>
+        <h3 class="product-name">MentorIA</h3>
+        <p class="product-desc">La IA plantea un escenario real de trabajo IT. Vos respondés como lo harías en el día a día. MentorIA evalúa tu comunicación, asertividad y madurez profesional — y te muestra exactamente cómo mejorar.</p>
+        <ul class="product-features">
+          <li>5 áreas: entrevistas, comunicación, equipo, problemas, proactividad</li>
+          <li>Feedback estructurado con puntaje por dimensión</li>
+          <li>La "respuesta perfecta" nivel Staff/Principal</li>
+          <li>Sesiones ilimitadas — nuevo escenario cada vez</li>
+        </ul>
+      </div>
     </div>
-    <div class="eval-card">
-      <span class="eval-icon">🧩</span>
-      <h3>Resolución de problemas</h3>
+
+    <!-- ── Roleplay ── -->
+    <div class="product-card">
+      <div class="term-bar">
+        <div class="term-dots">
+          <div class="term-dot red"></div>
+          <div class="term-dot yellow"></div>
+          <div class="term-dot green"></div>
+        </div>
+        <span class="term-title">roleplay — simulación conversacional</span>
+      </div>
+      <div class="term-body">
+        <div class="term-line prompt">$ roleplay start --scenario "conflicto-equipo"</div>
+        <div class="term-line dim">─────────────────────────────────────</div>
+        <div class="term-line out" style="margin-top:8px;font-size:.71rem">
+          <span class="term-badge tb-green">Liderazgo</span>
+          <span style="margin-left:6px;color:var(--faint)">Turno 2 / 4</span>
+        </div>
+        <div class="term-line out" style="margin-top:8px">
+          <span class="term-badge tb-purple">🤖 PM (Bot)</span>
+        </div>
+        <div class="term-line highlight" style="margin-top:6px;font-size:.71rem;line-height:1.55">"Mirá, entiendo que hay tensión con Lucas, pero el cliente ya preguntó dos veces por el feature. Necesito que lo resuelvan esta semana sí o sí."</div>
+        <div class="term-line out" style="margin-top:10px">
+          <span class="term-badge tb-blue">👤 Vos (Tech Lead)</span>
+        </div>
+        <div class="term-line" style="margin-top:6px;color:#d1d5db;font-size:.71rem;line-height:1.55">"Entiendo la urgencia. El problema con Lucas no es personal — es que bloqueó la PR de Mati sin dar feedback. Propongo: juntamos a los tres mañana 20 minutos y resolvemos el merge. ¿Te parece viable?"</div>
+        <div class="term-line" style="margin-top:10px;color:var(--accent);font-size:.71rem">▌ El PM considera tu propuesta...</div>
+      </div>
+      <div class="product-info">
+        <p class="product-tag">Producto 02</p>
+        <h3 class="product-name">Roleplay de Soft Skills</h3>
+        <p class="product-desc">Una conversación en tiempo real con una IA que juega un rol difícil — tu PM, un dev conflictivo, un cliente presionando. Tenés que responder en contexto, turno a turno. Al final recibís un informe de tu performance.</p>
+        <ul class="product-features">
+          <li>6 categorías con 30+ escenarios únicos</li>
+          <li>Conversaciones multi-turno con IA como contraparte</li>
+          <li>Informe final con análisis de cada intercambio</li>
+          <li>Practicás la respuesta, no solo la teoría</li>
+        </ul>
+      </div>
     </div>
-    <div class="eval-card">
-      <span class="eval-icon">🤝</span>
-      <h3>Trabajo en equipo</h3>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     DIVIDER / VALUE PROP
+════════════════════════════════════════════════════════════ -->
+<div class="divider-section">
+  <p>
+    <strong>MentorIA</strong> te entrena para pensar mejor bajo presión.
+    <strong>Roleplay</strong> te entrena para <em style="color:var(--accent);font-style:normal">comunicarlo</em> en tiempo real.<br>
+    Los dos juntos cubren el 90% de las situaciones que frenan carreras IT.
+  </p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     FEATURES GRID
+════════════════════════════════════════════════════════════ -->
+<section class="features-section">
+  <p class="section-label">// incluido en el plan</p>
+  <h2 class="section-title" style="margin-bottom:44px">Todo lo que necesitás para practicar</h2>
+  <div class="features-grid">
+    <div class="feat-card">
+      <span class="feat-icon">🧠</span>
+      <h3>IA de última generación</h3>
+      <p>GPT-4o como motor. Cada respuesta evaluada con el rigor de un coach senior en IT.</p>
     </div>
-    <div class="eval-card">
-      <span class="eval-icon">💬</span>
-      <h3>Comunicación asertiva</h3>
+    <div class="feat-card">
+      <span class="feat-icon">🎭</span>
+      <h3>180+ escenarios de Roleplay</h3>
+      <p>Comunicación, liderazgo, negociación, pensamiento crítico, innovación y carrera.</p>
     </div>
-    <div class="eval-card">
-      <span class="eval-icon">⚡</span>
-      <h3>Proactividad</h3>
+    <div class="feat-card">
+      <span class="feat-icon">📊</span>
+      <h3>Feedback estructurado</h3>
+      <p>Puntaje por dimensión, la respuesta ideal nivel Staff, y por qué funciona mejor.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">♾️</span>
+      <h3>Sin límites de uso</h3>
+      <p>Sesiones, mensajes y simulaciones ilimitadas. Nuevo escenario en cada partida.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">⚡</span>
+      <h3>Disponible 24/7</h3>
+      <p>Practicá antes de una entrevista, después de un conflicto difícil, o cuando tengas 10 minutos.</p>
+    </div>
+    <div class="feat-card">
+      <span class="feat-icon">🔒</span>
+      <h3>Privado y seguro</h3>
+      <p>Tus sesiones son tuyas. No se comparten ni se usan para entrenar modelos externos.</p>
     </div>
   </div>
 </section>
 
-<!-- Cómo funciona -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     HOW IT WORKS
+════════════════════════════════════════════════════════════ -->
 <section class="how-section" id="como-funciona">
-  <h2>Cómo funciona</h2>
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">01</div>
-      <h3>Elegís el área</h3>
-      <p>Seleccionás qué querés trabajar: entrevistas, comunicación, equipo, resolución de problemas o proactividad.</p>
+  <p class="section-label" style="text-align:center;margin-bottom:10px">// cómo funciona</p>
+  <h2 class="section-title" style="margin-bottom:36px">Simple de usar. Difícil de parar.</h2>
+
+  <div class="how-tabs">
+    <button class="how-tab active" onclick="showTab('mentoria', this)">MentorIA</button>
+    <button class="how-tab" onclick="showTab('roleplay', this)">Roleplay</button>
+  </div>
+
+  <div id="tab-mentoria" class="steps-panel active">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Elegís el área</h3>
+        <p>Entrevistas, comunicación, trabajo en equipo, resolución de problemas o proactividad.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Respondés el escenario</h3>
+        <p>MentorIA crea una situación real de trabajo IT y te pide que respondas como en el día a día.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Recibís feedback accionable</h3>
+        <p>Puntaje por dimensión, respuesta ideal nivel Staff, y la psicología detrás de cada elección.</p>
+      </div>
     </div>
-    <div class="step">
-      <div class="step-num">02</div>
-      <h3>MentorIA plantea el escenario</h3>
-      <p>La IA crea una situación real de trabajo IT y te pide que respondas como lo harías en el trabajo.</p>
-    </div>
-    <div class="step">
-      <div class="step-num">03</div>
-      <h3>Recibís feedback concreto</h3>
-      <p>MentorIA evalúa tu respuesta, te da un puntaje y te muestra exactamente cómo mejorarla con ejemplos reales.</p>
+  </div>
+
+  <div id="tab-roleplay" class="steps-panel">
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Elegís un escenario</h3>
+        <p>Más de 180 situaciones en 6 categorías. Desde conflictos de equipo hasta negociaciones con stakeholders.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Conversás turno a turno</h3>
+        <p>La IA juega un rol difícil — PM, dev, cliente. Respondés en contexto como si fuera real.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Leés el informe final</h3>
+        <p>Al cerrar la sesión, recibís un análisis completo de tu comunicación, asertividad y manejo del conflicto.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Pricing -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     PRICING
+════════════════════════════════════════════════════════════ -->
 <section class="pricing-section" id="pricing">
-  <h2>Un precio. Sin sorpresas.</h2>
+  <p class="section-label">// pricing</p>
+  <h2 class="section-title" style="margin-bottom:44px">Un precio. Dos herramientas. Sin sorpresas.</h2>
+
   <div class="pricing-card">
-    <span class="pricing-badge">ACCESO COMPLETO</span>
+    <span class="pricing-badge">SkillsForIT Pro</span>
     <div class="pricing-price">
       <sup>USD $</sup>{{ precio_mensual }}<span>/mes</span>
     </div>
-    <p class="pricing-desc">Cancelá cuando quieras desde tu panel</p>
-    <ul class="pricing-features">
-      <li>Acceso ilimitado a las 5 áreas de evaluación</li>
-      <li>Feedback inmediato con IA de última generación</li>
-      <li>Sesiones ilimitadas, sin límite de mensajes</li>
-      <li>Nuevos escenarios cada vez — nunca se repite</li>
-      <li>Sin contratos ni compromisos de permanencia</li>
-    </ul>
+    <p class="pricing-tagline">Cancelá cuando quieras · sin contratos</p>
+
+    <div class="pricing-includes">
+      <p class="pricing-includes-title">// incluye acceso completo a:</p>
+      <ul class="pricing-features">
+        <li><strong>MentorIA</strong> — coach IA con 5 áreas de evaluación, sesiones ilimitadas</li>
+        <li><strong>Roleplay de Soft Skills</strong> — 180+ escenarios en 6 categorías</li>
+        <li>Feedback detallado con puntaje y respuesta ideal en cada sesión</li>
+        <li>Informe final al terminar cada simulación de Roleplay</li>
+        <li>Nuevos escenarios generados dinámicamente — nunca se repite</li>
+        <li>Acceso 24/7 desde cualquier dispositivo</li>
+      </ul>
+    </div>
+
     {% if is_authenticated %}
-      <div style="display:flex;flex-direction:column;gap:10px;width:100%">
-        <form method="POST" action="{% url 'core:mentor_ia_checkout' %}">
+      <div class="cta-stack">
+        <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="width:100%">
           {% csrf_token %}
-          <button type="submit" class="btn btn-lg pricing-cta" style="width:100%;justify-content:center">
+          <button type="submit" class="btn btn-stripe btn-lg" style="width:100%;justify-content:center">
             💳 Pagar con tarjeta (Stripe) →
           </button>
         </form>
-        <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}">
+        <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="width:100%">
           {% csrf_token %}
-          <button type="submit" style="width:100%;padding:14px 32px;font-size:.9rem;font-weight:700;font-family:var(--mono);background:#009ee3;color:#fff;border:none;border-radius:var(--r);cursor:pointer;transition:background .2s;letter-spacing:.02em">
+          <button type="submit" class="btn btn-mp btn-lg" style="width:100%;justify-content:center">
             🇦🇷 Pagar con MercadoPago →
           </button>
         </form>
       </div>
     {% else %}
-      <div style="display:flex;flex-direction:column;gap:10px;width:100%">
-        <a href="{% url 'core:login' %}"
-           class="btn btn-lg pricing-cta" style="width:100%;justify-content:center">
+      <div class="cta-stack">
+        <a href="{% url 'core:login' %}" class="btn btn-stripe btn-lg" style="width:100%;justify-content:center">
           💳 Registrarme y pagar con Stripe →
         </a>
-        <a href="{% url 'core:login' %}"
-           style="display:flex;align-items:center;justify-content:center;width:100%;padding:14px 32px;font-size:.9rem;font-weight:700;font-family:var(--mono);background:#009ee3;color:#fff;border:none;border-radius:var(--r);cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;letter-spacing:.02em"
+        <a href="{% url 'core:login' %}" class="btn btn-mp btn-lg" style="width:100%;justify-content:center"
            onmouseover="this.style.background='#0087c3'" onmouseout="this.style.background='#009ee3'">
           🇦🇷 Registrarme y pagar con MercadoPago →
         </a>
       </div>
     {% endif %}
+
     <p class="login-note">
-      {% if not is_authenticated %}¿Ya tenés cuenta? <a href="{% url 'core:login' %}">Iniciá sesión</a>.{% endif %}
-      Pago 100% seguro · Stripe o MercadoPago.
+      {% if not is_authenticated %}
+        ¿Ya tenés cuenta? <a href="{% url 'core:login' %}">Iniciá sesión</a> ·
+      {% endif %}
+      Pago 100% seguro · Stripe o MercadoPago
     </p>
   </div>
 </section>
 
-<!-- FAQ -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     FAQ
+════════════════════════════════════════════════════════════ -->
 <section class="faq-section">
-  <h2>Preguntas frecuentes</h2>
+  <p class="section-label">// faq</p>
+  <h2 class="section-title" style="margin-bottom:32px">Preguntas frecuentes</h2>
   <div>
+
     <div class="faq-item">
       <input type="checkbox" class="faq-toggle" id="faq1" checked>
-      <label class="faq-label" for="faq1">¿Cómo sé que el feedback es realmente útil? <span class="faq-arrow">▼</span></label>
-      <div class="faq-body"><div class="faq-body-inner">MentorIA usa un modelo de lenguaje avanzado entrenado con miles de situaciones IT reales. El feedback es específico a tu respuesta — no genérico. Usamos frameworks como STAR para entrevistas y principios de comunicación asertiva para las otras áreas.</div></div>
+      <label class="faq-label" for="faq1">¿Qué diferencia hay entre MentorIA y el Roleplay? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">MentorIA es un evaluador: te da un escenario y analiza tu respuesta escrita con puntaje y ejemplos. El Roleplay es una simulación conversacional: la IA juega un rol (tu PM, un colega difícil, un cliente) y tenés que sostener la conversación turno a turno como si fuera real. Son herramientas complementarias — una te entrena el pensamiento, la otra el músculo comunicacional.</div></div>
     </div>
+
     <div class="faq-item">
       <input type="checkbox" class="faq-toggle" id="faq2">
-      <label class="faq-label" for="faq2">¿Puedo cancelar en cualquier momento? <span class="faq-arrow">▼</span></label>
-      <div class="faq-body"><div class="faq-body-inner">Sí. Cancelás desde tu panel de suscripciones y no se te cobra el siguiente período. No hay multas ni períodos mínimos.</div></div>
+      <label class="faq-label" for="faq2">¿El feedback es genérico o específico a mi respuesta? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">Es específico. Tanto MentorIA como el Roleplay analizan exactamente lo que escribiste — estructura verbal, empatía, asertividad, manejo del conflicto. No hay feedback pre-armado. Cada evaluación usa GPT-4o con el contexto completo de tu sesión.</div></div>
     </div>
+
     <div class="faq-item">
       <input type="checkbox" class="faq-toggle" id="faq3">
-      <label class="faq-label" for="faq3">¿Hay un límite de sesiones? <span class="faq-arrow">▼</span></label>
-      <div class="faq-body"><div class="faq-body-inner">No. Podés hacer tantas sesiones y enviar tantos mensajes como quieras. El modelo crea escenarios únicos cada vez, así que nunca se agota el contenido.</div></div>
+      <label class="faq-label" for="faq3">¿Puedo cancelar en cualquier momento? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">Sí, cancelás desde tu panel de suscripciones y no se te cobra el siguiente período. No hay multas ni períodos mínimos de permanencia. Si pagás con Stripe podés gestionar todo desde el portal de Stripe. Si pagás con MercadoPago podés cancelar directamente desde tu panel.</div></div>
     </div>
+
     <div class="faq-item">
       <input type="checkbox" class="faq-toggle" id="faq4">
-      <label class="faq-label" for="faq4">¿Mis conversaciones son privadas? <span class="faq-arrow">▼</span></label>
-      <div class="faq-body"><div class="faq-body-inner">Sí. Las sesiones están vinculadas a tu cuenta y solo vos podés acceder a ellas. No las compartimos ni las usamos para entrenar modelos.</div></div>
+      <label class="faq-label" for="faq4">¿Hay límite de sesiones o mensajes? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">No. Podés hacer tantas sesiones de MentorIA y tantas simulaciones de Roleplay como quieras. Los escenarios son generados o seleccionados dinámicamente, así que nunca se acaba el contenido.</div></div>
     </div>
+
+    <div class="faq-item">
+      <input type="checkbox" class="faq-toggle" id="faq5">
+      <label class="faq-label" for="faq5">¿Para qué perfil es útil esto? <span class="faq-arrow">▼</span></label>
+      <div class="faq-body"><div class="faq-body-inner">Para cualquier persona en la industria IT que quiera mejorar cómo se comunica, lidera, negocia o navega conflictos. Desde devs juniors preparando entrevistas hasta seniors que buscan pasar a roles de liderazgo. También es muy valorado por quienes trabajan en equipos distribuidos o en inglés, donde la claridad verbal es crítica.</div></div>
+    </div>
+
   </div>
 </section>
 
+
+<!-- ═══════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════════ -->
 <footer>
   <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
 </footer>
+
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.steps-panel').forEach(p => p.classList.remove('active'))
+  document.querySelectorAll('.how-tab').forEach(b => b.classList.remove('active'))
+  document.getElementById('tab-' + name).classList.add('active')
+  btn.classList.add('active')
+}
+</script>
 
 </body>
 </html>
