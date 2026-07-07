@@ -261,6 +261,10 @@ footer a{color:var(--accent)}
   <p class="hero-sub">
     El 75% de los CVs nunca llegan a recursos humanos — los filtra un ATS automático. Subí tu PDF y descubrí exactamente qué estás haciendo mal, antes de tu próxima postulación.
   </p>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:4px">
+    <span style="font-family:var(--mono);font-size:.68rem;background:rgba(52,211,153,.08);color:var(--accent);border:1px solid rgba(52,211,153,.2);border-radius:20px;padding:4px 12px">🌐 Español · English</span>
+    <span style="font-family:var(--mono);font-size:.68rem;background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:4px 12px">✓ CVs en español e inglés aceptados</span>
+  </div>
   <div class="hero-cta">
     <a href="{% url 'core:ats_evaluator' %}" class="btn btn-lg">Analizar mi CV ahora →</a>
     <a href="#como-funciona" class="btn btn-outline btn-lg">Cómo funciona ↓</a>
@@ -412,6 +416,11 @@ footer a{color:var(--accent)}
       <span class="trust-icon">💳</span>
       <h3>Pago único, sin trampa</h3>
       <p>USD ${{ precio_usd }} por análisis. Sin suscripción. Sin renovación automática. Pagás si querés el informe completo.</p>
+    </div>
+    <div class="trust-card">
+      <span class="trust-icon">🌐</span>
+      <h3>Español e inglés</h3>
+      <p>El análisis detecta automáticamente el idioma de tu CV. Si está en inglés, el informe se genera en inglés. Si está en español, en español rioplatense.</p>
     </div>
   </div>
 </section>

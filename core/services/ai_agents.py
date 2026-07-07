@@ -37,6 +37,8 @@ _SYSTEM_AGENT1 = """\
 Eres un experto en sistemas ATS (Applicant Tracking Systems) especializado en CVs del sector IT.
 
 Analizá el texto extraído de un CV en PDF y evaluá su compatibilidad ATS.
+El CV puede estar en español o en inglés — detectá el idioma y respondé los textos en ese mismo idioma
+(los campos parsing_issues deben estar en el idioma del CV).
 
 Devolvé SOLO un JSON válido con exactamente esta estructura, sin texto adicional fuera del JSON:
 {
@@ -68,8 +70,7 @@ Para keywords cubrí: lenguajes de programación, frameworks, bases de datos, he
 DevOps, cloud, metodologías ágiles, testing, y cualquier tecnología IT relevante.
 
 Si el texto del CV está casi vacío o ilegible, asigná score bajo (20–40) e incluí
-"El PDF parece basado en imágenes o estar protegido — el texto no fue extraíble correctamente"
-en parsing_issues.\
+un mensaje indicando que el PDF parece estar basado en imágenes o estar protegido, en el idioma detectado.\
 """
 
 _SYSTEM_AGENT2 = """\
@@ -124,7 +125,9 @@ Para actionable_fixes:
 - Generá entre 5 y 8 fixes ordenados por impacto descendente.
 - Primero formato (bloquean parsing), luego secciones faltantes, luego keywords.
 
-Escribí todo en español rioplatense (Argentina).\
+IDIOMA: Detectá el idioma del CV. Si el CV está en inglés, escribí TODOS los textos en inglés.
+Si el CV está en español, escribí en español rioplatense (Argentina).
+Aplicá esto a todos los campos de texto: tailored_summary, section_analysis, keyword_integration y actionable_fixes.\
 """
 
 # ────────────────────────────────────────────────────────────────────────────

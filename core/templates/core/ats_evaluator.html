@@ -138,6 +138,10 @@ footer a{color:var(--accent)}
     <span class="form-kicker">// ATS Evaluator · gratis · sin cuenta</span>
     <h1 class="form-title">Analizá tu CV con inteligencia artificial</h1>
     <p class="form-sub">Subí tu currículum en PDF y recibí un análisis completo: score ATS, keywords, formato, secciones y recomendaciones accionables.</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;margin-top:-16px">
+      <span style="font-family:var(--mono);font-size:.68rem;background:rgba(52,211,153,.08);color:var(--accent);border:1px solid rgba(52,211,153,.2);border-radius:20px;padding:3px 11px">🌐 Español · English</span>
+      <span style="font-family:var(--mono);font-size:.68rem;background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:3px 11px">CVs en español e inglés aceptados</span>
+    </div>
 
     {% if messages %}
       {% for msg in messages %}
@@ -151,7 +155,7 @@ footer a{color:var(--accent)}
       <div class="upload-zone" id="drop-zone">
         <span class="upload-icon">📄</span>
         <p class="upload-title">Arrastrá tu CV aquí o hacé clic para seleccionar</p>
-        <p class="upload-sub">Solo archivos PDF · máx. 10 MB</p>
+        <p class="upload-sub">Solo archivos PDF · máx. 10 MB · Español o inglés</p>
         <input type="file" name="cv" id="cv-input" accept=".pdf" required>
         <span class="upload-filename" id="file-name"></span>
       </div>
@@ -175,7 +179,7 @@ footer a{color:var(--accent)}
     <div class="ats-loading" id="loading">
       <div class="loading-ring"></div>
       <p class="loading-text">Analizando tu CV…</p>
-      <p class="loading-sub">Verificando formato, keywords y compatibilidad ATS. Puede tardar hasta 30 segundos.</p>
+      <p class="loading-sub">Verificando formato, keywords y compatibilidad ATS. El informe se genera en el idioma de tu CV. Puede tardar hasta 30 segundos.</p>
     </div>
   </div>
 </main>
