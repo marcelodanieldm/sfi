@@ -2,7 +2,7 @@
 from core.controllers.inicio_controller import inicio
 from core.controllers.habilidad_controller import lista_habilidades, detalle_habilidad
 from core.controllers.ats_controller import (
-    ats_evaluator, ats_resultado, ats_checkout, ats_informe_completo,
+    ats_landing, ats_evaluator, ats_resultado, ats_checkout, ats_informe_completo,
     ats_payment_create, ats_payment_success, ats_payment_cancel,
     webhook_stripe, webhook_mercadopago,
     descargar_pdf_reporte,
@@ -35,7 +35,7 @@ from core.controllers.roleplay_controller import (
 
 __all__ = [
     'inicio', 'lista_habilidades', 'detalle_habilidad',
-    'ats_evaluator', 'ats_resultado', 'ats_checkout', 'ats_informe_completo',
+    'ats_landing', 'ats_evaluator', 'ats_resultado', 'ats_checkout', 'ats_informe_completo',
     'ats_payment_create', 'ats_payment_success', 'ats_payment_cancel',
     'webhook_stripe', 'webhook_mercadopago',
     'descargar_pdf_reporte',

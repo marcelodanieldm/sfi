@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS Evaluator — Analizá tu CV con IA | SkillsForIT</title>
+<meta name="description" content="Subí tu CV en PDF y descubrí si pasa los filtros ATS. Análisis instantáneo con IA: score, keywords, formato y recomendaciones accionables.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--card:#1f2937;--border:#374151;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--accent-dark:#10b981;--glow:rgba(52,211,153,.12);
+  --mono:'JetBrains Mono',monospace;--r:8px;
+  --sab:env(safe-area-inset-bottom,0px);
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Nav ── */
+nav.lp-nav{
+  background:rgba(13,17,23,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--dim);
+  padding:0 40px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text);flex-shrink:0}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;gap:12px;align-items:center;flex-wrap:nowrap}
+.nav-links a{font-size:.82rem;color:var(--muted);transition:color .2s;white-space:nowrap}
+.nav-links a:hover{color:var(--accent)}
+
+.nav-ham{
+  display:none;width:40px;height:40px;
+  align-items:center;justify-content:center;
+  background:transparent;border:1px solid var(--border);
+  border-radius:6px;cursor:pointer;padding:0;
+  transition:border-color .2s;flex-shrink:0;
+}
+.nav-ham:hover,.nav-ham.open{border-color:var(--accent)}
+.nav-ham svg{display:block;pointer-events:none}
+
+.nav-drop{
+  display:none;flex-direction:column;
+  position:fixed;top:56px;left:0;right:0;
+  background:rgba(13,17,23,.98);
+  border-bottom:1px solid var(--dim);
+  z-index:49;padding:10px 16px 16px;gap:4px;
+  box-shadow:0 20px 48px rgba(0,0,0,.6);
+}
+.nav-drop.open{display:flex}
+.nav-drop-link{
+  display:block;padding:13px 16px;
+  font-size:.85rem;color:var(--muted);
+  border:1px solid transparent;border-radius:8px;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.nav-drop-link:hover{background:rgba(255,255,255,.04);border-color:var(--border);color:var(--text)}
+.nav-drop-link.primary{
+  background:var(--accent);color:#0d1117;
+  font-weight:700;font-family:var(--mono);font-size:.82rem;
+  text-align:center;border-color:var(--accent);
+  margin-top:4px;
+}
+.nav-drop-link.primary:hover{background:#6ee7b7;border-color:#6ee7b7}
+.nav-drop-sep{height:1px;background:var(--dim);margin:4px 0}
+.nav-ovl{display:none;position:fixed;inset:56px 0 0;z-index:48}
+.nav-ovl.open{display:block}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--accent);color:#0d1117;
+  font-size:.82rem;font-weight:700;font-family:var(--mono);
+  padding:9px 20px;border-radius:var(--r);
+  border:none;cursor:pointer;text-decoration:none;
+  transition:background .2s,transform .15s;
+  letter-spacing:.02em;white-space:nowrap;
+}
+.btn:hover{background:#6ee7b7;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid rgba(52,211,153,.4)}
+.btn-outline:hover{background:var(--glow);border-color:var(--accent)}
+.btn-lg{padding:14px 28px;font-size:.9rem}
+.btn-full{width:100%;justify-content:center;white-space:normal;text-align:center;line-height:1.35}
+
+/* ── Hero ── */
+.hero{max-width:960px;margin:0 auto;padding:80px 40px 64px;text-align:center;position:relative}
+.hero-glow{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse at 50% 40%,rgba(52,211,153,.09) 0%,transparent 60%);pointer-events:none}
+.hero-kicker{font-family:var(--mono);font-size:.72rem;color:var(--accent);letter-spacing:.2em;margin-bottom:18px;display:block;text-transform:uppercase}
+.hero h1{font-size:clamp(1.9rem,4.5vw,3.2rem);font-weight:800;line-height:1.12;letter-spacing:-.03em;margin-bottom:22px}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero-sub{font-size:clamp(.9rem,2.2vw,1.05rem);color:var(--muted);max-width:620px;margin:0 auto 36px;line-height:1.75}
+.hero-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.hero-cta .btn{white-space:normal;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:40px;padding:7px 16px;font-size:.78rem;color:var(--muted);margin-top:20px;font-family:var(--mono);flex-wrap:wrap;justify-content:center}
+.hero-badge strong{color:var(--accent)}
+
+/* ── Terminal mockup ── */
+.term-mockup{max-width:640px;margin:56px auto 0;background:#0d1117;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.term-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.term-dots{display:flex;gap:5px}
+.term-dot{width:10px;height:10px;border-radius:50%}
+.term-dot.red{background:#f87171}.term-dot.yellow{background:#fbbf24}.term-dot.green{background:#34d399}
+.term-title{font-family:var(--mono);font-size:.68rem;color:var(--faint);margin-left:6px}
+.term-body{padding:20px 22px}
+.term-line{font-family:var(--mono);font-size:.72rem;margin-bottom:7px;line-height:1.5}
+.term-line.prompt{color:var(--accent)}
+.term-line.out{color:var(--muted)}
+.term-line.dim{color:var(--faint)}
+.term-line.ok{color:#34d399}
+.term-line.warn{color:#fbbf24}
+.term-line.err{color:#f87171}
+.term-badge{display:inline-block;font-family:var(--mono);font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.06em}
+.tb-green{background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.2)}
+.tb-yellow{background:rgba(251,191,36,.08);color:#fbbf24}
+.tb-red{background:rgba(248,113,113,.08);color:#f87171}
+.tb-blue{background:#1e3a5f;color:#60a5fa}
+.score-bar-wrap{margin:10px 0 4px}
+.score-bar-track{height:6px;background:var(--dim);border-radius:3px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#fbbf24,#34d399)}
+
+/* ── How it works ── */
+.how-section{padding:72px 40px;max-width:960px;margin:0 auto}
+.section-label{font-family:var(--mono);font-size:.7rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;text-align:center;margin-bottom:10px}
+.section-title{font-size:clamp(1.25rem,3vw,1.5rem);font-weight:700;text-align:center;margin-bottom:6px}
+.section-sub{font-size:.9rem;color:var(--muted);text-align:center;margin-bottom:48px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.step{text-align:center}
+.step-num{width:40px;height:40px;border-radius:50%;background:var(--glow);border:1px solid rgba(52,211,153,.25);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem;font-weight:700;color:var(--accent);margin:0 auto 14px}
+.step h3{font-size:.9rem;font-weight:600;margin-bottom:6px}
+.step p{font-size:.8rem;color:var(--muted);line-height:1.6}
+
+/* ── Free vs Paid ── */
+.compare-section{background:var(--bg);padding:72px 40px}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:880px;margin:0 auto}
+.compare-card{background:#0d1117;border:1px solid var(--border);border-radius:16px;padding:28px 24px}
+.compare-card.paid{border-color:rgba(52,211,153,.35)}
+.compare-tag{font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.compare-tag.free{color:var(--muted)}
+.compare-tag.paid-tag{color:var(--accent)}
+.compare-card h3{font-size:1rem;font-weight:700;margin-bottom:16px}
+.compare-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.compare-list li{display:flex;align-items:flex-start;gap:9px;font-size:.82rem;color:var(--muted);line-height:1.45}
+.compare-list li.pass::before{content:'✓';color:var(--accent);font-family:var(--mono);font-weight:700;flex-shrink:0}
+.compare-list li.lock::before{content:'🔒';font-size:.7rem;flex-shrink:0;margin-top:2px}
+.compare-price{margin-top:20px;padding-top:16px;border-top:1px solid var(--dim)}
+.compare-price-val{font-family:var(--mono);font-size:1.5rem;font-weight:800;color:var(--text)}
+.compare-price-sub{font-size:.75rem;color:var(--muted);margin-top:2px}
+
+/* ── Trust ── */
+.trust-section{padding:64px 40px;max-width:960px;margin:0 auto}
+.trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.trust-card{background:#0d1117;border:1px solid var(--border);border-radius:12px;padding:22px 18px;transition:border-color .2s}
+.trust-card:hover{border-color:rgba(52,211,153,.25)}
+.trust-icon{font-size:1.4rem;margin-bottom:10px;display:block}
+.trust-card h3{font-size:.88rem;font-weight:600;margin-bottom:6px}
+.trust-card p{font-size:.77rem;color:var(--muted);line-height:1.6}
+
+/* ── CTA banner ── */
+.cta-section{background:var(--bg);padding:72px 40px;text-align:center}
+.cta-inner{max-width:560px;margin:0 auto}
+.cta-inner h2{font-size:clamp(1.4rem,3.5vw,2rem);font-weight:800;margin-bottom:14px;line-height:1.2}
+.cta-inner p{font-size:.9rem;color:var(--muted);margin-bottom:30px;line-height:1.7}
+.cta-stack{display:flex;flex-direction:column;gap:10px;max-width:340px;margin:0 auto}
+
+/* ── FAQ ── */
+.faq-section{padding:64px 40px;max-width:700px;margin:0 auto}
+.faq-item{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:3px}
+.faq-toggle{display:none}
+.faq-label{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;cursor:pointer;font-size:.84rem;font-weight:500;transition:background .15s}
+.faq-label:hover{background:var(--card)}
+.faq-arrow{color:var(--accent);font-family:var(--mono);font-size:.7rem;transition:transform .25s;flex-shrink:0;margin-left:12px}
+.faq-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.faq-body-inner{padding:12px 18px 14px;font-size:.8rem;color:var(--muted);line-height:1.65;border-top:1px solid var(--dim)}
+.faq-toggle:checked~.faq-label .faq-arrow{transform:rotate(180deg)}
+.faq-toggle:checked~.faq-body{max-height:400px}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--dim);padding:24px 40px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));text-align:center;font-size:.75rem;color:var(--faint)}
+footer a{color:var(--accent)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:860px){
+  nav.lp-nav{padding:0 20px}
+  .hero{padding:64px 24px 52px}
+  .how-section,.trust-section,.faq-section{padding:56px 24px}
+  .compare-section,.cta-section{padding:56px 24px}
+  .compare-grid{grid-template-columns:1fr}
+  .trust-grid{grid-template-columns:1fr 1fr}
+  .steps{grid-template-columns:1fr;gap:20px}
+  footer{padding:20px 24px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+}
+
+@media(max-width:640px){
+  nav.lp-nav{padding:0 16px;height:52px}
+  .nav-drop{top:52px}.nav-ovl{top:52px}
+  .nav-links{display:none}
+  .nav-ham{display:flex}
+  .nav-logo{font-size:.85rem}
+  .hero{padding:48px 16px 40px}
+  .hero-cta{flex-direction:column;align-items:stretch;gap:10px}
+  .hero-cta .btn{width:100%;padding:14px 20px}
+  .how-section,.trust-section,.faq-section{padding:44px 16px}
+  .compare-section,.cta-section{padding:44px 16px}
+  .term-mockup{margin-top:36px}
+  .faq-label{font-size:.8rem;padding:12px 14px}
+  .faq-body-inner{padding:10px 14px 12px}
+  footer{padding:18px 16px;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+}
+
+@media(max-width:480px){
+  .trust-grid{grid-template-columns:1fr}
+  .term-body{padding:14px 16px}
+  .term-line{font-size:.67rem}
+  .compare-card{padding:20px 16px}
+  .btn-lg{padding:13px 20px;font-size:.85rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="lp-nav">
+  <a href="{% url 'core:inicio' %}" class="nav-logo">Skills<em>For</em>IT</a>
+
+  <div class="nav-links">
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#que-incluye">Qué incluye</a>
+    <a href="#faq">FAQ</a>
+    <a href="{% url 'core:ats_evaluator' %}" class="btn" style="padding:8px 18px">Analizar mi CV →</a>
+  </div>
+
+  <button class="nav-ham" id="lpHam" aria-label="Menú" aria-expanded="false" type="button">
+    <svg id="lpIco" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#9ca3af" stroke-width="1.75" stroke-linecap="round">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9"   x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+</nav>
+
+<div class="nav-drop" id="lpDrop">
+  <a href="#como-funciona" class="nav-drop-link">⚡ Cómo funciona</a>
+  <a href="#que-incluye"   class="nav-drop-link">📋 Qué incluye</a>
+  <a href="#faq"           class="nav-drop-link">❓ FAQ</a>
+  <div class="nav-drop-sep"></div>
+  <a href="{% url 'core:ats_evaluator' %}" class="nav-drop-link primary">Analizar mi CV →</a>
+</div>
+<div class="nav-ovl" id="lpOvl"></div>
+
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <span class="hero-kicker">// ATS Evaluator · Análisis instantáneo con IA</span>
+  <h1>Tu CV está siendo rechazado <em>antes</em> de que un humano lo lea.</h1>
+  <p class="hero-sub">
+    El 75% de los CVs nunca llegan a recursos humanos — los filtra un ATS automático. Subí tu PDF y descubrí exactamente qué estás haciendo mal, antes de tu próxima postulación.
+  </p>
+  <div class="hero-cta">
+    <a href="{% url 'core:ats_evaluator' %}" class="btn btn-lg">Analizar mi CV ahora →</a>
+    <a href="#como-funciona" class="btn btn-outline btn-lg">Cómo funciona ↓</a>
+  </div>
+  <div>
+    <span class="hero-badge">
+      Vista previa gratuita · Informe completo por <strong>USD ${{ precio_usd }}</strong> · sin suscripción
+    </span>
+  </div>
+
+  <!-- Terminal mockup -->
+  <div class="term-mockup">
+    <div class="term-bar">
+      <div class="term-dots">
+        <div class="term-dot red"></div><div class="term-dot yellow"></div><div class="term-dot green"></div>
+      </div>
+      <span class="term-title">ats-evaluator — análisis CV_2025.pdf</span>
+    </div>
+    <div class="term-body">
+      <div class="term-line prompt">$ ats-eval --file CV_2025.pdf --jd "Senior Python Dev"</div>
+      <div class="term-line dim" style="margin-top:4px">Extrayendo texto del PDF... ✓</div>
+      <div class="term-line dim">Analizando compatibilidad ATS... ✓</div>
+      <div class="term-line dim" style="margin-bottom:12px">Evaluando keywords y formato... ✓</div>
+      <div class="term-line out"><span class="term-badge tb-yellow">⚠ SCORE ATS</span>&nbsp; 58 / 100</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:58%"></div></div>
+      </div>
+      <div class="term-line ok" style="margin-top:10px">✓ Legibilidad del PDF: OK</div>
+      <div class="term-line ok">✓ Secciones detectadas: Experiencia, Educación, Skills</div>
+      <div class="term-line warn">⚠ Keywords faltantes: Docker, CI/CD, REST APIs (3 de 8)</div>
+      <div class="term-line err">✗ Formato: tablas detectadas — los ATS no las procesan</div>
+      <div class="term-line err" style="margin-bottom:12px">✗ Foto en el CV — aumenta tasa de rechazo</div>
+      <div class="term-line dim">──────────────────────────────────────────</div>
+      <div class="term-line out" style="margin-top:8px"><span class="term-badge tb-blue">🔒 INFORME COMPLETO</span>&nbsp; recomendaciones por sección · PDF descargable</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how-section" id="como-funciona">
+  <p class="section-label">// cómo funciona</p>
+  <h2 class="section-title" style="margin-bottom:10px">Tres pasos. Menos de dos minutos.</h2>
+  <p class="section-sub">No necesitás cuenta para empezar.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h3>Subís tu CV en PDF</h3>
+      <p>Arrastrá o seleccioná el archivo. Opcional: pegá la descripción del trabajo para un análisis de compatibilidad más preciso.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h3>La IA analiza en segundos</h3>
+      <p>GPT-4o extrae el contenido, detecta problemas de formato, analiza keywords y compara contra las exigencias del mercado IT.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h3>Recibís el informe</h3>
+      <p>Vista previa gratuita con el score y los problemas principales. Desbloqueá el informe completo con recomendaciones accionables por USD ${{ precio_usd }}.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ FREE VS PAID ═══ -->
+<section class="compare-section" id="que-incluye">
+  <p class="section-label">// qué incluye</p>
+  <h2 class="section-title" style="margin-bottom:8px">Vista previa gratuita vs. Informe completo</h2>
+  <p class="section-sub">El análisis gratuito muestra los problemas. El informe completo te dice cómo resolverlos.</p>
+
+  <div class="compare-grid">
+
+    <!-- Free -->
+    <div class="compare-card">
+      <p class="compare-tag free">// gratis · sin cuenta</p>
+      <h3>Vista previa</h3>
+      <ul class="compare-list">
+        <li class="pass">Score ATS global (0–100)</li>
+        <li class="pass">Verificación de legibilidad del PDF</li>
+        <li class="pass">Detección de secciones principales</li>
+        <li class="pass">Listado de problemas críticos de formato</li>
+        <li class="pass">Keywords faltantes (listado resumido)</li>
+        <li class="lock" style="color:var(--faint)">Análisis detallado por sección</li>
+        <li class="lock" style="color:var(--faint)">Recomendaciones accionables</li>
+        <li class="lock" style="color:var(--faint)">Comparación contra la oferta de trabajo</li>
+        <li class="lock" style="color:var(--faint)">PDF descargable del informe</li>
+      </ul>
+      <div class="compare-price">
+        <div class="compare-price-val">Gratis</div>
+        <p class="compare-price-sub">Sin registro · resultados inmediatos</p>
+      </div>
+    </div>
+
+    <!-- Paid -->
+    <div class="compare-card paid">
+      <p class="compare-tag paid-tag">// informe completo · pago único</p>
+      <h3>Análisis completo</h3>
+      <ul class="compare-list">
+        <li class="pass">Todo lo de la vista previa</li>
+        <li class="pass"><strong style="color:var(--text)">Análisis detallado por sección</strong> — Experiencia, Skills, Educación</li>
+        <li class="pass"><strong style="color:var(--text)">Recomendaciones accionables</strong> — qué cambiar y cómo</li>
+        <li class="pass"><strong style="color:var(--text)">Análisis completo de keywords</strong> — detectadas vs. requeridas</li>
+        <li class="pass">Compatibilidad contra la oferta de trabajo ingresada</li>
+        <li class="pass">Sugerencias de redacción para cada sección</li>
+        <li class="pass"><strong style="color:var(--text)">PDF descargable</strong> con todo el informe</li>
+        <li class="pass">Enviado por email como respaldo</li>
+      </ul>
+      <div class="compare-price">
+        <div class="compare-price-val">USD ${{ precio_usd }}</div>
+        <p class="compare-price-sub">Pago único por análisis · sin suscripción · Stripe o MercadoPago</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══ TRUST ═══ -->
+<section class="trust-section">
+  <p class="section-label">// por qué confiar</p>
+  <h2 class="section-title" style="margin-bottom:40px">Análisis serio, no genérico</h2>
+  <div class="trust-grid">
+    <div class="trust-card">
+      <span class="trust-icon">🧠</span>
+      <h3>GPT-4o como motor</h3>
+      <p>El mismo modelo que usan los mejores equipos de IA del mundo. Cada análisis es específico a tu CV, no un template pre-armado.</p>
+    </div>
+    <div class="trust-card">
+      <span class="trust-icon">🎯</span>
+      <h3>Foco en IT</h3>
+      <p>Entrenado para roles de tecnología: desarrollo, datos, DevOps, QA, liderazgo técnico. Keywords, secciones y criterios del mercado IT.</p>
+    </div>
+    <div class="trust-card">
+      <span class="trust-icon">📄</span>
+      <h3>Sin templates genéricos</h3>
+      <p>El análisis lee tu CV real y responde a lo que hay — o lo que falta. No aplica la misma plantilla a todos.</p>
+    </div>
+    <div class="trust-card">
+      <span class="trust-icon">🔒</span>
+      <h3>Tu CV es tuyo</h3>
+      <p>No guardamos tus archivos más allá del procesamiento. Tu CV no se usa para entrenar modelos.</p>
+    </div>
+    <div class="trust-card">
+      <span class="trust-icon">⚡</span>
+      <h3>Resultados en segundos</h3>
+      <p>El análisis tarda menos de 30 segundos. Sin colas, sin esperas, sin necesidad de agendar nada.</p>
+    </div>
+    <div class="trust-card">
+      <span class="trust-icon">💳</span>
+      <h3>Pago único, sin trampa</h3>
+      <p>USD ${{ precio_usd }} por análisis. Sin suscripción. Sin renovación automática. Pagás si querés el informe completo.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ CTA BANNER ═══ -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>Subí tu CV ahora — la vista previa es <em style="color:var(--accent)">gratis</em>.</h2>
+    <p>Descubrí en menos de dos minutos por qué tu CV no está llegando a las entrevistas, y qué podés hacer hoy para cambiarlo.</p>
+    <div class="cta-stack">
+      <a href="{% url 'core:ats_evaluator' %}" class="btn btn-lg btn-full">Analizar mi CV →</a>
+    </div>
+    <p style="font-size:.75rem;color:var(--faint);margin-top:14px;font-family:var(--mono)">
+      Sin registro · vista previa gratis · informe completo USD ${{ precio_usd }}
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══ FAQ ═══ -->
+<section class="faq-section" id="faq">
+  <p class="section-label">// faq</p>
+  <h2 class="section-title" style="margin-bottom:28px">Preguntas frecuentes</h2>
+
+  <div class="faq-item">
+    <input type="checkbox" class="faq-toggle" id="faq1" checked>
+    <label class="faq-label" for="faq1">¿Qué es un sistema ATS y por qué importa? <span class="faq-arrow">▼</span></label>
+    <div class="faq-body"><div class="faq-body-inner">ATS significa Applicant Tracking System — es el software que usan la mayoría de las empresas medianas y grandes para filtrar CVs antes de que lleguen a recursos humanos. Si tu CV tiene tablas, columnas múltiples, imágenes o keywords incorrectos, el sistema lo descarta automáticamente. El 75% de los CVs no pasan este filtro.</div></div>
+  </div>
+
+  <div class="faq-item">
+    <input type="checkbox" class="faq-toggle" id="faq2">
+    <label class="faq-label" for="faq2">¿Necesito crear una cuenta? <span class="faq-arrow">▼</span></label>
+    <div class="faq-body"><div class="faq-body-inner">No. Podés subir tu CV y ver la vista previa gratuita sin ningún registro. Solo necesitás registrarte si querés comprar el informe completo para poder enviártelo por email.</div></div>
+  </div>
+
+  <div class="faq-item">
+    <input type="checkbox" class="faq-toggle" id="faq3">
+    <label class="faq-label" for="faq3">¿Cuánto tiempo tarda el análisis? <span class="faq-arrow">▼</span></label>
+    <div class="faq-body"><div class="faq-body-inner">El análisis inicial tarda entre 15 y 30 segundos. Si agregás una descripción de trabajo el proceso puede tomar algunos segundos más, pero en ningún caso supera el minuto. El informe completo se genera en el mismo tiempo.</div></div>
+  </div>
+
+  <div class="faq-item">
+    <input type="checkbox" class="faq-toggle" id="faq4">
+    <label class="faq-label" for="faq4">¿Mis datos y mi CV son seguros? <span class="faq-arrow">▼</span></label>
+    <div class="faq-body"><div class="faq-body-inner">Sí. Tu CV se procesa para el análisis y no se almacena de manera permanente. No lo compartimos con terceros ni lo usamos para entrenar modelos. El pago es gestionado por Stripe o MercadoPago — nunca accedemos a tus datos de tarjeta.</div></div>
+  </div>
+
+  <div class="faq-item">
+    <input type="checkbox" class="faq-toggle" id="faq5">
+    <label class="faq-label" for="faq5">¿Para qué tipo de roles sirve? <span class="faq-arrow">▼</span></label>
+    <div class="faq-body"><div class="faq-body-inner">Está optimizado para roles de tecnología: desarrollo de software, datos e IA, DevOps/SRE, QA, producto, UX y liderazgo técnico. Si trabajás en IT o querés entrar al sector, el análisis es altamente relevante.</div></div>
+  </div>
+
+  <div class="faq-item">
+    <input type="checkbox" class="faq-toggle" id="faq6">
+    <label class="faq-label" for="faq6">¿Puedo usarlo más de una vez? <span class="faq-arrow">▼</span></label>
+    <div class="faq-body"><div class="faq-body-inner">Sí. Podés hacer tantos análisis como quieras. Cada análisis es independiente: subís un CV, pagás el informe si lo querés, y listo. Sin suscripciones. Muchos usuarios lo usan para comparar versiones del CV antes y después de las mejoras.</div></div>
+  </div>
+
+</section>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
+
+
+<script>
+(function(){
+  var ham  = document.getElementById('lpHam'),
+      drop = document.getElementById('lpDrop'),
+      ovl  = document.getElementById('lpOvl'),
+      ico  = document.getElementById('lpIco'),
+      open = false;
+  var LINES = '<line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>';
+  var CROSS = '<line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/>';
+  function show(){ open=true; drop.classList.add('open'); ovl.classList.add('open'); ham.setAttribute('aria-expanded','true'); ico.innerHTML=CROSS; ham.classList.add('open'); }
+  function hide(){ open=false; drop.classList.remove('open'); ovl.classList.remove('open'); ham.setAttribute('aria-expanded','false'); ico.innerHTML=LINES; ham.classList.remove('open'); }
+  ham.addEventListener('click', function(){ open ? hide() : show(); });
+  ovl.addEventListener('click', hide);
+  drop.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', hide); });
+}());
+</script>
+
+</body>
+</html>

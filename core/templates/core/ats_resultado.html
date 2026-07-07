@@ -1,171 +1,453 @@
-{% extends 'core/base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultado ATS — SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--card:#1f2937;--border:#374151;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--glow:rgba(52,211,153,.12);
+  --ok:#34d399;--warn:#fbbf24;--err:#f87171;--blue:#60a5fa;
+  --mono:'JetBrains Mono',monospace;--r:10px;
+}
+a{color:inherit;text-decoration:none}
 
-{% block title %}Resultado ATS — SkillsForIT{% endblock %}
+/* ── Nav ── */
+nav.lp-nav{background:rgba(13,17,23,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--dim);padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text);flex-shrink:0}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;gap:12px;align-items:center}
+.nav-links a{font-size:.82rem;color:var(--muted);transition:color .2s;white-space:nowrap}
+.nav-links a:hover{color:var(--accent)}
+.nav-ham{display:none;width:40px;height:40px;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:0;transition:border-color .2s;flex-shrink:0}
+.nav-ham:hover,.nav-ham.open{border-color:var(--accent)}
+.nav-ham svg{display:block;pointer-events:none}
+.nav-drop{display:none;flex-direction:column;position:fixed;top:56px;left:0;right:0;background:rgba(13,17,23,.98);border-bottom:1px solid var(--dim);z-index:49;padding:10px 16px 16px;gap:4px;box-shadow:0 20px 48px rgba(0,0,0,.6)}
+.nav-drop.open{display:flex}
+.nav-drop-link{display:block;padding:13px 16px;font-size:.85rem;color:var(--muted);border:1px solid transparent;border-radius:8px;transition:background .15s,color .15s,border-color .15s}
+.nav-drop-link:hover{background:rgba(255,255,255,.04);border-color:var(--border);color:var(--text)}
+.nav-drop-link.primary{background:var(--accent);color:#0d1117;font-weight:700;font-family:var(--mono);font-size:.82rem;text-align:center;border-color:var(--accent);margin-top:4px}
+.nav-drop-sep{height:1px;background:var(--dim);margin:4px 0}
+.nav-ovl{display:none;position:fixed;inset:56px 0 0;z-index:48}
+.nav-ovl.open{display:block}
 
-{% block content %}
-<section class="page-hero page-hero--blue">
-    <div class="page-hero-inner">
-        <span class="page-hero-tag">Evaluador ATS</span>
-        <h1>Tu informe de compatibilidad ATS</h1>
-        <p class="ats-filename">📄 {{ analisis.archivo_nombre }}</p>
-    </div>
-</section>
+/* ── Page layout ── */
+.page{max-width:800px;margin:0 auto;padding:40px 24px 64px}
+.divider{height:1px;background:var(--dim);margin:28px 0}
+.section-label{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
 
-<div class="page-container ats-resultado-layout">
+/* ── Score hero ── */
+.score-hero{display:flex;align-items:center;gap:32px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:28px;position:relative;overflow:hidden}
+.score-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(ellipse,rgba(52,211,153,.06) 0%,transparent 70%);pointer-events:none}
+.score-ring{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.score-ring::before{content:'';position:absolute;inset:10px;background:#0d1117;border-radius:50%;z-index:1}
+.score-inner{position:relative;z-index:2;text-align:center}
+.score-num{display:block;font-family:var(--mono);font-size:1.8rem;font-weight:800;line-height:1}
+.score-denom{display:block;font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-top:2px}
+.score-meta{flex:1;min-width:0}
+.score-label-badge{display:inline-block;font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+.score-title{font-size:1.05rem;font-weight:700;margin-bottom:6px}
+.score-desc{font-size:.82rem;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.score-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.score-badge{font-family:var(--mono);font-size:.65rem;padding:4px 10px;border-radius:6px;border:1px solid var(--border);color:var(--muted)}
+.score-badge.jd{color:var(--accent);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.04)}
 
-    <!-- Score principal -->
-    <div class="ats-score-card">
-        <div class="ats-score-donut" style="--score-color:{{ score_info.css }}; --score-pct:{{ analisis.score_ats }}%">
-            <div class="ats-score-inner">
-                <span class="ats-score-num">{{ analisis.score_ats }}</span>
-                <span class="ats-score-denom">/100</span>
-                <span class="ats-score-label" style="color:{{ score_info.css }}">{{ score_info.label }}</span>
-            </div>
-        </div>
-        <div class="ats-score-meta">
-            <h2>Puntaje ATS Global</h2>
-            <p>
-                {% if analisis.score_ats >= 80 %}
-                    Tu CV tiene buena compatibilidad ATS. Hay algunas mejoras menores posibles.
-                {% elif analisis.score_ats >= 65 %}
-                    Tu CV es aceptable pero puede mejorar significativamente con ajustes concretos.
-                {% elif analisis.score_ats >= 50 %}
-                    Tu CV necesita mejoras importantes para pasar los filtros ATS automáticos.
-                {% else %}
-                    Tu CV tiene problemas críticos que hacen que sea rechazado por la mayoría de los ATS.
-                {% endif %}
-            </p>
-            {% if analisis.jd_texto %}
-            <span class="jd-badge">✓ Analizado contra descripción del trabajo</span>
-            {% endif %}
-        </div>
-    </div>
+/* projected bar */
+.proj-label{font-size:.74rem;color:var(--muted);margin-bottom:6px;font-family:var(--mono)}
+.proj-label strong{color:var(--text)}
+.proj-label .proj-score{color:var(--accent)}
+.proj-track{height:6px;background:var(--dim);border-radius:3px;overflow:hidden;position:relative}
+.proj-fill-target{position:absolute;top:0;height:100%;background:var(--accent);border-radius:3px;opacity:.3;width:0;transition:width 1s ease}
+.proj-fill-current{position:absolute;top:0;height:100%;border-radius:3px;width:0;transition:width 1s ease}
 
-    <!-- Checks gratuitos -->
-    <div class="ats-checks">
+/* ── Cards ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:16px}
+.card-title{font-size:.92rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 
-        <!-- 1. Legibilidad -->
-        <div class="ats-check-card {% if analisis.legibilidad_ok %}check-pass{% else %}check-fail{% endif %}">
-            <div class="check-header">
-                <span class="check-icon-big">{% if analisis.legibilidad_ok %}✅{% else %}❌{% endif %}</span>
-                <div>
-                    <h3>Verificación de legibilidad</h3>
-                    <p>{% if analisis.legibilidad_ok %}El formato de tu CV es legible por los ATS.{% else %}Se detectaron {{ analisis.problemas_formato|length }} problema(s) de formato.{% endif %}</p>
-                </div>
-            </div>
-            {% if not analisis.legibilidad_ok %}
-            <ul class="check-detail-list">
-                {% for p in analisis.problemas_formato %}
-                <li>⚠️ {{ p }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
+/* status banners */
+.status-ok{display:flex;align-items:flex-start;gap:10px;background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.2);border-radius:8px;padding:12px 14px;font-size:.82rem}
+.status-warn{display:flex;align-items:flex-start;gap:10px;background:rgba(251,191,36,.05);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:12px 14px;font-size:.82rem}
+.status-err{display:flex;align-items:flex-start;gap:10px;background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.2);border-radius:8px;padding:12px 14px;font-size:.82rem}
+.status-ico{flex-shrink:0;margin-top:1px}
+.status-body strong{display:block;font-weight:600;margin-bottom:2px}
+.status-body p{font-size:.78rem;color:var(--muted)}
+.status-ok .status-body strong{color:var(--ok)}
+.status-warn .status-body strong{color:var(--warn)}
+.status-err .status-body strong{color:var(--err)}
 
-        <!-- 2. Keywords encontradas -->
-        <div class="ats-check-card check-info">
-            <div class="check-header">
-                <span class="check-icon-big">🔑</span>
-                <div>
-                    <h3>Keywords detectadas</h3>
-                    <p>{{ analisis.keywords_encontradas|length }} keywords de tecnología encontradas en tu CV.</p>
-                </div>
-            </div>
-            <div class="keywords-grid">
-                {% for kw in analisis.keywords_encontradas %}
-                <span class="kw-badge kw-found">{{ kw }}</span>
-                {% endfor %}
-            </div>
-            <div class="keywords-missing-preview">
-                <p class="missing-label">⚠️ {{ analisis.keywords_faltantes|length }} keywords relevantes no encontradas</p>
-                <div class="keywords-grid">
-                    {% for kw in analisis.keywords_faltantes|slice:":4" %}
-                    <span class="kw-badge kw-missing">{{ kw }}</span>
-                    {% endfor %}
-                    {% if analisis.keywords_faltantes|length > 4 %}
-                    <span class="kw-badge kw-locked">+{{ analisis.keywords_faltantes|length|add:"-4" }} más 🔒</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+/* problems list */
+.problems-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.problems-list li{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--muted);line-height:1.5;padding:8px 10px;background:rgba(248,113,113,.03);border:1px solid rgba(248,113,113,.12);border-radius:6px}
+.problems-list li::before{content:'⚠';color:var(--warn);flex-shrink:0}
 
-        <!-- 3. Secciones -->
-        <div class="ats-check-card {% if analisis.secciones_faltantes %}check-warn{% else %}check-pass{% endif %}">
-            <div class="check-header">
-                <span class="check-icon-big">📋</span>
-                <div>
-                    <h3>Secciones del CV</h3>
-                    <p>{{ analisis.secciones_presentes|length }} secciones detectadas{% if analisis.secciones_faltantes %}, {{ analisis.secciones_faltantes|length }} faltantes{% endif %}.</p>
-                </div>
-            </div>
-            <div class="secciones-grid">
-                {% for s in analisis.secciones_presentes %}
-                <span class="seccion-badge seccion-ok">✓ {{ s }}</span>
-                {% endfor %}
-                {% for s in analisis.secciones_faltantes %}
-                <span class="seccion-badge seccion-miss">✗ {{ s }}</span>
-                {% endfor %}
-            </div>
-        </div>
+/* ── Keywords ── */
+.kw-section{display:flex;flex-direction:column;gap:18px}
+.kw-group-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.kw-found .kw-group-title{color:var(--ok)}
+.kw-missing .kw-group-title{color:var(--warn)}
+.kw-count{font-size:.75rem;color:var(--muted);margin-bottom:10px}
+.kw-grid{display:flex;flex-wrap:wrap;gap:6px}
+.kw-tag{font-family:var(--mono);font-size:.67rem;font-weight:600;padding:3px 9px;border-radius:6px}
+.kw-tag.found{background:rgba(52,211,153,.1);color:var(--ok);border:1px solid rgba(52,211,153,.2)}
+.kw-tag.missing{background:rgba(251,191,36,.08);color:var(--warn);border:1px solid rgba(251,191,36,.2)}
+.kw-sep{height:1px;background:var(--dim);margin:4px 0}
 
-    </div><!-- /checks -->
+/* ── Sections ── */
+.sec-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.sec-tag{font-family:var(--mono);font-size:.67rem;font-weight:600;padding:4px 10px;border-radius:6px;display:flex;align-items:center;gap:5px}
+.sec-tag.ok{background:rgba(52,211,153,.08);color:var(--ok);border:1px solid rgba(52,211,153,.2)}
+.sec-tag.miss{background:rgba(248,113,113,.06);color:var(--err);border:1px solid rgba(248,113,113,.2)}
 
-    <!-- PAYWALL -->
-    <div class="paywall-wrapper">
-        <div class="paywall-blur-bg">
-            <div class="paywall-blur-items">
-                <div class="paywall-blur-item">
-                    <span class="rec-type-dot rec-type-dot--formato"></span>
-                    <div>
-                        <strong>Problema de formato crítico</strong>
-                        <p>Convertí tu CV a formato de una sola columna...</p>
-                    </div>
-                </div>
-                <div class="paywall-blur-item">
-                    <span class="rec-type-dot rec-type-dot--keyword"></span>
-                    <div>
-                        <strong>Keyword faltante: "Docker"</strong>
-                        <p>Agregá "Docker" en tu sección de Habilidades con el ejemplo exacto...</p>
-                    </div>
-                </div>
-                <div class="paywall-blur-item">
-                    <span class="rec-type-dot rec-type-dot--seccion"></span>
-                    <div>
-                        <strong>Sección faltante: Perfil Profesional</strong>
-                        <p>Usá exactamente el título "Perfil Profesional" y este template...</p>
-                    </div>
-                </div>
-                <div class="paywall-blur-item">
-                    <span class="rec-type-dot rec-type-dot--keyword"></span>
-                    <div>
-                        <strong>Keyword faltante: "CI/CD"</strong>
-                        <p>Mencioná "CI/CD" en la descripción de tu experiencia laboral...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+/* ── Recommendations ── */
+.rec-group{margin-bottom:24px}
+.rec-group-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rec-group-label{font-size:.78rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.rec-group-line{flex:1;height:1px;background:var(--dim)}
 
-        <div class="paywall-lock-panel">
-            <span class="paywall-lock-icon">🔒</span>
-            <h2>Desbloquear Plan de Acción IA</h2>
-            <p>Tu CV tiene <strong>{{ n_recs }} recomendaciones concretas</strong> de mejora. Desbloqueá el plan completo con las redacciones exactas.</p>
-            <ul class="paywall-features">
-                <li>✓ {{ n_recs }} recomendaciones de redacción exactas</li>
-                <li>✓ Templates listos para copiar y pegar</li>
-                <li>✓ Guía de integración de keywords</li>
-                <li>✓ Plan de acción priorizado</li>
-                <li>✓ Informe PDF descargable</li>
-            </ul>
-            <a href="{% url 'core:ats_checkout' uuid=analisis.id %}" class="btn-unlock">
-                Desbloquear Plan de Acción IA + Descargar PDF
-            </a>
-            <p class="paywall-price">USD {{ precio_usd }} · Pago único · Sin suscripción</p>
-        </div>
-    </div>
+.rec-toggle{display:none}
+.rec-card{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px}
+.rec-label{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;transition:background .15s;user-select:none}
+.rec-label:hover{background:rgba(255,255,255,.02)}
+.rec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rec-titulo{font-size:.83rem;font-weight:600;flex:1;line-height:1.35}
+.rec-arrow{color:var(--muted);font-family:var(--mono);font-size:.65rem;transition:transform .25s;flex-shrink:0}
+.rec-toggle:checked ~ .rec-label .rec-arrow{transform:rotate(180deg)}
+.rec-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+.rec-toggle:checked ~ .rec-body{max-height:800px}
+.rec-body-inner{padding:0 16px 16px;border-top:1px solid var(--dim)}
+.rec-desc{font-size:.8rem;color:var(--muted);line-height:1.65;margin-top:12px;margin-bottom:12px}
+.rec-how-label{font-family:var(--mono);font-size:.62rem;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.rec-how{font-size:.8rem;color:var(--text);line-height:1.65;background:rgba(52,211,153,.04);border:1px solid rgba(52,211,153,.15);border-radius:6px;padding:10px 12px;margin-bottom:12px}
+.rec-ex{background:#0d1117;border:1px solid var(--dim);border-radius:6px;padding:10px 12px}
+.rec-ex-label{font-family:var(--mono);font-size:.6rem;color:var(--faint);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rec-ex pre{font-family:var(--mono);font-size:.7rem;color:var(--muted);white-space:pre-wrap;line-height:1.6}
 
-    <div class="ats-retry">
-        <a href="{% url 'core:ats_evaluator' %}" class="btn-outline">← Analizar otro CV</a>
-    </div>
+/* ── JD card ── */
+.jd-card{background:rgba(96,165,250,.03);border:1px solid rgba(96,165,250,.2);border-radius:var(--r);padding:20px;margin-bottom:16px}
+.jd-card-title{font-size:.85rem;font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.jd-card-desc{font-size:.79rem;color:var(--muted);line-height:1.65;margin-bottom:12px}
+.jd-preview{font-size:.72rem;color:var(--faint);font-family:var(--mono);background:#0d1117;border:1px solid var(--dim);border-radius:6px;padding:10px 12px;max-height:80px;overflow:hidden;position:relative;line-height:1.6}
+.jd-preview::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,#0d1117)}
+.jd-keywords{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 
+/* ── CTA bar ── */
+.cta-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:22px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-top:32px}
+.cta-bar-text p{font-size:.82rem;color:var(--muted)}
+.cta-bar-text strong{color:var(--text);font-weight:700}
+.cta-links{display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#0d1117;font-family:var(--mono);font-size:.78rem;font-weight:700;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;letter-spacing:.02em;white-space:nowrap}
+.btn-primary:hover{background:#6ee7b7;transform:translateY(-1px)}
+.btn-outline{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--accent);font-family:var(--mono);font-size:.78rem;font-weight:600;padding:9px 18px;border-radius:8px;border:1px solid rgba(52,211,153,.35);text-decoration:none;transition:background .2s;white-space:nowrap}
+.btn-outline:hover{background:var(--glow)}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--dim);padding:20px 40px;text-align:center;font-size:.73rem;color:var(--faint);margin-top:20px}
+footer a{color:var(--accent)}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  nav.lp-nav{padding:0 16px;height:52px}
+  .nav-drop{top:52px}.nav-ovl{top:52px}
+  .nav-links{display:none}
+  .nav-ham{display:flex}
+  .page{padding:24px 16px 48px}
+  .score-hero{flex-direction:column;align-items:flex-start;gap:20px;padding:20px}
+  .score-ring{width:90px;height:90px}
+  .score-num{font-size:1.5rem}
+  .card{padding:16px}
+  .cta-bar{flex-direction:column;align-items:flex-start}
+  .cta-links{width:100%}
+  .btn-primary,.btn-outline{flex:1;justify-content:center}
+}
+@media(max-width:480px){
+  .kw-grid{gap:5px}
+  .kw-tag,.sec-tag{font-size:.63rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="lp-nav">
+  <a href="{% url 'core:ats_landing' %}" class="nav-logo">Skills<em>For</em>IT · <span style="color:var(--muted);font-weight:400">ATS Evaluator</span></a>
+  <div class="nav-links">
+    <a href="{% url 'core:ats_evaluator' %}">← Analizar otro CV</a>
+    <a href="{% url 'core:ats_landing' %}" style="color:var(--faint)">Info</a>
+  </div>
+  <button class="nav-ham" id="lpHam" aria-label="Menú" aria-expanded="false" type="button">
+    <svg id="lpIco" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#9ca3af" stroke-width="1.75" stroke-linecap="round">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9"   x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+</nav>
+<div class="nav-drop" id="lpDrop">
+  <a href="{% url 'core:ats_evaluator' %}" class="nav-drop-link">← Analizar otro CV</a>
+  <a href="{% url 'core:ats_landing' %}" class="nav-drop-link">📋 Info del evaluador</a>
+  <div class="nav-drop-sep"></div>
+  <a href="{% url 'core:inicio' %}" class="nav-drop-link">🏠 SkillsForIT</a>
 </div>
-{% endblock %}
+<div class="nav-ovl" id="lpOvl"></div>
+
+
+<main class="page">
+
+  <!-- ═══ SCORE HERO ═══ -->
+  <div class="score-hero">
+    <div class="score-ring" style="background:conic-gradient({{ score_info.css }} {{ analisis.score_ats }}%,#2d3748 0)">
+      <div class="score-inner">
+        <span class="score-num" style="color:{{ score_info.css }}">{{ analisis.score_ats }}</span>
+        <span class="score-denom">/100</span>
+      </div>
+    </div>
+
+    <div class="score-meta">
+      <span class="score-label-badge" style="background:{{ score_info.css }}22;color:{{ score_info.css }};border:1px solid {{ score_info.css }}44">
+        {{ score_info.label }}
+      </span>
+      <h1 class="score-title">Informe de compatibilidad ATS</h1>
+      <p class="score-desc">
+        {% if analisis.score_ats >= 80 %}Tu CV tiene buena compatibilidad ATS. Revisá las recomendaciones para ajustes finales.
+        {% elif analisis.score_ats >= 65 %}Tu CV es aceptable pero puede mejorar significativamente con los cambios listados abajo.
+        {% elif analisis.score_ats >= 50 %}Tu CV necesita mejoras importantes para pasar los filtros ATS automáticos.
+        {% else %}Tu CV tiene problemas críticos que hacen que sea rechazado automáticamente. Aplicá el plan de acción.
+        {% endif %}
+      </p>
+      <div class="score-badges">
+        {% if analisis.jd_texto %}<span class="score-badge jd">✓ Analizado contra descripción del trabajo</span>{% endif %}
+        {% if actionable_fixes %}<span class="score-badge">{{ actionable_fixes|length }} recomendaciones</span>{% endif %}
+        <span class="score-badge">{{ analisis.keywords_encontradas|length }} keywords OK</span>
+        <span class="score-badge">{{ analisis.secciones_presentes|length }} secciones detectadas</span>
+      </div>
+
+      {% if actionable_fixes %}
+      <p class="proj-label">
+        Score actual: <strong>{{ analisis.score_ats }}/100</strong>
+        &nbsp;→&nbsp;
+        Proyectado con mejoras: <span class="proj-score">{{ score_proyectado }}/100</span>
+      </p>
+      <div class="proj-track">
+        <div class="proj-fill-target" id="barTarget"></div>
+        <div class="proj-fill-current" id="barCurrent" style="background:{{ score_info.css }}"></div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <!-- ═══ LEGIBILIDAD ═══ -->
+  <p class="section-label">// verificación de formato</p>
+  <div class="card">
+    <p class="card-title">📄 Legibilidad del PDF</p>
+    {% if analisis.legibilidad_ok %}
+      <div class="status-ok">
+        <span class="status-ico">✓</span>
+        <div class="status-body">
+          <strong>El PDF es legible por los sistemas ATS</strong>
+          <p>El formato no presenta barreras de extracción de texto.</p>
+        </div>
+      </div>
+    {% else %}
+      <div class="status-err">
+        <span class="status-ico">✗</span>
+        <div class="status-body">
+          <strong>{{ analisis.problemas_formato|length }} problema(s) de formato crítico detectados</strong>
+          <p>Estos elementos impiden que el ATS lea tu CV correctamente.</p>
+        </div>
+      </div>
+      <ul class="problems-list">
+        {% for p in analisis.problemas_formato %}<li>{{ p }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+
+
+  <!-- ═══ KEYWORDS ═══ -->
+  <div class="divider"></div>
+  <p class="section-label">// análisis de keywords</p>
+  <div class="card">
+    <p class="card-title">🔑 Keywords tecnológicas</p>
+    <div class="kw-section">
+
+      <div class="kw-found">
+        <p class="kw-group-title">Encontradas en tu CV</p>
+        <p class="kw-count">{{ analisis.keywords_encontradas|length }} keywords detectadas</p>
+        <div class="kw-grid">
+          {% for kw in analisis.keywords_encontradas %}
+          <span class="kw-tag found">{{ kw }}</span>
+          {% empty %}
+          <span style="font-size:.78rem;color:var(--faint)">No se detectaron keywords tecnológicas reconocidas.</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if analisis.keywords_faltantes %}
+      <div class="kw-sep"></div>
+      <div class="kw-missing">
+        <p class="kw-group-title">Keywords faltantes</p>
+        <p class="kw-count">{{ analisis.keywords_faltantes|length }} keywords relevantes que no aparecen en tu CV</p>
+        <div class="kw-grid">
+          {% for kw in analisis.keywords_faltantes %}
+          <span class="kw-tag missing">{{ kw }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+
+  <!-- ═══ SECCIONES ═══ -->
+  <div class="divider"></div>
+  <p class="section-label">// detección de secciones</p>
+  <div class="card">
+    <p class="card-title">📋 Secciones del CV</p>
+    {% if analisis.secciones_faltantes %}
+      <div class="status-warn">
+        <span class="status-ico">⚠</span>
+        <div class="status-body">
+          <strong>{{ analisis.secciones_faltantes|length }} sección(es) no detectada(s)</strong>
+          <p>Los ATS buscan estos títulos de forma literal. Variaciones como "Mi experiencia" no se reconocen.</p>
+        </div>
+      </div>
+    {% else %}
+      <div class="status-ok">
+        <span class="status-ico">✓</span>
+        <div class="status-body">
+          <strong>Todas las secciones principales fueron detectadas</strong>
+        </div>
+      </div>
+    {% endif %}
+    <div class="sec-grid">
+      {% for s in analisis.secciones_presentes %}<span class="sec-tag ok"><span>✓</span> {{ s }}</span>{% endfor %}
+      {% for s in analisis.secciones_faltantes %}<span class="sec-tag miss"><span>✗</span> {{ s }}</span>{% endfor %}
+    </div>
+  </div>
+
+
+  <!-- ═══ RECOMENDACIONES ═══ -->
+  <div class="divider"></div>
+  <p class="section-label">// plan de acción — recomendaciones accionables</p>
+
+  {% if actionable_fixes %}
+
+    {% regroup actionable_fixes by tipo as grouped %}
+    {% for group in grouped %}
+    <div class="rec-group">
+      <div class="rec-group-header">
+        <span class="rec-group-label">
+          {% if group.grouper == 'formato' %}⚠ Problemas de formato
+          {% elif group.grouper == 'seccion' %}📋 Secciones faltantes
+          {% elif group.grouper == 'keyword' %}🔑 Keywords faltantes
+          {% else %}🔧 Mejoras
+          {% endif %}
+        </span>
+        <span class="rec-group-line"></span>
+      </div>
+
+      {% for fix in group.list %}
+      {% with rid=forloop.parentloop.counter|stringformat:"s"|add:"-"|add:forloop.counter|stringformat:"s" %}
+      <div class="rec-card {{ group.grouper }}">
+        <input type="checkbox" class="rec-toggle" id="r{{ rid }}">
+        <label class="rec-label" for="r{{ rid }}">
+          <span class="rec-dot" style="background:{% if group.grouper == 'formato' %}var(--warn){% elif group.grouper == 'seccion' %}var(--blue){% else %}var(--ok){% endif %}"></span>
+          <span class="rec-titulo">{{ fix.titulo }}</span>
+          <span class="rec-arrow">▼</span>
+        </label>
+        <div class="rec-body">
+          <div class="rec-body-inner">
+            <p class="rec-desc">{{ fix.descripcion }}</p>
+            <p class="rec-how-label">Cómo solucionarlo</p>
+            <div class="rec-how">{{ fix.accion }}</div>
+            {% if fix.ejemplo %}
+            <div class="rec-ex">
+              <p class="rec-ex-label">Ejemplo</p>
+              <pre>{{ fix.ejemplo }}</pre>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="card" style="text-align:center;padding:32px">
+      <p style="font-size:1.4rem;margin-bottom:8px">🎉</p>
+      <p style="font-weight:700;margin-bottom:6px">Sin recomendaciones críticas</p>
+      <p style="font-size:.82rem;color:var(--muted)">Tu CV ya aplica las mejores prácticas ATS. Revisá las secciones arriba para ajustes menores.</p>
+    </div>
+  {% endif %}
+
+
+  <!-- ═══ JD COMPARISON ═══ -->
+  {% if analisis.jd_texto %}
+  <div class="divider"></div>
+  <p class="section-label">// comparación contra la oferta de trabajo</p>
+  <div class="jd-card">
+    <p class="jd-card-title">🎯 Descripción del trabajo analizada</p>
+    <p class="jd-card-desc">
+      El score, keywords y recomendaciones fueron ajustados específicamente para esta oferta.
+      {% if analisis.keywords_faltantes %}
+      Prioritizá estas keywords que la oferta probablemente requiere:
+      <strong style="color:var(--warn)">{% for kw in analisis.keywords_faltantes|slice:":6" %}{{ kw }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if analisis.keywords_faltantes|length > 6 %}&hellip;{% endif %}</strong>
+      {% endif %}
+    </p>
+    <div class="jd-preview">{{ analisis.jd_texto }}</div>
+  </div>
+  {% endif %}
+
+
+  <!-- ═══ CTA ═══ -->
+  <div class="cta-bar">
+    <div class="cta-bar-text">
+      <p><strong>¿Mejoró tu CV?</strong></p>
+      <p>Volvé a analizarlo para ver cómo subió tu score.</p>
+    </div>
+    <div class="cta-links">
+      <a href="{% url 'core:ats_evaluator' %}" class="btn-primary">← Analizar otro CV</a>
+      <a href="{% url 'core:ats_landing' %}" class="btn-outline">Info del evaluador</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
+
+<script>
+window.addEventListener('load', function(){
+  var cur = document.getElementById('barCurrent');
+  var tgt = document.getElementById('barTarget');
+  if (!cur || !tgt) return;
+  setTimeout(function(){
+    tgt.style.width = '{{ score_proyectado }}%';
+    cur.style.width = '{{ analisis.score_ats }}%';
+  }, 200);
+});
+
+(function(){
+  var ham=document.getElementById('lpHam'),drop=document.getElementById('lpDrop'),ovl=document.getElementById('lpOvl'),ico=document.getElementById('lpIco'),open=false;
+  var L='<line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>',X='<line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/>';
+  function show(){open=true;drop.classList.add('open');ovl.classList.add('open');ham.setAttribute('aria-expanded','true');ico.innerHTML=X;ham.classList.add('open')}
+  function hide(){open=false;drop.classList.remove('open');ovl.classList.remove('open');ham.setAttribute('aria-expanded','false');ico.innerHTML=L;ham.classList.remove('open')}
+  ham.addEventListener('click',()=>open?hide():show());
+  ovl.addEventListener('click',hide);
+  drop.querySelectorAll('a').forEach(a=>a.addEventListener('click',hide));
+}());
+</script>
+
+</body>
+</html>

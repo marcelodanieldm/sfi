@@ -69,6 +69,10 @@ def _extract_text_from_pdf(pdf_file) -> str:
 #  View 1 — Formulario de carga + Agent 1
 # ────────────────────────────────────────────────────────────────────────────
 
+def ats_landing(request):
+    return render(request, 'core/ats_landing.html', {'precio_usd': PRECIO_USD})
+
+
 def ats_evaluator(request):
     if request.method == 'POST':
         cv_file  = request.FILES.get('cv')
@@ -83,9 +87,9 @@ def ats_evaluator(request):
             messages.error(request, 'Solo se aceptan archivos PDF.')
             return render(request, 'core/ats_evaluator.html')
 
-        # ── Agent 1: Parser & Profiler ───────────────────────────────────
-        cv_raw_text = _extract_text_from_pdf(cv_file)
+        cv_raw_text   = _extract_text_from_pdf(cv_file)
         agent1_result = run_agent1(cv_raw_text, jd_texto)
+        agent2_result = run_agent2(cv_raw_text, jd_texto, agent1_result['free_content'])
 
         report = AnalysisReport.objects.create(
             user            = request.user if request.user.is_authenticated else None,
@@ -93,6 +97,8 @@ def ats_evaluator(request):
             job_description = jd_texto,
             ats_score       = agent1_result['ats_score'],
             free_content    = agent1_result['free_content'],
+            paid_content    = agent2_result['paid_content'],
+            is_paid         = True,
         )
 
         return redirect('core:ats_resultado', uuid=str(report.id))
@@ -108,20 +114,15 @@ def ats_resultado(request, uuid):
     report = get_object_or_404(AnalysisReport, pk=uuid)
     info   = score_info(report.ats_score)
 
-    n_recs = (
-        len(report.keywords_missing)
-        + len([k for k, v in report.section_check.items() if not v])
-        + len(report.parsing_issues)
-    )
+    actionable_fixes = report.actionable_fixes
+    score_proyectado = min(report.ats_score + len(actionable_fixes) * 2, 95)
 
     return render(request, 'core/ats_resultado.html', {
-        'report':     report,
-        'score_info': info,
-        'n_recs':     n_recs,
-        'precio_usd': PRECIO_USD,
-        'precio_ars': PRECIO_ARS,
-        # compat con template existente (mapeo de campos)
-        'analisis': _compat_analisis(report),
+        'report':           report,
+        'score_info':       info,
+        'actionable_fixes': actionable_fixes,
+        'score_proyectado': score_proyectado,
+        'analisis':         _compat_analisis(report),
     })
 
 

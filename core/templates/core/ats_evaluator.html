@@ -1,97 +1,230 @@
-{% extends 'core/base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS Evaluator — Analizá tu CV | SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--card:#1f2937;--border:#374151;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--accent-dark:#10b981;--glow:rgba(52,211,153,.12);
+  --mono:'JetBrains Mono',monospace;--r:8px;
+}
+a{color:inherit;text-decoration:none}
 
-{% block title %}Evaluador ATS — SkillsForIT{% endblock %}
+/* ── Nav ── */
+nav.lp-nav{
+  background:rgba(13,17,23,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--dim);
+  padding:0 40px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text);flex-shrink:0}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;gap:12px;align-items:center}
+.nav-links a{font-size:.82rem;color:var(--muted);transition:color .2s;white-space:nowrap}
+.nav-links a:hover{color:var(--accent)}
 
-{% block content %}
-<section class="page-hero page-hero--blue">
-    <div class="page-hero-inner">
-        <span class="page-hero-tag">Evaluador ATS</span>
-        <h1>Analizá tu CV con inteligencia artificial</h1>
-        <p>Subí tu currículum en PDF y recibí un análisis detallado de compatibilidad ATS con recomendaciones.</p>
-    </div>
-</section>
+.nav-ham{display:none;width:40px;height:40px;align-items:center;justify-content:center;background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:0;transition:border-color .2s;flex-shrink:0}
+.nav-ham:hover,.nav-ham.open{border-color:var(--accent)}
+.nav-ham svg{display:block;pointer-events:none}
+.nav-drop{display:none;flex-direction:column;position:fixed;top:56px;left:0;right:0;background:rgba(13,17,23,.98);border-bottom:1px solid var(--dim);z-index:49;padding:10px 16px 16px;gap:4px;box-shadow:0 20px 48px rgba(0,0,0,.6)}
+.nav-drop.open{display:flex}
+.nav-drop-link{display:block;padding:13px 16px;font-size:.85rem;color:var(--muted);border:1px solid transparent;border-radius:8px;transition:background .15s,color .15s,border-color .15s}
+.nav-drop-link:hover{background:rgba(255,255,255,.04);border-color:var(--border);color:var(--text)}
+.nav-drop-link.primary{background:var(--accent);color:#0d1117;font-weight:700;font-family:var(--mono);font-size:.82rem;text-align:center;border-color:var(--accent);margin-top:4px}
+.nav-drop-link.primary:hover{background:#6ee7b7}
+.nav-drop-sep{height:1px;background:var(--dim);margin:4px 0}
+.nav-ovl{display:none;position:fixed;inset:56px 0 0;z-index:48}
+.nav-ovl.open{display:block}
 
-<div class="page-container">
-    <div class="form-card">
-        <form method="post" enctype="multipart/form-data" id="ats-form">
-            {% csrf_token %}
+/* ── Main layout ── */
+.page-wrap{min-height:calc(100vh - 56px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px}
+.page-glow{position:fixed;top:0;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse at 50% 0%,rgba(52,211,153,.07) 0%,transparent 60%);pointer-events:none;z-index:0}
 
-            <div class="upload-area" id="drop-zone">
-                <div class="upload-icon">📄</div>
-                <p class="upload-title">Arrastrá tu CV aquí o hacé clic para seleccionar</p>
-                <p class="upload-sub">Solo archivos PDF</p>
-                <input type="file" name="cv" id="cv-input" accept=".pdf" class="upload-input" required>
-                <span class="upload-filename" id="file-name"></span>
-            </div>
+/* ── Form card ── */
+.form-card{position:relative;z-index:1;width:100%;max-width:560px}
+.form-kicker{font-family:var(--mono);font-size:.7rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px;text-align:center}
+.form-title{font-size:clamp(1.4rem,3.5vw,2rem);font-weight:800;text-align:center;margin-bottom:8px;line-height:1.2;letter-spacing:-.02em}
+.form-sub{font-size:.875rem;color:var(--muted);text-align:center;margin-bottom:32px;line-height:1.65}
 
-            <details class="jd-toggle" id="jd-details">
-                <summary>
-                    <span class="jd-toggle-icon">＋</span>
-                    Agregar descripción del trabajo <em>(opcional — mejora la precisión del análisis)</em>
-                </summary>
-                <div class="jd-body">
-                    <p class="jd-hint">Pegá el texto completo de la oferta de trabajo o la URL de la publicación.</p>
-                    <textarea
-                        name="jd_texto"
-                        id="jd_texto"
-                        rows="6"
-                        class="form-control"
-                        placeholder="Ej: 'Buscamos un desarrollador Python con experiencia en Django, REST APIs, Docker y AWS...'"></textarea>
-                </div>
-            </details>
+/* ── Upload zone ── */
+.upload-zone{border:2px dashed var(--border);border-radius:12px;padding:32px 24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:rgba(255,255,255,.01);position:relative;margin-bottom:16px}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:var(--glow)}
+.upload-zone.has-file{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.04)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:2rem;margin-bottom:10px;display:block}
+.upload-title{font-size:.9rem;font-weight:600;margin-bottom:4px}
+.upload-sub{font-size:.78rem;color:var(--muted)}
+.upload-filename{display:block;margin-top:10px;font-family:var(--mono);font-size:.72rem;color:var(--accent);font-weight:600}
 
-            <button type="submit" class="btn-primary btn-full" id="submit-btn">
-                Analizar CV
-            </button>
-        </form>
+/* ── JD accordion ── */
+.jd-toggle{width:100%;margin-bottom:16px}
+.jd-toggle summary{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-size:.82rem;color:var(--muted);list-style:none;transition:border-color .2s,color .2s;user-select:none}
+.jd-toggle summary::-webkit-details-marker{display:none}
+.jd-toggle summary:hover{border-color:rgba(52,211,153,.35);color:var(--text)}
+.jd-icon{font-family:var(--mono);font-size:.8rem;color:var(--accent);transition:transform .25s}
+details[open] .jd-icon{transform:rotate(45deg)}
+.jd-body{margin-top:8px}
+.jd-hint{font-size:.76rem;color:var(--faint);margin-bottom:8px}
+.form-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem;padding:12px 14px;resize:vertical;line-height:1.6;transition:border-color .2s;outline:none}
+.form-textarea:focus{border-color:rgba(52,211,153,.5)}
+.form-textarea::placeholder{color:var(--faint)}
 
-        <div class="ats-loading" id="loading" style="display:none">
-            <div class="loading-spinner"></div>
-            <p><strong>Analizando tu CV...</strong></p>
-            <p class="loading-sub">Verificando formato, keywords y compatibilidad ATS</p>
-        </div>
-    </div>
+/* ── Submit button ── */
+.btn-submit{width:100%;padding:15px;background:var(--accent);color:#0d1117;font-family:var(--mono);font-size:.9rem;font-weight:700;border:none;border-radius:var(--r);cursor:pointer;letter-spacing:.03em;transition:background .2s,transform .15s;margin-top:4px}
+.btn-submit:hover{background:#6ee7b7;transform:translateY(-1px)}
+
+/* ── Loading state ── */
+.ats-loading{display:none;flex-direction:column;align-items:center;gap:16px;padding:40px 24px;text-align:center}
+.loading-ring{width:48px;height:48px;border:3px solid var(--dim);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:.9rem;font-weight:600}
+.loading-sub{font-size:.78rem;color:var(--muted)}
+
+/* ── Messages ── */
+.msg-error{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.25);border-radius:var(--r);padding:10px 14px;font-size:.8rem;color:#f87171;margin-bottom:16px}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--dim);padding:20px 40px;text-align:center;font-size:.73rem;color:var(--faint)}
+footer a{color:var(--accent)}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  nav.lp-nav{padding:0 16px;height:52px}
+  .nav-drop{top:52px}.nav-ovl{top:52px}
+  .nav-links{display:none}
+  .nav-ham{display:flex}
+  .page-wrap{padding:32px 16px}
+  .upload-zone{padding:24px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="lp-nav">
+  <a href="{% url 'core:ats_landing' %}" class="nav-logo">Skills<em>For</em>IT · <span style="color:var(--muted);font-weight:400">ATS Evaluator</span></a>
+  <div class="nav-links">
+    <a href="{% url 'core:ats_landing' %}">← Volver a la info</a>
+    <a href="{% url 'core:inicio' %}" style="color:var(--faint)">skillsforit.online</a>
+  </div>
+  <button class="nav-ham" id="lpHam" aria-label="Menú" aria-expanded="false" type="button">
+    <svg id="lpIco" width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#9ca3af" stroke-width="1.75" stroke-linecap="round">
+      <line x1="2" y1="4.5" x2="16" y2="4.5"/>
+      <line x1="2" y1="9"   x2="16" y2="9"/>
+      <line x1="2" y1="13.5" x2="16" y2="13.5"/>
+    </svg>
+  </button>
+</nav>
+
+<div class="nav-drop" id="lpDrop">
+  <a href="{% url 'core:ats_landing' %}" class="nav-drop-link">← Info del ATS Evaluator</a>
+  <div class="nav-drop-sep"></div>
+  <a href="{% url 'core:inicio' %}" class="nav-drop-link">🏠 SkillsForIT home</a>
 </div>
+<div class="nav-ovl" id="lpOvl"></div>
+
+<div class="page-glow"></div>
+
+<main class="page-wrap">
+  <div class="form-card">
+    <span class="form-kicker">// ATS Evaluator · gratis · sin cuenta</span>
+    <h1 class="form-title">Analizá tu CV con inteligencia artificial</h1>
+    <p class="form-sub">Subí tu currículum en PDF y recibí un análisis completo: score ATS, keywords, formato, secciones y recomendaciones accionables.</p>
+
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="msg-error">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data" id="ats-form">
+      {% csrf_token %}
+
+      <div class="upload-zone" id="drop-zone">
+        <span class="upload-icon">📄</span>
+        <p class="upload-title">Arrastrá tu CV aquí o hacé clic para seleccionar</p>
+        <p class="upload-sub">Solo archivos PDF · máx. 10 MB</p>
+        <input type="file" name="cv" id="cv-input" accept=".pdf" required>
+        <span class="upload-filename" id="file-name"></span>
+      </div>
+
+      <details class="jd-toggle" id="jd-details">
+        <summary>
+          <span class="jd-icon">＋</span>
+          <span>Agregar descripción del trabajo <em style="color:var(--faint)">(opcional — mejora la precisión)</em></span>
+        </summary>
+        <div class="jd-body">
+          <p class="jd-hint">Pegá el texto completo de la oferta de trabajo. El análisis comparará tu CV contra los requisitos de esa posición.</p>
+          <textarea name="jd_texto" id="jd_texto" rows="6" class="form-textarea" placeholder="Ej: Buscamos un desarrollador Python con experiencia en Django, REST APIs, Docker y AWS..."></textarea>
+        </div>
+      </details>
+
+      <button type="submit" class="btn-submit" id="submit-btn">
+        Analizar mi CV →
+      </button>
+    </form>
+
+    <div class="ats-loading" id="loading">
+      <div class="loading-ring"></div>
+      <p class="loading-text">Analizando tu CV…</p>
+      <p class="loading-sub">Verificando formato, keywords y compatibilidad ATS. Puede tardar hasta 30 segundos.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
 
 <script>
-const input = document.getElementById('cv-input');
-const zone = document.getElementById('drop-zone');
-const label = document.getElementById('file-name');
-const form = document.getElementById('ats-form');
-const btn = document.getElementById('submit-btn');
+const input   = document.getElementById('cv-input');
+const zone    = document.getElementById('drop-zone');
+const label   = document.getElementById('file-name');
+const form    = document.getElementById('ats-form');
 const loading = document.getElementById('loading');
 
-if (input) {
-    input.addEventListener('change', () => {
-        label.textContent = input.files[0]?.name || '';
-        zone.classList.toggle('has-file', !!input.files[0]);
-    });
-    zone.addEventListener('click', e => { if (e.target !== input) input.click(); });
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.classList.remove('drag-over');
-        if (e.dataTransfer.files[0]) {
-            const dt = e.dataTransfer;
-            input.files = dt.files;
-            label.textContent = dt.files[0].name;
-            zone.classList.add('has-file');
-        }
-    });
-}
-
-const details = document.getElementById('jd-details');
-if (details) {
-    details.addEventListener('toggle', () => {
-        details.querySelector('.jd-toggle-icon').textContent = details.open ? '−' : '＋';
-    });
-}
+input.addEventListener('change', () => {
+  label.textContent = input.files[0]?.name || '';
+  zone.classList.toggle('has-file', !!input.files[0]);
+});
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) {
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    input.files = dt.files;
+    label.textContent = f.name;
+    zone.classList.add('has-file');
+  }
+});
 
 form.addEventListener('submit', () => {
-    form.style.display = 'none';
-    loading.style.display = 'flex';
+  form.style.display = 'none';
+  loading.style.display = 'flex';
 });
-</script>
-{% endblock %}
 
+/* hamburger */
+(function(){
+  var ham=document.getElementById('lpHam'),drop=document.getElementById('lpDrop'),ovl=document.getElementById('lpOvl'),ico=document.getElementById('lpIco'),open=false;
+  var L='<line x1="2" y1="4.5" x2="16" y2="4.5"/><line x1="2" y1="9" x2="16" y2="9"/><line x1="2" y1="13.5" x2="16" y2="13.5"/>',X='<line x1="3" y1="3" x2="15" y2="15"/><line x1="15" y1="3" x2="3" y2="15"/>';
+  function show(){open=true;drop.classList.add('open');ovl.classList.add('open');ham.setAttribute('aria-expanded','true');ico.innerHTML=X;ham.classList.add('open')}
+  function hide(){open=false;drop.classList.remove('open');ovl.classList.remove('open');ham.setAttribute('aria-expanded','false');ico.innerHTML=L;ham.classList.remove('open')}
+  ham.addEventListener('click',()=>open?hide():show());
+  ovl.addEventListener('click',hide);
+  drop.querySelectorAll('a').forEach(a=>a.addEventListener('click',hide));
+}());
+</script>
+</body>
+</html>

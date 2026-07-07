@@ -9,6 +9,7 @@ app_name = 'core'
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
+    path('ats/', views.ats_landing, name='ats_landing'),
     path('ats-evaluator/', views.ats_evaluator, name='ats_evaluator'),
     path('ats-evaluator/resultado/<uuid:uuid>/', views.ats_resultado, name='ats_resultado'),
     path('ats-evaluator/checkout/<uuid:uuid>/', views.ats_checkout, name='ats_checkout'),

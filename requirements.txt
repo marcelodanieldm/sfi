@@ -10,4 +10,6 @@ mercadopago>=2.3
 openai>=1.0
 resend>=2.0
 Pillow>=10.0
+PyPDF2>=3.0
+reportlab>=4.0
 google-auth>=2.0
