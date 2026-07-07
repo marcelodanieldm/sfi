@@ -182,8 +182,7 @@ def enviar_email_reporte_premium(report, user_email: str) -> bool:
     """Envía el email de acceso al informe premium. Devuelve True si tuvo éxito."""
     try:
         from core.services.email_service import send_report_email
-        send_report_email(report, user_email)
-        return True
+        return send_report_email(report, user_email)
     except Exception as exc:
         logger.error('Error enviando email reporte: %s', exc)
         return False

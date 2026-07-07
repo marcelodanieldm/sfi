@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informe ATS Completo — SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--border:#374151;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--glow:rgba(52,211,153,.12);
+  --ok:#34d399;--warn:#fbbf24;--err:#f87171;--blue:#60a5fa;
+  --mono:'JetBrains Mono',monospace;--r:10px;
+}
+a{color:inherit;text-decoration:none}
+
+/* ── Nav ── */
+nav.lp-nav{background:rgba(13,17,23,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--dim);padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text)}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.nav-link{font-size:.8rem;color:var(--muted);transition:color .2s}
+.nav-link:hover{color:var(--accent)}
+.nav-btn{font-family:var(--mono);font-size:.75rem;font-weight:700;background:var(--accent);color:#0d1117;padding:7px 14px;border-radius:7px;text-decoration:none;white-space:nowrap}
+.nav-btn:hover{background:#6ee7b7}
+
+/* ── Layout ── */
+.page{max-width:860px;margin:0 auto;padding:40px 24px 80px}
+.divider{height:1px;background:var(--dim);margin:32px 0}
+.section-label{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.18em;text-transform:uppercase;margin-bottom:14px}
+
+/* ── Premium badge ── */
+.premium-header{text-align:center;padding:32px 16px 0;margin-bottom:0}
+.premium-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(52,211,153,.1);color:var(--accent);border:1px solid rgba(52,211,153,.25);border-radius:20px;padding:4px 14px;margin-bottom:12px}
+.premium-title{font-size:1.5rem;font-weight:800;color:var(--text);margin-bottom:6px}
+.premium-sub{font-size:.84rem;color:var(--muted)}
+
+/* ── Score hero (compact) ── */
+.score-hero{display:flex;align-items:center;gap:24px;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;margin:28px 0}
+.score-ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.score-ring::before{content:'';position:absolute;inset:9px;background:#0d1117;border-radius:50%;z-index:1}
+.score-inner{position:relative;z-index:2;text-align:center}
+.score-num{display:block;font-family:var(--mono);font-size:1.5rem;font-weight:800;line-height:1}
+.score-denom{display:block;font-family:var(--mono);font-size:.65rem;color:var(--muted);margin-top:2px}
+.score-meta{flex:1}
+.score-label-badge{display:inline-block;font-family:var(--mono);font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 9px;border-radius:20px;margin-bottom:8px}
+.score-title{font-size:.95rem;font-weight:700;margin-bottom:4px}
+.score-desc{font-size:.8rem;color:var(--muted);line-height:1.5}
+.score-pdf-row{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.btn-pdf{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.74rem;font-weight:700;background:rgba(52,211,153,.1);color:var(--accent);border:1px solid rgba(52,211,153,.3);border-radius:8px;padding:7px 14px;text-decoration:none;transition:background .2s}
+.btn-pdf:hover{background:rgba(52,211,153,.18)}
+.btn-result{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.74rem;font-weight:600;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 14px;text-decoration:none;transition:background .2s,color .2s}
+.btn-result:hover{background:rgba(255,255,255,.04);color:var(--text)}
+
+/* ── Resumen ejecutivo ── */
+.summary-box{background:linear-gradient(135deg,rgba(52,211,153,.04) 0%,var(--bg2) 70%);border:1px solid rgba(52,211,153,.2);border-radius:12px;padding:20px 24px;font-size:.88rem;color:var(--text);line-height:1.7}
+
+/* ── Section analysis cards ── */
+.section-cards{display:flex;flex-direction:column;gap:16px}
+.sec-analysis-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.sec-card-header{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--dim)}
+.sec-card-name{font-size:.92rem;font-weight:700;color:var(--text)}
+.sec-eval-badge{font-family:var(--mono);font-size:.63rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 9px;border-radius:12px;margin-left:auto;flex-shrink:0}
+.eval-excelente{background:rgba(52,211,153,.15);color:var(--ok)}
+.eval-aceptable{background:rgba(96,165,250,.12);color:var(--blue)}
+.eval-necesita_mejora{background:rgba(251,191,36,.12);color:var(--warn)}
+.eval-critico{background:rgba(248,113,113,.12);color:var(--err)}
+.eval-ausente{background:rgba(107,114,128,.12);color:var(--faint)}
+.sec-card-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.sec-problems{display:flex;flex-direction:column;gap:6px}
+.sec-problem-item{display:flex;align-items:flex-start;gap:8px;font-size:.8rem;color:var(--muted)}
+.sec-problem-item::before{content:'•';color:var(--err);flex-shrink:0;margin-top:2px}
+.sec-suggestion-label{font-family:var(--mono);font-size:.65rem;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.sec-suggestion-text{font-size:.8rem;color:var(--muted);line-height:1.6;font-style:italic}
+.sec-examples-label{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.sec-examples{display:flex;flex-direction:column;gap:6px}
+.sec-example-item{background:#0d1117;border:1px solid var(--dim);border-radius:7px;padding:10px 13px;font-family:var(--mono);font-size:.73rem;color:var(--text);line-height:1.5;position:relative;cursor:pointer;transition:border-color .2s}
+.sec-example-item:hover{border-color:rgba(52,211,153,.3)}
+.sec-example-item::after{content:'copiar';position:absolute;top:6px;right:10px;font-size:.6rem;color:var(--faint);opacity:0;transition:opacity .2s}
+.sec-example-item:hover::after{opacity:1}
+
+/* ── Keyword integration ── */
+.kw-int-grid{display:flex;flex-direction:column;gap:12px}
+.kw-int-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.kw-int-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.kw-tag-label{font-family:var(--mono);font-size:.7rem;font-weight:700;background:rgba(52,211,153,.12);color:var(--accent);border:1px solid rgba(52,211,153,.2);border-radius:6px;padding:2px 8px}
+.kw-section-label{font-size:.72rem;color:var(--faint)}
+.kw-int-example{background:#0d1117;border:1px solid var(--dim);border-radius:7px;padding:10px 13px;font-family:var(--mono);font-size:.73rem;color:var(--text);line-height:1.5;cursor:pointer;transition:border-color .2s}
+.kw-int-example:hover{border-color:rgba(52,211,153,.3)}
+
+/* ── Actionable fixes (same as ats_resultado) ── */
+.rec-group{margin-bottom:12px}
+.rec-group-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.rec-group-label{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap}
+.rec-group-line{flex:1;height:1px;background:var(--dim)}
+.rec-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.rec-toggle{display:none}
+.rec-label{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none}
+.rec-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rec-titulo{flex:1;font-size:.82rem;font-weight:600;color:var(--text)}
+.rec-arrow{font-size:.65rem;color:var(--faint);transition:transform .2s;flex-shrink:0}
+.rec-body{max-height:0;overflow:hidden;transition:max-height .25s ease}
+.rec-toggle:checked~.rec-body{max-height:600px}
+.rec-toggle:checked~.rec-label .rec-arrow{transform:rotate(180deg)}
+.rec-body-inner{padding:0 16px 16px}
+.rec-desc{font-size:.8rem;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.rec-how-label{font-family:var(--mono);font-size:.62rem;color:var(--blue);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rec-how{font-size:.8rem;color:var(--text);line-height:1.6;margin-bottom:10px}
+.rec-ex{background:#0d1117;border:1px solid var(--dim);border-radius:7px;padding:12px}
+.rec-ex-label{font-family:var(--mono);font-size:.6rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rec-ex pre{font-family:var(--mono);font-size:.72rem;color:var(--text);white-space:pre-wrap;line-height:1.6}
+
+/* ── Final CTA ── */
+.final-cta{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;text-align:center;margin-top:32px}
+.final-cta h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.final-cta p{font-size:.82rem;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.cta-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#0d1117;font-family:var(--mono);font-size:.78rem;font-weight:700;padding:10px 20px;border-radius:8px;text-decoration:none;transition:background .2s}
+.btn-primary:hover{background:#6ee7b7}
+.btn-outline{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--accent);font-family:var(--mono);font-size:.78rem;font-weight:600;padding:10px 20px;border-radius:8px;border:1px solid rgba(52,211,153,.35);text-decoration:none;transition:background .2s}
+.btn-outline:hover{background:var(--glow)}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--dim);padding:20px 40px;text-align:center;font-size:.73rem;color:var(--faint);margin-top:40px}
+footer a{color:var(--accent)}
+
+/* ── Toast copy ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1f2937;border:1px solid rgba(52,211,153,.3);color:var(--accent);font-family:var(--mono);font-size:.75rem;padding:8px 20px;border-radius:8px;opacity:0;transition:opacity .2s,transform .2s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  nav.lp-nav{padding:0 16px;height:52px}
+  .page{padding:24px 16px 60px}
+  .premium-title{font-size:1.2rem}
+  .score-hero{flex-direction:column;align-items:flex-start;gap:16px;padding:18px}
+  .sec-card-header{flex-wrap:wrap;gap:8px}
+  .sec-eval-badge{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<nav class="lp-nav">
+  <a href="{% url 'core:ats_landing' %}" class="nav-logo">Skills<em>For</em>IT · <span style="color:var(--muted);font-weight:400">ATS Evaluator</span></a>
+  <div class="nav-actions">
+    <a href="{% url 'core:ats_resultado' uuid=report.id %}" class="nav-link">Ver análisis libre</a>
+    <a href="{% url 'core:ats_pdf' uuid=report.id %}" class="nav-btn">📄 PDF</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="premium-header">
+    <div class="premium-badge">⭐ Informe completo</div>
+    <h1 class="premium-title">Tu plan de acción ATS con IA</h1>
+    <p class="premium-sub">Análisis detallado por sección · Sugerencias de redacción · Integración de keywords</p>
+  </div>
+
+  <!-- ═══ SCORE HERO ═══ -->
+  <div class="score-hero">
+    <div class="score-ring" style="background:conic-gradient({{ score_info.css }} {{ report.ats_score }}%, #2d3748 0)">
+      <div class="score-inner">
+        <span class="score-num" style="color:{{ score_info.css }}">{{ report.ats_score }}</span>
+        <span class="score-denom">/100</span>
+      </div>
+    </div>
+    <div class="score-meta">
+      <span class="score-label-badge" style="background:rgba(255,255,255,.07);color:{{ score_info.css }}">{{ score_info.label }}</span>
+      <div class="score-title">Compatibilidad ATS: {{ report.ats_score }}/100</div>
+      <div class="score-desc">
+        Con las mejoras de este informe podés llegar a <strong style="color:var(--accent)">{{ score_proyectado }}/100</strong>.
+        Aplicá las sugerencias por sección y copiá los ejemplos directamente en tu CV.
+      </div>
+      <div class="score-pdf-row">
+        <a href="{% url 'core:ats_pdf' uuid=report.id %}" class="btn-pdf">📄 Descargar informe PDF</a>
+        <a href="{% url 'core:ats_resultado' uuid=report.id %}" class="btn-result">← Ver análisis libre</a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══ RESUMEN EJECUTIVO ═══ -->
+  {% if tailored_summary %}
+  <div class="divider"></div>
+  <p class="section-label">// resumen ejecutivo</p>
+  <div class="summary-box">
+    {{ tailored_summary }}
+  </div>
+  {% endif %}
+
+
+  <!-- ═══ ANÁLISIS POR SECCIÓN ═══ -->
+  {% if section_analysis %}
+  <div class="divider"></div>
+  <p class="section-label">// análisis detallado por sección</p>
+
+  <div class="section-cards">
+    {% for sec in section_analysis %}
+    <div class="sec-analysis-card">
+      <div class="sec-card-header">
+        <span style="font-size:1rem">
+          {% if sec.evaluacion == 'excelente' %}✅
+          {% elif sec.evaluacion == 'aceptable' %}🔵
+          {% elif sec.evaluacion == 'necesita_mejora' %}⚠️
+          {% elif sec.evaluacion == 'critico' %}🔴
+          {% else %}➕{% endif %}
+        </span>
+        <span class="sec-card-name">{{ sec.seccion }}</span>
+        <span class="sec-eval-badge eval-{{ sec.evaluacion }}">
+          {% if sec.evaluacion == 'excelente' %}Excelente
+          {% elif sec.evaluacion == 'aceptable' %}Aceptable
+          {% elif sec.evaluacion == 'necesita_mejora' %}Necesita mejora
+          {% elif sec.evaluacion == 'critico' %}Crítico
+          {% else %}Ausente{% endif %}
+        </span>
+      </div>
+      <div class="sec-card-body">
+
+        {% if sec.problemas %}
+        <div class="sec-problems">
+          {% for p in sec.problemas %}
+          <div class="sec-problem-item">{{ p }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if sec.sugerencia_estructura %}
+        <div>
+          <div class="sec-suggestion-label">Cómo estructurarlo</div>
+          <div class="sec-suggestion-text">{{ sec.sugerencia_estructura }}</div>
+        </div>
+        {% endif %}
+
+        {% if sec.ejemplo_redaccion %}
+        <div>
+          <div class="sec-examples-label">Ejemplos listos para copiar</div>
+          <div class="sec-examples">
+            {% for ejemplo in sec.ejemplo_redaccion %}
+            <div class="sec-example-item" onclick="copyText(this, '{{ ejemplo|escapejs }}')">{{ ejemplo }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+
+  <!-- ═══ GUÍA DE KEYWORDS ═══ -->
+  {% if keyword_integration %}
+  <div class="divider"></div>
+  <p class="section-label">// guía de integración de keywords</p>
+
+  <div class="kw-int-grid">
+    {% for item in keyword_integration %}
+    <div class="kw-int-card">
+      <div class="kw-int-header">
+        <span class="kw-tag-label">{{ item.keyword }}</span>
+        {% if item.seccion %}<span class="kw-section-label">→ {{ item.seccion }}</span>{% endif %}
+      </div>
+      <div class="kw-int-example" onclick="copyText(this, '{{ item.ejemplo|escapejs }}')">{{ item.ejemplo }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+
+  <!-- ═══ PLAN DE ACCIÓN ═══ -->
+  {% if actionable_fixes %}
+  <div class="divider"></div>
+  <p class="section-label">// plan de acción — correcciones priorizadas</p>
+
+  {% regroup actionable_fixes by tipo as grouped %}
+  {% for group in grouped %}
+  <div class="rec-group">
+    <div class="rec-group-header">
+      <span class="rec-group-label">
+        {% if group.grouper == 'formato' %}⚠ Problemas de formato
+        {% elif group.grouper == 'seccion' %}📋 Secciones faltantes
+        {% elif group.grouper == 'keyword' %}🔑 Keywords faltantes
+        {% else %}🔧 Mejoras
+        {% endif %}
+      </span>
+      <span class="rec-group-line"></span>
+    </div>
+
+    {% for fix in group.list %}
+    {% with rid=forloop.parentloop.counter|stringformat:"s"|add:"-"|add:forloop.counter|stringformat:"s" %}
+    <div class="rec-card {{ group.grouper }}">
+      <input type="checkbox" class="rec-toggle" id="ri{{ rid }}">
+      <label class="rec-label" for="ri{{ rid }}">
+        <span class="rec-dot" style="background:{% if group.grouper == 'formato' %}var(--warn){% elif group.grouper == 'seccion' %}var(--blue){% else %}var(--ok){% endif %}"></span>
+        <span class="rec-titulo">{{ fix.titulo }}</span>
+        <span class="rec-arrow">▼</span>
+      </label>
+      <div class="rec-body">
+        <div class="rec-body-inner">
+          <p class="rec-desc">{{ fix.descripcion }}</p>
+          <p class="rec-how-label">Cómo solucionarlo</p>
+          <div class="rec-how">{{ fix.accion }}</div>
+          {% if fix.ejemplo %}
+          <div class="rec-ex">
+            <p class="rec-ex-label">Ejemplo</p>
+            <pre>{{ fix.ejemplo }}</pre>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endwith %}
+    {% endfor %}
+
+  </div>
+  {% endfor %}
+  {% endif %}
+
+
+  <!-- ═══ CTA FINAL ═══ -->
+  <div class="final-cta">
+    <h3>¿Ya aplicaste las mejoras?</h3>
+    <p>Volvé a evaluar tu CV actualizado para ver cómo subió tu score ATS.<br>El análisis gratuito siempre está disponible sin cuenta.</p>
+    <div class="cta-btns">
+      <a href="{% url 'core:ats_evaluator' %}" class="btn-primary">Evaluar nuevo CV</a>
+      <a href="{% url 'core:ats_pdf' uuid=report.id %}" class="btn-outline">📄 Descargar PDF</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
+
+<div class="toast" id="toast">¡Copiado!</div>
+
+<script>
+function copyText(el, text) {
+  navigator.clipboard.writeText(text).then(function() {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 1800);
+  });
+}
+</script>
+
+</body>
+</html>

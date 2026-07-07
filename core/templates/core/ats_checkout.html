@@ -1,139 +1,251 @@
-{% extends 'core/base.html' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Informe ATS Completo · SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--border:#374151;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--glow:rgba(52,211,153,.12);
+  --ok:#34d399;--warn:#fbbf24;--err:#f87171;--blue:#60a5fa;
+  --mono:'JetBrains Mono',monospace;--r:10px;
+}
+a{color:inherit;text-decoration:none}
 
-{% block title %}Checkout ATS — SkillsForIT{% endblock %}
+/* ── Nav ── */
+nav.lp-nav{background:rgba(13,17,23,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--dim);padding:0 40px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text)}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-back{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px;transition:color .2s}
+.nav-back:hover{color:var(--accent)}
 
-{% block content %}
-<section class="page-hero page-hero--blue">
-    <div class="page-hero-inner">
-        <span class="page-hero-tag">Pago único</span>
-        <h1>Desbloqueá tu Plan de Acción IA</h1>
-        <p>Accedé a las recomendaciones exactas y descargá tu informe completo en PDF.</p>
+/* ── Layout ── */
+.page{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+.page-header{text-align:center;margin-bottom:40px}
+.page-header h1{font-size:1.7rem;font-weight:800;margin-bottom:8px}
+.page-header p{font-size:.88rem;color:var(--muted)}
+.checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+
+/* ── Resumen ── */
+.summary-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+.summary-title{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px}
+.summary-score{display:flex;align-items:center;gap:14px;padding:14px;background:#0d1117;border:1px solid var(--dim);border-radius:10px;margin-bottom:20px}
+.sum-score-num{font-family:var(--mono);font-size:1.6rem;font-weight:800;color:var(--accent)}
+.sum-score-label{font-size:.78rem;color:var(--muted);line-height:1.4}
+.summary-includes{margin-bottom:20px}
+.summary-includes-title{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:10px}
+.si-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--dim)}
+.si-item:last-child{border-bottom:none}
+.si-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.si-text strong{display:block;font-size:.8rem;color:var(--text);margin-bottom:2px}
+.si-text span{font-size:.72rem;color:var(--muted)}
+.summary-price-box{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);border-radius:10px;padding:16px}
+.price-row{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;color:var(--muted);margin-bottom:8px}
+.price-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(52,211,153,.2);padding-top:12px;margin-top:4px}
+.price-total span:first-child{font-size:.88rem;font-weight:700;color:var(--text)}
+.price-total span:last-child{font-family:var(--mono);font-size:1.1rem;font-weight:800;color:var(--accent)}
+
+/* ── Payment form ── */
+.payment-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+.payment-title{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px}
+.email-field{margin-bottom:20px}
+.email-label{display:block;font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.email-input{width:100%;background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.84rem;color:var(--text);font-family:'Inter',sans-serif;transition:border-color .2s;outline:none}
+.email-input:focus{border-color:rgba(52,211,153,.5)}
+.email-input::placeholder{color:var(--faint)}
+.email-hint{font-size:.7rem;color:var(--faint);margin-top:5px}
+.payment-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.pay-opt{border:2px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
+.pay-opt.active{border-color:var(--accent);background:rgba(52,211,153,.04)}
+.pay-opt input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.pay-opt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.pay-logo{font-family:var(--mono);font-size:.72rem;font-weight:800;padding:3px 10px;border-radius:6px}
+.pay-logo.stripe{background:#635bff;color:#fff}
+.pay-logo.mp{background:#009ee3;color:#fff}
+.pay-badge{font-size:.65rem;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.07);color:var(--muted)}
+.pay-desc{font-size:.78rem;color:var(--muted);margin-bottom:6px}
+.pay-feats{list-style:none;display:flex;flex-direction:column;gap:3px}
+.pay-feats li{font-size:.7rem;color:var(--faint)}
+.dev-notice{display:flex;align-items:flex-start;gap:8px;background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:.72rem;color:var(--warn);line-height:1.5}
+.btn-pay{width:100%;background:var(--accent);color:#0d1117;font-family:var(--mono);font-size:.84rem;font-weight:800;padding:14px;border-radius:10px;border:none;cursor:pointer;transition:background .2s;letter-spacing:.03em}
+.btn-pay:hover{background:#6ee7b7}
+.secure-note{text-align:center;font-size:.7rem;color:var(--faint);margin-top:10px}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--dim);padding:20px 40px;text-align:center;font-size:.73rem;color:var(--faint);margin-top:40px}
+footer a{color:var(--accent)}
+
+@media(max-width:700px){
+  nav.lp-nav{padding:0 16px;height:52px}
+  .page{padding:24px 16px 60px}
+  .checkout-grid{grid-template-columns:1fr}
+  .page-header h1{font-size:1.3rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="lp-nav">
+  <a href="{% url 'core:ats_landing' %}" class="nav-logo">Skills<em>For</em>IT · <span style="color:var(--muted);font-weight:400">ATS Evaluator</span></a>
+  <a href="{% url 'core:ats_resultado' uuid=report.id %}" class="nav-back">← Volver al análisis</a>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <h1>Informe ATS completo con IA</h1>
+    <p>Análisis por sección · Sugerencias de redacción · PDF descargable</p>
+  </div>
+
+  <div class="checkout-grid">
+
+    <div class="summary-card">
+      <p class="summary-title">// resumen de tu análisis</p>
+
+      <div class="summary-score">
+        <div>
+          <span class="sum-score-num">{{ analisis.score_ats }}</span>
+          <span style="font-family:var(--mono);font-size:.75rem;color:var(--muted)">/100</span>
+        </div>
+        <div class="sum-score-label">
+          Score ATS actual<br>
+          <span style="color:var(--warn)">{{ analisis.keywords_faltantes|length }} keywords faltantes · {{ analisis.secciones_faltantes|length }} secciones sin detectar</span>
+        </div>
+      </div>
+
+      <div class="summary-includes">
+        <p class="summary-includes-title">Incluye en el informe completo</p>
+        <div class="si-item">
+          <span class="si-icon">📝</span>
+          <div class="si-text">
+            <strong>Análisis detallado por sección</strong>
+            <span>Experiencia, Skills, Educación — evaluación y estructura sugerida</span>
+          </div>
+        </div>
+        <div class="si-item">
+          <span class="si-icon">✍️</span>
+          <div class="si-text">
+            <strong>Redacciones exactas con IA</strong>
+            <span>Bullets cuantificados listos para copiar en tu CV</span>
+          </div>
+        </div>
+        <div class="si-item">
+          <span class="si-icon">🔑</span>
+          <div class="si-text">
+            <strong>Guía de integración de keywords</strong>
+            <span>Dónde y cómo agregar cada keyword faltante</span>
+          </div>
+        </div>
+        <div class="si-item">
+          <span class="si-icon">📄</span>
+          <div class="si-text">
+            <strong>PDF descargable</strong>
+            <span>Informe completo para guardar y compartir offline</span>
+          </div>
+        </div>
+        <div class="si-item">
+          <span class="si-icon">📧</span>
+          <div class="si-text">
+            <strong>Enviado a tu email</strong>
+            <span>Acceso permanente desde el link en tu bandeja</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-price-box">
+        <div class="price-row">
+          <span>Informe ATS completo</span>
+          <span>USD {{ precio_usd }}</span>
+        </div>
+        <div class="price-row">
+          <span>O en pesos (AR)</span>
+          <span>ARS {{ precio_ars }}</span>
+        </div>
+        <div class="price-total">
+          <span>Total a pagar</span>
+          <span>USD {{ precio_usd }}</span>
+        </div>
+      </div>
     </div>
-</section>
 
-<div class="page-container">
-    <div class="checkout-layout">
+    <div class="payment-card">
+      <p class="payment-title">// método de pago</p>
 
-        <!-- Resumen de compra -->
-        <div class="checkout-summary">
-            <h2>Resumen</h2>
-            <div class="checkout-cv-info">
-                <span class="checkout-cv-icon">📄</span>
-                <div>
-                    <strong>{{ analisis.archivo_nombre }}</strong>
-                    <span class="checkout-score">Score actual: {{ analisis.score_ats }}/100</span>
-                </div>
+      <form method="post" action="{% url 'core:ats_payment_create' report.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="currency" id="currency-input" value="USD">
+
+        <div class="email-field">
+          <label class="email-label" for="buyer-email">Email para recibir el informe</label>
+          <input type="email" id="buyer-email" name="email" class="email-input"
+                 placeholder="tu@email.com" autocomplete="email">
+          <p class="email-hint">Te enviamos el link del informe y el PDF. Opcional.</p>
+        </div>
+
+        <div class="payment-options">
+          <label class="pay-opt active" id="opt-usd" onclick="selectMethod('USD','Stripe','USD {{ precio_usd }}')">
+            <input type="radio" name="_method_display" value="USD" checked>
+            <div class="pay-opt-header">
+              <span class="pay-logo stripe">Stripe</span>
+              <span class="pay-badge">Internacional · USD</span>
             </div>
-
-            <ul class="checkout-features">
-                <li><span class="cf-icon">🔑</span>
-                    <div><strong>{{ analisis.keywords_faltantes|length }} keywords</strong> con redacciones exactas para integrar en tu CV</div>
-                </li>
-                <li><span class="cf-icon">📋</span>
-                    <div><strong>{{ analisis.secciones_faltantes|length }} secciones</strong> con templates listos para copiar y pegar</div>
-                </li>
-                {% if analisis.problemas_formato %}
-                <li><span class="cf-icon">⚠️</span>
-                    <div><strong>{{ analisis.problemas_formato|length }} problema(s) de formato</strong> con instrucciones de corrección paso a paso</div>
-                </li>
-                {% endif %}
-                <li><span class="cf-icon">📊</span>
-                    <div><strong>Informe PDF</strong> completo y estructurado listo para usar</div>
-                </li>
+            <p class="pay-desc">Tarjeta crédito/débito — USD {{ precio_usd }}</p>
+            <ul class="pay-feats">
+              <li>✓ Visa, Mastercard, Amex</li>
+              <li>✓ Encriptado con SSL</li>
             </ul>
+          </label>
 
-            <div class="checkout-price-box">
-                <div class="checkout-price-row">
-                    <span>Plan de Acción IA + PDF</span>
-                    <span class="price-usd">USD {{ precio_usd }}</span>
-                </div>
-                <div class="checkout-price-row checkout-price-ars">
-                    <span>Precio en pesos (AR)</span>
-                    <span>ARS {{ precio_ars }}</span>
-                </div>
-                <div class="checkout-price-total">
-                    <span>Total</span>
-                    <span>USD {{ precio_usd }}</span>
-                </div>
+          <label class="pay-opt" id="opt-ars" onclick="selectMethod('ARS','MercadoPago','ARS {{ precio_ars }}')">
+            <input type="radio" name="_method_display" value="ARS">
+            <div class="pay-opt-header">
+              <span class="pay-logo mp">MercadoPago</span>
+              <span class="pay-badge">Argentina · ARS</span>
             </div>
+            <p class="pay-desc">Pesos argentinos — ARS {{ precio_ars }}</p>
+            <ul class="pay-feats">
+              <li>✓ Tarjeta, transferencia, efectivo</li>
+              <li>✓ Cuotas sin interés</li>
+            </ul>
+          </label>
         </div>
 
-        <!-- Métodos de pago -->
-        <div class="checkout-payment">
-            <h2>Elegí cómo pagar</h2>
-
-            <form method="post" action="{% url 'core:ats_payment_create' report.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="currency" id="currency-hidden" value="USD">
-
-                <div class="payment-options">
-                    <label class="payment-option active" id="opt-usd" onclick="selectMethod('USD','Stripe','USD {{ precio_usd }}')">
-                        <input type="radio" name="_method_display" value="USD" checked style="display:none">
-                        <div class="payment-option-header">
-                            <span class="payment-logo payment-logo--stripe">Stripe</span>
-                            <span class="payment-badge">Internacional · USD</span>
-                        </div>
-                        <p>Tarjeta de crédito/débito — USD {{ precio_usd }}</p>
-                        <ul class="payment-detail">
-                            <li>✓ Visa, Mastercard, Amex</li>
-                            <li>✓ Pago seguro con encriptación SSL</li>
-                            <li>✓ Acceso inmediato al informe</li>
-                        </ul>
-                    </label>
-
-                    <label class="payment-option" id="opt-ars" onclick="selectMethod('ARS','MercadoPago','ARS {{ precio_ars }}')">
-                        <input type="radio" name="_method_display" value="ARS" style="display:none">
-                        <div class="payment-option-header">
-                            <span class="payment-logo payment-logo--mp">MercadoPago</span>
-                            <span class="payment-badge payment-badge--mp">Argentina · ARS</span>
-                        </div>
-                        <p>Pesos argentinos — ARS {{ precio_ars }}</p>
-                        <ul class="payment-detail">
-                            <li>✓ Tarjeta, transferencia, efectivo</li>
-                            <li>✓ Cuotas sin interés disponibles</li>
-                            <li>✓ Acceso inmediato al informe</li>
-                        </ul>
-                    </label>
-
-                    <label class="payment-option" id="opt-brl" onclick="selectMethod('BRL','MercadoPago','BRL 49.90')">
-                        <input type="radio" name="_method_display" value="BRL" style="display:none">
-                        <div class="payment-option-header">
-                            <span class="payment-logo payment-logo--mp">MercadoPago</span>
-                            <span class="payment-badge payment-badge--mp">Brasil · BRL</span>
-                        </div>
-                        <p>Reais brasileños — BRL 49.90</p>
-                        <ul class="payment-detail">
-                            <li>✓ Pix, cartão, boleto</li>
-                            <li>✓ Pagamento seguro</li>
-                            <li>✓ Acesso imediato ao relatório</li>
-                        </ul>
-                    </label>
-                </div>
-
-                <div class="checkout-dev-notice">
-                    <span>⚠️</span>
-                    <p><strong>Modo desarrollo:</strong> el pago está simulado. En producción se redirige a Stripe o MercadoPago según la moneda elegida.</p>
-                </div>
-
-                <button type="submit" class="btn-primary btn-full btn-checkout" id="checkout-btn">
-                    Pagar con Stripe — USD {{ precio_usd }}
-                </button>
-
-                <p class="checkout-secure">🔒 Pago seguro · Sin cargos adicionales · Acceso inmediato</p>
-            </form>
+        <div class="dev-notice">
+          <span>⚠</span>
+          <span><strong>Modo desarrollo:</strong> el pago está simulado. En producción redirige a Stripe o MercadoPago.</span>
         </div>
 
+        <button type="submit" class="btn-pay" id="pay-btn">
+          Pagar con Stripe — USD {{ precio_usd }}
+        </button>
+        <p class="secure-note">🔒 Pago seguro · Sin cargos adicionales · Acceso inmediato</p>
+      </form>
     </div>
+
+  </div>
+
 </div>
+
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
 
 <script>
 function selectMethod(currency, label, price) {
-    document.getElementById('currency-hidden').value = currency;
-    document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
-    const idMap = { 'USD': 'opt-usd', 'ARS': 'opt-ars', 'BRL': 'opt-brl' };
-    document.getElementById(idMap[currency]).classList.add('active');
-    document.getElementById('checkout-btn').textContent =
-        `Pagar con ${label} — ${price}`;
+  document.getElementById('currency-input').value = currency;
+  document.querySelectorAll('.pay-opt').forEach(o => o.classList.remove('active'));
+  const map = {'USD':'opt-usd','ARS':'opt-ars'};
+  if (map[currency]) document.getElementById(map[currency]).classList.add('active');
+  document.getElementById('pay-btn').textContent = `Pagar con ${label} — ${price}`;
 }
 </script>
-{% endblock %}
+
+</body>
+</html>

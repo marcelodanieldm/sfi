@@ -73,31 +73,56 @@ en parsing_issues.\
 """
 
 _SYSTEM_AGENT2 = """\
-Eres un experto en optimización de CVs para sistemas ATS y el mercado IT latinoamericano.
+Eres un experto senior en optimización de CVs para sistemas ATS y el mercado IT latinoamericano.
 
-A partir del análisis ATS ya realizado, generá un plan de acción concreto y accionable.
+A partir del texto del CV y el análisis ATS base, generá un análisis completo y premium.
 
 Devolvé SOLO un JSON válido con exactamente esta estructura, sin texto adicional fuera del JSON:
 {
-  "tailored_summary": "<resumen de 2-3 oraciones sobre el estado del CV y qué necesita mejorar, tono directo y profesional, en español rioplatense>",
+  "tailored_summary": "<resumen ejecutivo de 2-3 oraciones sobre el estado del CV, tono directo y profesional, en español rioplatense>",
+  "section_analysis": [
+    {
+      "seccion": "<nombre exacto de la sección, ej: Experiencia Laboral>",
+      "evaluacion": "<exactamente uno de: excelente, aceptable, necesita_mejora, critico, ausente>",
+      "problemas": ["<problema específico y concreto detectado en la sección>"],
+      "sugerencia_estructura": "<1-2 oraciones explicando cómo debería estructurarse esta sección>",
+      "ejemplo_redaccion": ["<bullet o fragmento completo y real listo para copiar al CV>"]
+    }
+  ],
+  "keyword_integration": [
+    {
+      "keyword": "<keyword faltante>",
+      "seccion": "<sección donde integrarlo, ej: Habilidades Técnicas>",
+      "ejemplo": "<oración completa y natural lista para copiar al CV>"
+    }
+  ],
   "actionable_fixes": [
     {
-      "tipo": "<exactamente uno de: 'formato', 'seccion', 'keyword'>",
+      "tipo": "<exactamente uno de: formato, seccion, keyword>",
       "icono": "<emoji relevante>",
       "titulo": "<título corto del problema, máximo 60 caracteres>",
       "descripcion": "<qué problema tiene y por qué afecta el score ATS, 1-2 oraciones>",
       "accion": "<instrucción concreta de qué hacer, 1-3 oraciones>",
-      "ejemplo": "<texto de ejemplo listo para copiar y pegar en el CV>"
+      "ejemplo": "<texto listo para copiar al CV>"
     }
   ]
 }
 
-Generá entre 4 y 10 fixes ordenados por impacto descendente:
-primero problemas de formato (bloquean todo el parsing), luego secciones faltantes,
-luego keywords ausentes.
+Para section_analysis:
+- Analizá SOLO las secciones relevantes del CV (Experiencia Laboral, Habilidades Técnicas, Educación, Proyectos, Certificaciones, Perfil Profesional).
+- Para Experiencia: evaluá si los bullets están cuantificados con impacto medible (números, porcentajes, usuarios impactados).
+- Para Habilidades: evaluá si las keywords de la industria están listadas correctamente en formato legible para ATS.
+- Para secciones ausentes marcalas como 'ausente' con sugerencias de cómo agregarlas.
+- Proporcioná siempre 2-3 bullets ejemplo reales y específicos para el contexto del candidato.
+- Incluí todas las secciones (presentes y faltantes críticas), mínimo 3 secciones.
 
-Sé muy específico con los ejemplos — el usuario debe poder copiarlos y pegarlos
-directamente en su CV sin necesidad de adaptarlos.
+Para keyword_integration:
+- Elegí las 4-6 keywords más críticas faltantes (priorizar las del job description si existe).
+- Dá oraciones naturales, no forzadas, que un humano podría escribir en su CV.
+
+Para actionable_fixes:
+- Generá entre 5 y 8 fixes ordenados por impacto descendente.
+- Primero formato (bloquean parsing), luego secciones faltantes, luego keywords.
 
 Escribí todo en español rioplatense (Argentina).\
 """
@@ -142,7 +167,7 @@ def run_agent1(cv_raw_text: str, jd_texto: str = '') -> dict:
 
 def run_agent2(cv_raw_text: str, job_description: str, free_content: dict) -> dict:
     """
-    Genera recomendaciones accionables a partir del análisis previo.
+    Genera el análisis premium: sección por sección, integración de keywords y fixes.
     Usa OpenAI si está configurado; cae al motor determinístico si no.
     """
     api_key = getattr(settings, 'OPENAI_API_KEY', '')
@@ -155,17 +180,20 @@ def run_agent2(cv_raw_text: str, job_description: str, free_content: dict) -> di
     parsing_issues   = free_content.get('parsing_issues', [])
     keywords_found   = keyword_match.get('found', [])
     keywords_missing = keyword_match.get('missing', [])
+    sections_present = [s for s, ok in section_check.items() if ok]
     sections_missing = [s for s, ok in section_check.items() if not ok]
 
     user_msg = (
-        f"Texto del CV (primeras 4000 chars):\n{cv_raw_text[:4000]}\n\n"
-        f"Problemas de formato detectados: {', '.join(parsing_issues) or 'ninguno'}\n"
-        f"Keywords presentes en el CV: {', '.join(keywords_found) or 'ninguna'}\n"
-        f"Keywords importantes ausentes: {', '.join(keywords_missing) or 'ninguna'}\n"
-        f"Secciones faltantes: {', '.join(sections_missing) or 'ninguna'}"
+        f"Texto del CV (primeras 5000 chars):\n{cv_raw_text[:5000]}\n\n"
+        f"=== Resultado del análisis ATS ===\n"
+        f"Problemas de formato: {', '.join(parsing_issues) or 'ninguno'}\n"
+        f"Secciones presentes: {', '.join(sections_present) or 'ninguna'}\n"
+        f"Secciones faltantes: {', '.join(sections_missing) or 'ninguna'}\n"
+        f"Keywords encontradas en el CV: {', '.join(keywords_found) or 'ninguna'}\n"
+        f"Keywords importantes ausentes: {', '.join(keywords_missing) or 'ninguna'}"
     )
     if job_description:
-        user_msg += f"\n\nDescripción del trabajo:\n{job_description[:1500]}"
+        user_msg += f"\n\n=== Descripción del trabajo (JD) ===\n{job_description[:2000]}"
 
     try:
         client = openai.OpenAI(api_key=api_key)
@@ -177,13 +205,15 @@ def run_agent2(cv_raw_text: str, job_description: str, free_content: dict) -> di
                 {'role': 'user',   'content': user_msg},
             ],
             temperature=0.3,
-            max_tokens=2500,
+            max_tokens=3500,
         )
         data = json.loads(resp.choices[0].message.content)
         return {
             'paid_content': {
-                'tailored_summary': data.get('tailored_summary', ''),
-                'actionable_fixes': _validate_fixes(data.get('actionable_fixes', [])),
+                'tailored_summary':    data.get('tailored_summary', ''),
+                'section_analysis':    _validate_section_analysis(data.get('section_analysis', [])),
+                'keyword_integration': _validate_keyword_integration(data.get('keyword_integration', [])),
+                'actionable_fixes':    _validate_fixes(data.get('actionable_fixes', [])),
             }
         }
 
@@ -233,6 +263,38 @@ def _validate_fixes(fixes: list) -> list:
     return result
 
 
+def _validate_section_analysis(sections: list) -> list:
+    valid_evals = {'excelente', 'aceptable', 'necesita_mejora', 'critico', 'ausente'}
+    result = []
+    for s in sections:
+        if not isinstance(s, dict):
+            continue
+        evaluacion = s.get('evaluacion', 'aceptable')
+        if evaluacion not in valid_evals:
+            evaluacion = 'aceptable'
+        result.append({
+            'seccion':             str(s.get('seccion', ''))[:80],
+            'evaluacion':          evaluacion,
+            'problemas':           [str(p) for p in s.get('problemas', []) if p][:5],
+            'sugerencia_estructura': str(s.get('sugerencia_estructura', '')),
+            'ejemplo_redaccion':   [str(e) for e in s.get('ejemplo_redaccion', []) if e][:5],
+        })
+    return result
+
+
+def _validate_keyword_integration(integrations: list) -> list:
+    result = []
+    for item in integrations:
+        if not isinstance(item, dict):
+            continue
+        result.append({
+            'keyword': str(item.get('keyword', ''))[:60],
+            'seccion': str(item.get('seccion', ''))[:80],
+            'ejemplo': str(item.get('ejemplo', '')),
+        })
+    return result[:8]
+
+
 def _agent1_fallback(cv_raw_text: str, jd_texto: str) -> dict:
     import hashlib
     seed = hashlib.md5(cv_raw_text[:200].encode()).hexdigest()[:12]
@@ -262,12 +324,34 @@ def _agent2_fallback(free_content: dict) -> dict:
     sections_missing = [s for s, ok in section_check.items() if not ok]
 
     actionable_fixes = generar_recomendaciones(keywords_missing, sections_missing, parsing_issues)
+
+    section_analysis = []
+    for s, present in section_check.items():
+        section_analysis.append({
+            'seccion':               s,
+            'evaluacion':            'aceptable' if present else 'ausente',
+            'problemas':             [] if present else [f'La sección "{s}" no fue detectada por el ATS.'],
+            'sugerencia_estructura': '',
+            'ejemplo_redaccion':     [],
+        })
+
+    keyword_integration = [
+        {
+            'keyword': kw,
+            'seccion': 'Habilidades Técnicas',
+            'ejemplo': f'En Habilidades Técnicas: "..., {kw}, ..." — o en Experiencia: "Desarrollé [feature] utilizando {kw}."',
+        }
+        for kw in keywords_missing[:5]
+    ]
+
     return {
         'paid_content': {
             'tailored_summary': (
                 'Tu CV tiene potencial pero necesita ajustes para superar los filtros ATS. '
                 'Aplicá las correcciones listadas para aumentar tu score significativamente.'
             ),
-            'actionable_fixes': actionable_fixes,
+            'section_analysis':    section_analysis,
+            'keyword_integration': keyword_integration,
+            'actionable_fixes':    actionable_fixes,
         },
     }

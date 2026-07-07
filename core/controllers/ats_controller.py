@@ -24,7 +24,7 @@ from django.views.decorators.http import require_POST
 
 from core.models import AnalysisReport
 from core.services.ai_agents import run_agent1, run_agent2
-from core.services.ats_engine import score_info
+from core.services.ats_engine import score_info, generar_recomendaciones
 from core.services.payment_service import (
     create_checkout_session,
     confirm_payment,
@@ -89,16 +89,24 @@ def ats_evaluator(request):
 
         cv_raw_text   = _extract_text_from_pdf(cv_file)
         agent1_result = run_agent1(cv_raw_text, jd_texto)
-        agent2_result = run_agent2(cv_raw_text, jd_texto, agent1_result['free_content'])
+        free_content  = agent1_result['free_content']
+
+        # Generate deterministic basic recommendations for the free tier
+        keywords_missing = free_content.get('keyword_match', {}).get('missing', [])
+        section_check    = free_content.get('section_check', {})
+        sections_missing = [s for s, ok in section_check.items() if not ok]
+        parsing_issues   = free_content.get('parsing_issues', [])
+        free_content['basic_fixes'] = generar_recomendaciones(
+            keywords_missing, sections_missing, parsing_issues
+        )
 
         report = AnalysisReport.objects.create(
             user            = request.user if request.user.is_authenticated else None,
             cv_raw_text     = cv_raw_text,
             job_description = jd_texto,
             ats_score       = agent1_result['ats_score'],
-            free_content    = agent1_result['free_content'],
-            paid_content    = agent2_result['paid_content'],
-            is_paid         = True,
+            free_content    = free_content,
+            is_paid         = False,
         )
 
         return redirect('core:ats_resultado', uuid=str(report.id))
@@ -114,15 +122,22 @@ def ats_resultado(request, uuid):
     report = get_object_or_404(AnalysisReport, pk=uuid)
     info   = score_info(report.ats_score)
 
-    actionable_fixes = report.actionable_fixes
-    score_proyectado = min(report.ats_score + len(actionable_fixes) * 2, 95)
+    # Use basic_fixes from free_content (generated deterministically after agent1)
+    # Fallback to paid_content fixes for legacy reports
+    basic_fixes = (
+        report.free_content.get('basic_fixes')
+        or report.paid_content.get('actionable_fixes', [])
+    )
+    score_proyectado = min(report.ats_score + len(basic_fixes) * 2, 95)
 
     return render(request, 'core/ats_resultado.html', {
         'report':           report,
         'score_info':       info,
-        'actionable_fixes': actionable_fixes,
+        'actionable_fixes': basic_fixes,
         'score_proyectado': score_proyectado,
         'analisis':         _compat_analisis(report),
+        'precio_usd':       PRECIO_USD,
+        'precio_ars':       PRECIO_ARS,
     })
 
 
@@ -151,10 +166,12 @@ def ats_checkout(request, uuid):
 @require_POST
 def ats_payment_create(request, uuid):
     """
-    Recibe currency ('USD', 'ARS', 'BRL') y redirige al checkout de la pasarela.
+    Recibe currency ('USD', 'ARS', 'BRL') y email del comprador,
+    luego redirige al checkout de la pasarela.
     """
     report   = get_object_or_404(AnalysisReport, pk=uuid)
     currency = request.POST.get('currency', 'USD').upper()
+    email    = request.POST.get('email', '').strip()
 
     if report.is_paid:
         return redirect('core:ats_informe_completo', uuid=uuid)
@@ -162,6 +179,10 @@ def ats_payment_create(request, uuid):
     if currency not in ('USD', 'ARS', 'BRL'):
         messages.error(request, 'Moneda no válida.')
         return redirect('core:ats_checkout', uuid=uuid)
+
+    # Persist email in session to use it in payment_success
+    if email:
+        request.session[f'ats_email_{uuid}'] = email
 
     try:
         gateway_url = create_checkout_session(report, currency, request)
@@ -194,6 +215,18 @@ def ats_payment_success(request, uuid, gateway):
                 return redirect('core:ats_checkout', uuid=uuid)
 
         confirm_payment(report, gateway, payment_id)
+
+        # Send confirmation email (non-blocking best-effort)
+        buyer_email = (
+            request.session.pop(f'ats_email_{uuid}', '')
+            or (report.user.email if report.user_id else '')
+        )
+        if buyer_email:
+            try:
+                from core.services.payment_service import enviar_email_reporte_premium
+                enviar_email_reporte_premium(report, buyer_email)
+            except Exception as exc:
+                logger.warning('Email send failed after payment: %s', exc)
 
     return redirect('core:ats_informe_completo', uuid=str(report.id))
 
@@ -248,39 +281,34 @@ def ats_informe_completo(request, uuid):
     if not report.is_paid:
         return redirect('core:ats_checkout', uuid=uuid)
 
-    # ── Agent 2: Recommender & PDF Editor ───────────────────────────────
-    # Solo se ejecuta si paid_content aún está vacío (evita recalcular).
-    if not report.paid_content:
+    # Run premium agent2 lazily — only if paid_content is empty or lacks section_analysis
+    if not report.paid_content or 'section_analysis' not in report.paid_content:
         agent2_result = run_agent2(
             report.cv_raw_text,
-            report.job_description,
+            report.job_description or '',
             report.free_content,
         )
         report.paid_content = agent2_result['paid_content']
         report.save(update_fields=['paid_content'])
 
-    info             = score_info(report.ats_score)
-    actionable_fixes = report.actionable_fixes
-    score_proyectado = min(report.ats_score + len(actionable_fixes) * 2, 95)
+    info    = score_info(report.ats_score)
+    paid    = report.paid_content
 
-    # Agrupar fixes por tipo para compatibilidad con template
-    recs_formato = [f for f in actionable_fixes if 'format' in f.get('section', '').lower()
-                    or any(w in f.get('reason', '').lower() for w in ('formato', 'tabla', 'columna', 'fuente'))]
-    recs_seccion = [f for f in actionable_fixes if f not in recs_formato
-                    and any(w in f.get('section', '').lower() for w in ('experience', 'education', 'skills', 'projects', 'summary', 'certif'))]
-    recs_keyword = [f for f in actionable_fixes if f not in recs_formato and f not in recs_seccion]
+    actionable_fixes    = paid.get('actionable_fixes', [])
+    section_analysis    = paid.get('section_analysis', [])
+    keyword_integration = paid.get('keyword_integration', [])
+    score_proyectado    = min(report.ats_score + len(actionable_fixes) * 2, 95)
 
     return render(request, 'core/ats_informe_completo.html', {
-        'report':          report,
-        'score_info':      info,
-        'actionable_fixes': actionable_fixes,
-        'recs_formato':    recs_formato,
-        'recs_seccion':    recs_seccion,
-        'recs_keyword':    recs_keyword,
-        'score_proyectado': score_proyectado,
-        # compat
-        'analisis': _compat_analisis(report),
-        'recomendaciones': _fixes_to_recs(actionable_fixes),
+        'report':              report,
+        'score_info':          info,
+        'tailored_summary':    paid.get('tailored_summary', ''),
+        'section_analysis':    section_analysis,
+        'keyword_integration': keyword_integration,
+        'actionable_fixes':    actionable_fixes,
+        'score_proyectado':    score_proyectado,
+        'analisis':            _compat_analisis(report),
+        'precio_usd':          PRECIO_USD,
     })
 
 

@@ -203,6 +203,49 @@ def send_subscription_cancellation_email(user, provider: str) -> bool:
     )
 
 
+def send_report_email(report, user_email: str) -> bool:
+    """
+    Envía el informe ATS premium al email del comprador.
+    Incluye link al informe web y al PDF descargable.
+    """
+    if not _get_resend_client():
+        return False
+
+    site_url    = _SITE_URL.rstrip('/')
+    informe_url = f'{site_url}/ats-evaluator/informe/{report.id}/'
+    pdf_url     = f'{site_url}/ats-evaluator/informe/{report.id}/pdf/'
+
+    context = {
+        'score':       report.ats_score,
+        'informe_url': informe_url,
+        'pdf_url':     pdf_url,
+        'support_url': _SUPPORT_URL,
+        'site_url':    site_url,
+    }
+
+    try:
+        html_body = render_to_string('core/emails/ats_reporte.html', context)
+    except Exception as exc:
+        logger.error('Error rendering ats_reporte.html: %s', exc)
+        return False
+
+    try:
+        response = resend.Emails.send({
+            'from':    _FROM,
+            'to':      [user_email],
+            'subject': f'Tu informe ATS está listo — Score {report.ats_score}/100 🎯',
+            'html':    html_body,
+        })
+        logger.info('ATS report email sent → %s (id=%s)', user_email, response.get('id', 'n/a'))
+        return True
+    except resend.exceptions.ResendError as exc:
+        logger.error('Resend error sending ATS report to %s: %s', user_email, exc)
+        return False
+    except Exception as exc:
+        logger.exception('Unexpected error sending ATS report to %s: %s', user_email, exc)
+        return False
+
+
 def send_renewal_reminder_email(user, provider: str, period_end: datetime, days_until_renewal: int) -> bool:
     subscription_url = f'{_SITE_URL.rstrip("/")}/mentoria/suscripcion/'
     chat_url = f'{_SITE_URL.rstrip("/")}/mentoria/chat/'
