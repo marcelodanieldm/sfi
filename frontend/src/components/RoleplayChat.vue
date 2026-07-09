@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { useRoleplayStore } from '../stores/useRoleplayStore'
 import EvaluationReport from './EvaluationReport.vue'
+import RoleSelector from './RoleSelector.vue'
 
 const store = useRoleplayStore()
 
@@ -15,9 +16,40 @@ const turnCount       = computed(() => store.turnCount)
 const scenario        = computed(() => store.scenario)
 
 const route = useRoute()
+
+// Mapa de roles IT para mostrar el label
+const ROLES_IT_LABELS = {
+  'frontend': 'Frontend Developer',
+  'backend': 'Backend Developer',
+  'fullstack': 'Fullstack Developer',
+  'devops': 'DevOps Engineer',
+  'data_engineer': 'Data Engineer',
+  'qa': 'QA/Tester',
+  'architect': 'Solutions Architect',
+  'scrum_master': 'Scrum Master',
+  'product_manager': 'Product Manager',
+  'tech_lead': 'Tech Lead',
+  'ml_engineer': 'ML/AI Engineer',
+  'security': 'Security Engineer',
+  'cloud_engineer': 'Cloud Engineer',
+}
+
+const currentRolItSesion = ref('')
+const showRoleSelector = ref(false)
+const csrfToken = ref('')
+
 onMounted(async () => {
+  // Obtener CSRF token del DOM
+  const csrfEl = document.querySelector('[data-csrf]')
+  if (csrfEl) csrfToken.value = csrfEl.dataset.csrf
+  
   if (!store.currentSession && route?.params?.sessionId) {
     await store.fetchSession(route.params.sessionId)
+  }
+  
+  // Obtener rol de la sesión si existe
+  if (store.currentSession?.rol_it_sesion) {
+    currentRolItSesion.value = store.currentSession.rol_it_sesion
   }
 })
 
@@ -27,6 +59,10 @@ const inputRef      = ref(null)
 
 const canSend = computed(() =>
   userInput.value.trim().length > 0 && store.canSendMessage
+)
+
+const currentRoleLabel = computed(() =>
+  currentRolItSesion.value ? ROLES_IT_LABELS[currentRolItSesion.value] || currentRolItSesion.value : 'Sin rol asignado'
 )
 
 watch(
@@ -66,9 +102,26 @@ async function sendMessage() {
 
   await store.sendMessage(text)
 }
+
+function onRoleSelected(newRole) {
+  currentRolItSesion.value = newRole
+  showRoleSelector.value = false
+  
+  // Mostrar notificación en el chat que el rol fue cambiado
+  const roleLabel = ROLES_IT_LABELS[newRole] || newRole
+  console.log(`Rol IT cambiado a: ${roleLabel}. Los próximos escenarios serán personalizados según este rol.`)
+}
 </script>
 
 <template>
+  <!-- RoleSelector Modal -->
+  <RoleSelector
+    :is-open="showRoleSelector"
+    :csrf-token="csrfToken"
+    @role-selected="onRoleSelected"
+    @close="showRoleSelector = false"
+  />
+
   <!-- Informe final -->
   <EvaluationReport
     v-if="isCompleted && report"
@@ -76,7 +129,7 @@ async function sendMessage() {
     :scenario-title="scenario?.title ?? ''"
     :scenario-id="scenario?.id ?? null"
     :category="scenario?.category ?? ''"
-    :csrf-token="store.csrfToken"
+    :csrf-token="csrfToken"
   />
 
   <!-- Chat activo -->
@@ -121,6 +174,24 @@ async function sendMessage() {
             :class="isCompleted ? 'bg-[#34d399]' : 'bg-indigo-500'"
             :style="{ width: progressPercent + '%' }"
           ></div>
+        </div>
+
+        <!-- Rol IT del usuario -->
+        <div class="mt-2 pt-1.5 border-t border-[#2d3748] flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-[#34d399]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v10a2 2 0 002 2h5m0 0h5a2 2 0 002-2v-10a2 2 0 00-2-2h-5m0 0V5a2 2 0 012-2h.217a2 2 0 011.738 1.032l2.583 5m0 0H7"/>
+            </svg>
+            <span class="text-[10px] sm:text-xs text-[#9ca3af] font-medium">Tu rol:</span>
+            <span class="text-[10px] sm:text-xs font-semibold text-[#34d399]">{{ currentRoleLabel }}</span>
+          </div>
+          <button
+            @click="showRoleSelector = true"
+            class="text-[10px] px-2 py-1 rounded border border-[#374151] text-[#6b7280] hover:text-[#34d399] hover:border-[#34d399] transition-colors"
+            title="Cambiar rol IT"
+          >
+            Cambiar
+          </button>
         </div>
 
       </div>

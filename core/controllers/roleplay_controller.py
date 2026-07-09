@@ -118,6 +118,7 @@ def roleplay_get_session(request, session_id):
         'turn_count':       session.turn_count,
         'chat_history':     session.chat_history,
         'informe_feedback': session.informe_feedback,
+        'rol_it_sesion':    session.rol_it_sesion,
         'scenario': {
             'id':        scenario.id,
             'category':  scenario.category,

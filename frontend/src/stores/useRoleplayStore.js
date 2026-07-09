@@ -24,7 +24,7 @@ export const useRoleplayStore = defineStore('roleplay', {
 
     /**
      * Sesión activa.
-     * @type {{ id: string, scenario: object, turn_count: number, status: string } | null}
+     * @type {{ id: string, scenario: object, turn_count: number, status: string, rol_it_sesion: string | null } | null}
      */
     currentSession: null,
 
@@ -98,13 +98,15 @@ export const useRoleplayStore = defineStore('roleplay', {
      * @param {string} sessionId         - UUID de la sesión.
      * @param {object} scenario          - Datos del escenario.
      * @param {string} initialBotMessage - Primer mensaje del personaje.
+     * @param {string|null} rolItSesion  - Rol IT del usuario en esta sesión.
      */
-    initSession(sessionId, scenario, initialBotMessage) {
+    initSession(sessionId, scenario, initialBotMessage, rolItSesion = null) {
       this.currentSession = {
-        id:         sessionId,
+        id:            sessionId,
         scenario,
-        turn_count: 0,
-        status:     'in_progress',
+        turn_count:    0,
+        status:        'in_progress',
+        rol_it_sesion: rolItSesion,
       }
       this.messages  = [{ role: 'assistant', content: initialBotMessage }]
       this.report    = null
@@ -120,15 +122,20 @@ export const useRoleplayStore = defineStore('roleplay', {
      * @returns {Promise<object>}  Datos de la sesión creada { session_id, scenario, initial_bot_message }.
      * @throws {Error}            Si la API responde con un error.
      */
-    async startNewSession(scenarioId) {
+    async startNewSession(scenarioId, rolItSesion = null) {
       this._reset()
       this.isLoading = true
 
       try {
+        const payload = { scenario_id: scenarioId }
+        if (rolItSesion) {
+          payload.rol_it_sesion = rolItSesion
+        }
+        
         const res = await fetch('/api/v1/roleplay/sessions/start/', {
           method:  'POST',
           headers: this._headers(),
-          body:    JSON.stringify({ scenario_id: scenarioId }),
+          body:    JSON.stringify(payload),
         })
         if (!res.ok) {
           const body = await res.json().catch(() => ({}))
@@ -137,10 +144,11 @@ export const useRoleplayStore = defineStore('roleplay', {
         const data = await res.json()
 
         this.currentSession = {
-          id:         data.session_id,
-          scenario:   data.scenario,
-          turn_count: 0,
-          status:     'in_progress',
+          id:            data.session_id,
+          scenario:      data.scenario,
+          turn_count:    0,
+          status:        'in_progress',
+          rol_it_sesion: rolItSesion || null,
         }
         this.messages.push({ role: 'assistant', content: data.initial_bot_message })
 
@@ -226,10 +234,11 @@ export const useRoleplayStore = defineStore('roleplay', {
         const data = await res.json()
 
         this.currentSession = {
-          id:         data.session_id,
-          scenario:   data.scenario,
-          turn_count: data.turn_count,
-          status:     data.status,
+          id:            data.session_id,
+          scenario:      data.scenario,
+          turn_count:    data.turn_count,
+          status:        data.status,
+          rol_it_sesion: data.rol_it_sesion || null,
         }
         this.messages = data.chat_history ?? []
         this.report   = data.informe_feedback ?? null
