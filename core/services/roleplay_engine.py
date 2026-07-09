@@ -166,15 +166,15 @@ Personaliza para {rol_label}: usa vocabulario, desafíos y situaciones relevante
 
 ### 🎯 Informe de Feedback de SkillsForIT
 **Escenario evaluado:** {title}
-**Rol del usuario:** {user_role}
+**Tu rol:** {user_role}
 
 #### 🟢 Aspectos Positivos
-*   [Punto fuerte 1]: Qué hizo bien el usuario durante la simulación.
-*   [Punto fuerte 2]: Aspectos de comunicación o manejo de la situación rescatables.
+*   [Punto fuerte 1]: Lo que hiciste muy bien durante la simulación. Te felicito por esto.
+*   [Punto fuerte 2]: Tu manera de manejar la situación fue rescatable. Esto muestra tu potencial.
 
 #### 🔴 Áreas de Mejora
-*   [Área 1]: Comportamiento o respuesta que podría mejorar.
-*   [Área 2]: Oportunidad perdida durante la simulación.
+*   [Área 1]: Aquí hay algo en lo que podrías crecer. Te sugiero trabajar en esto.
+*   [Área 2]: En este momento dejaste una oportunidad sobre la mesa. Veamos cómo podrías haberlo hecho mejor.
 
 #### 🚀 La Respuesta Perfecta (Nivel Senior)
 "[Escribe de forma textual cómo un profesional de élite habría manejado la situación más crítica]"
