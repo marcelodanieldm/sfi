@@ -34,7 +34,6 @@ const ROLES_IT_LABELS = {
   'cloud_engineer': 'Cloud Engineer',
 }
 
-const currentRolItSesion = ref('')
 const showRoleSelector = ref(false)
 const csrfToken = ref('')
 const regenerateCount = ref(0)
@@ -48,16 +47,14 @@ onMounted(async () => {
   if (!store.currentSession && route?.params?.sessionId) {
     await store.fetchSession(route.params.sessionId)
   }
-  
-  // Obtener rol de la sesión si existe
-  if (store.currentSession?.rol_it_sesion) {
-    currentRolItSesion.value = store.currentSession.rol_it_sesion
-  }
 })
 
 const userInput     = ref('')
 const chatContainer = ref(null)
 const inputRef      = ref(null)
+
+// Computed que siempre lee el rol actual del store
+const currentRolItSesion = computed(() => store.currentSession?.rol_it_sesion || '')
 
 const canSend = computed(() =>
   userInput.value.trim().length > 0 && store.canSendMessage
