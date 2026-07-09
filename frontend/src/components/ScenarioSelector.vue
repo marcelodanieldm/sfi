@@ -110,7 +110,7 @@ async function onRoleSelected(rolItSesion) {
   await startSession(selectedScenario.value, rolItSesion)
 }
 
-async function startSession(scenario, rolItSesion) {
+async function startSession(scenario, rolItSesion = null) {
   startingId.value = scenario.id
   try {
     const csrf = store.csrfToken || props.csrfToken
@@ -133,7 +133,8 @@ async function startSession(scenario, rolItSesion) {
     })
 
     if (router) {
-      store.initSession(data.session_id, data.scenario, data.initial_bot_message)
+      // Pasar el rol a initSession para que se guarde en el store
+      store.initSession(data.session_id, data.scenario, data.initial_bot_message, rolItSesion)
       router.push(`/roleplay/${data.session_id}`)
     } else {
       window.location.href = `/roleplay/chat/${data.session_id}/`
