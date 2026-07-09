@@ -218,6 +218,50 @@ export const useRoleplayStore = defineStore('roleplay', {
     },
 
     /**
+     * Regenera un nuevo escenario para la sesión actual.
+     * Solo funciona si no se ha iniciado el chat (max 3 regeneraciones).
+     *
+     * @returns {Promise<object>} Datos del nuevo escenario { scenario, initial_bot_message, regenerate_count, can_regenerate }.
+     * @throws {Error}            Si la sesión ya comenzó o se alcanzó máximo de regeneraciones.
+     */
+    async regenerateScenario() {
+      if (!this.currentSession?.id) {
+        throw new Error('No hay sesión activa para regenerar')
+      }
+
+      this.isLoading = true
+      this.error     = null
+
+      try {
+        const res = await fetch(
+          `/api/v1/roleplay/sessions/${this.currentSession.id}/regenerate/`,
+          {
+            method:  'POST',
+            headers: this._headers(),
+          }
+        )
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          throw new Error(body.error || `Error ${res.status}`)
+        }
+        const data = await res.json()
+
+        // Actualizar escenario y reset del chat
+        this.currentSession.scenario = data.scenario
+        this.messages = [{ role: 'assistant', content: data.initial_bot_message }]
+        this.currentSession.turn_count = 0
+        this.error = null
+
+        return data
+      } catch (err) {
+        this.error = err.message
+        throw err
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    /**
      * Rehidrata el store con los datos de una sesión existente.
      * Usado cuando el usuario refresca la página en /soft-skills/roleplay/:sessionId.
      *

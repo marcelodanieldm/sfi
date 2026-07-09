@@ -37,6 +37,8 @@ const ROLES_IT_LABELS = {
 const currentRolItSesion = ref('')
 const showRoleSelector = ref(false)
 const csrfToken = ref('')
+const regenerateCount = ref(0)
+const canRegenerate = ref(true)
 
 onMounted(async () => {
   // Obtener CSRF token del DOM
@@ -111,6 +113,22 @@ function onRoleSelected(newRole) {
   const roleLabel = ROLES_IT_LABELS[newRole] || newRole
   console.log(`Rol IT cambiado a: ${roleLabel}. Los próximos escenarios serán personalizados según este rol.`)
 }
+
+async function regenerateScenario() {
+  if (!canRegenerate.value) return
+  
+  const userConfirmed = confirm('¿Regenerar escenario? Se borrará el chat actual. Tienes ' + (3 - regenerateCount.value) + ' regeneraciones disponibles.')
+  if (!userConfirmed) return
+  
+  try {
+    await store.regenerateScenario()
+    regenerateCount.value += 1
+    canRegenerate.value = regenerateCount.value < 3
+  } catch (err) {
+    console.error('Error regenerando escenario:', err)
+    alert('Error al regenerar el escenario. Intentá de nuevo.')
+  }
+}
 </script>
 
 <template>
@@ -176,7 +194,7 @@ function onRoleSelected(newRole) {
           ></div>
         </div>
 
-        <!-- Rol IT del usuario -->
+        <!-- Rol IT del usuario y acciones -->
         <div class="mt-2 pt-1.5 border-t border-[#2d3748] flex items-center justify-between gap-2">
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-[#34d399]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -185,13 +203,26 @@ function onRoleSelected(newRole) {
             <span class="text-[10px] sm:text-xs text-[#9ca3af] font-medium">Tu rol:</span>
             <span class="text-[10px] sm:text-xs font-semibold text-[#34d399]">{{ currentRoleLabel }}</span>
           </div>
-          <button
-            @click="showRoleSelector = true"
-            class="text-[10px] px-2 py-1 rounded border border-[#374151] text-[#6b7280] hover:text-[#34d399] hover:border-[#34d399] transition-colors"
-            title="Cambiar rol IT"
-          >
-            Cambiar
-          </button>
+          <div class="flex items-center gap-1">
+            <!-- Botón Regenerar (solo antes de empezar) -->
+            <button
+              v-if="turnCount === 0 && !isCompleted && canRegenerate"
+              @click="regenerateScenario"
+              :disabled="isLoading"
+              class="text-[10px] px-2 py-1 rounded border border-[#fbbf24] text-[#fbbf24] hover:bg-[#fbbf24]/10 disabled:opacity-50 transition-colors"
+              title="Regenerar escenario (máx 3 veces)"
+            >
+              🔄 Regenerar ({{ 3 - regenerateCount }} disponibles)
+            </button>
+            <!-- Botón Cambiar Rol -->
+            <button
+              @click="showRoleSelector = true"
+              class="text-[10px] px-2 py-1 rounded border border-[#374151] text-[#6b7280] hover:text-[#34d399] hover:border-[#34d399] transition-colors"
+              title="Cambiar rol IT"
+            >
+              Cambiar
+            </button>
+          </div>
         </div>
 
       </div>
