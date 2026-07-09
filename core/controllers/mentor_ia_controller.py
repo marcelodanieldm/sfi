@@ -103,6 +103,33 @@ PRECIO_MENSUAL = '9.99'
 
 
 # ────────────────────────────────────────────────────────────────────────────
+#  Contextos de rol IT
+# ────────────────────────────────────────────────────────────────────────────
+
+def _get_role_context(rol_it):
+    """
+    Retorna el contexto de rol IT para inyectar en los prompts.
+    Si no hay rol, retorna string vacío.
+    """
+    ROLE_CONTEXTS = {
+        'frontend':         'Frontend Developer: UI/UX, responsive design, performance, accessibility, component architecture',
+        'backend':          'Backend Developer: APIs, databases, scalability, infrastructure, microservices, concurrency',
+        'fullstack':        'Fullstack Developer: both frontend and backend, end-to-end architecture, deployment',
+        'devops':           'DevOps Engineer: CI/CD, infrastructure, monitoring, deployment, automation, cloud platforms',
+        'data_engineer':    'Data Engineer: data pipelines, ETL, big data, analytics infrastructure, data quality',
+        'qa':               'QA/Tester: test strategy, automation, quality assurance, edge cases, regression testing',
+        'architect':        'Solutions Architect: system design, scalability, tradeoffs, technology selection, governance',
+        'scrum_master':     'Scrum Master: team coordination, process improvement, impediment removal, agile practices',
+        'product_manager':  'Product Manager: feature prioritization, stakeholder alignment, roadmap, user outcomes',
+        'tech_lead':        'Tech Lead: technical mentoring, architecture decisions, team guidance, code quality',
+        'ml_engineer':      'ML/AI Engineer: model training, data science, algorithms, production ML systems',
+        'security':         'Security Engineer: threat modeling, vulnerability assessment, security best practices',
+        'cloud_engineer':   'Cloud Engineer: cloud architecture, infrastructure as code, cost optimization, cloud services',
+    }
+    return ROLE_CONTEXTS.get(rol_it, '')
+
+
+# ────────────────────────────────────────────────────────────────────────────
 #  Helpers
 # ────────────────────────────────────────────────────────────────────────────
 
@@ -399,11 +426,15 @@ def mentor_ia_chat(request):
 @login_required
 @require_POST
 @csrf_exempt
+@login_required
+@require_POST
+@csrf_exempt
 def mentor_ia_api_new_session(request):
     """
     POST /mentoria/api/session/
-    Body JSON: {"tipo": "entrevistas"}
+    Body JSON: {"tipo": "entrevistas", "rol_it_sesion": "backend"}
     Crea una sesión, pide a la IA el mensaje de apertura y lo devuelve.
+    El rol_it_sesion es opcional — si se omite, usa rol_it_preferido del usuario.
     """
     if not _is_subscriber(request.user):
         return JsonResponse({'error': 'Suscripción requerida'}, status=403)
@@ -411,21 +442,40 @@ def mentor_ia_api_new_session(request):
     try:
         data = json.loads(request.body)
         tipo = data.get('tipo', '').strip()
+        rol_it_sesion = data.get('rol_it_sesion') or request.user.rol_it_preferido
     except (json.JSONDecodeError, AttributeError):
         return JsonResponse({'error': 'JSON inválido'}, status=400)
 
     if tipo not in _SYSTEM_PROMPTS:
         return JsonResponse({'error': 'Tipo de evaluación inválido'}, status=400)
 
-    session = MentorIASession.objects.create(user=request.user, tipo=tipo)
+    # Validar rol IT si se proporciona
+    if rol_it_sesion:
+        valid_roles = dict(request.user.ROLES_IT)
+        if rol_it_sesion not in valid_roles:
+            return JsonResponse({'error': f'Rol IT inválido: {rol_it_sesion}'}, status=400)
+
+    session = MentorIASession.objects.create(
+        user=request.user,
+        tipo=tipo,
+        rol_it_sesion=rol_it_sesion
+    )
 
     try:
         client = _openai_client()
+        
+        # Construir el prompt del sistema con contexto de rol
+        system_prompt = _SYSTEM_PROMPTS[tipo]
+        role_context = _get_role_context(rol_it_sesion) if rol_it_sesion else ''
+        
+        if role_context:
+            system_prompt += f"\n\n**Contexto del usuario:** {role_context}\nPersonaliza el escenario y preguntas según este rol IT."
+        
         response = client.chat.completions.create(
             model='gpt-4o-mini',
             max_tokens=1024,
             messages=[
-                {'role': 'system',  'content': _SYSTEM_PROMPTS[tipo]},
+                {'role': 'system',  'content': system_prompt},
                 {'role': 'user',    'content': 'Comenzá la sesión de evaluación.'},
             ],
         )
@@ -441,6 +491,7 @@ def mentor_ia_api_new_session(request):
     return JsonResponse({
         'session_id': str(session.id),
         'tipo_label': _TIPO_LABELS[tipo],
+        'rol_it_sesion': rol_it_sesion,
         'message':    ai_text,
     })
 

@@ -207,11 +207,97 @@ textarea::placeholder{color:var(--faint)}
   textarea{font-size:.85rem}
   .empty-hint{display:none}
 }
+
+/* ── Role Selector Modal ── */
+.role-modal-backdrop{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  z-index:100;
+}
+.role-modal-backdrop.active{display:block}
+
+.role-modal{
+  display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  width:90%;max-width:420px;box-shadow:0 20px 25px -5px rgba(0,0,0,.3);
+  z-index:101;max-height:80vh;overflow-y:auto;
+}
+.role-modal.active{display:flex;flex-direction:column}
+
+.role-modal-header{
+  border-bottom:1px solid var(--border);padding:20px 24px;
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+}
+.role-modal-header h2{font-size:1.125rem;font-weight:600;color:var(--text);margin:0}
+.role-modal-close{
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.25rem;
+  width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+  transition:color .2s;
+}
+.role-modal-close:hover{color:var(--text)}
+
+.role-modal-content{
+  padding:24px;flex:1;overflow-y:auto;
+}
+.role-modal-content p{
+  font-size:.875rem;color:var(--muted);margin-bottom:16px;line-height:1.6;
+}
+
+.role-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;
+}
+.role-item{
+  padding:12px;border:2px solid var(--border);border-radius:8px;
+  background:var(--bg);cursor:pointer;text-align:left;
+  transition:all .2s;
+}
+.role-item:hover{border-color:var(--accent);color:var(--accent)}
+.role-item.selected{background:rgba(52,211,153,.1);border-color:var(--accent);color:var(--accent);font-weight:600}
+.role-item-label{font-size:.78rem;font-family:var(--mono)}
+
+.role-modal-footer{
+  border-top:1px solid var(--border);padding:16px 24px;
+  display:flex;gap:12px;flex-shrink:0;
+}
+.role-modal-footer button{
+  flex:1;padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  font-weight:500;cursor:pointer;transition:all .2s;
+  font-size:.875rem;
+}
+.role-modal-footer .cancel-btn{
+  background:transparent;color:var(--muted);
+}
+.role-modal-footer .cancel-btn:hover{background:var(--bg);color:var(--text);border-color:var(--accent)}
+.role-modal-footer .confirm-btn{
+  background:var(--accent);color:#0d1117;border-color:var(--accent);
+  font-weight:600;
+}
+.role-modal-footer .confirm-btn:hover{background:#6ee7b7}
+.role-modal-footer .confirm-btn:disabled{opacity:.5;cursor:not-allowed}
 </style>
 </head>
 <body>
 
 {% include 'core/partials/_nav.html' with active='mentoria' active_label='MentorIA' %}
+
+<!-- Role Selector Modal -->
+<div class="role-modal-backdrop" id="roleModalBackdrop"></div>
+<div class="role-modal" id="roleModal">
+  <div class="role-modal-header">
+    <h2>Selecciona tu rol en IT</h2>
+    <button class="role-modal-close" id="closeRoleModal">×</button>
+  </div>
+  <div class="role-modal-content">
+    <p>Personaliza los escenarios basados en tu rol profesional. Esto nos ayudará a darte feedback más relevante.</p>
+    <div class="role-grid" id="roleGrid">
+      <!-- Los roles se generan con JavaScript -->
+    </div>
+  </div>
+  <div class="role-modal-footer">
+    <button class="cancel-btn" id="cancelRoleBtn">Cancelar</button>
+    <button class="confirm-btn" id="confirmRoleBtn" disabled>Confirmar</button>
+  </div>
+</div>
 
 <div class="app">
 
@@ -221,6 +307,7 @@ textarea::placeholder{color:var(--faint)}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
     <div class="tipo-bar" id="tipoBar">
+      <button class="tipo-btn" id="changeRoleBtn" style="background:rgba(52,211,153,.15);border-color:var(--accent);color:var(--accent)">👤 Cambiar rol</button>
       {% for key, label in tipos %}
         <button class="tipo-btn" data-tipo="{{ key }}">{{ label }}</button>
       {% endfor %}
@@ -267,6 +354,68 @@ marked.use({ breaks: true, gfm: true });
 
 let sessionId = null;
 let isLoading = false;
+let currentRolIt = null;
+
+// ── Role Management ──
+const ROLES_IT = [
+  { value: 'frontend', label: 'Frontend Developer' },
+  { value: 'backend', label: 'Backend Developer' },
+  { value: 'fullstack', label: 'Fullstack Developer' },
+  { value: 'devops', label: 'DevOps Engineer' },
+  { value: 'data_engineer', label: 'Data Engineer' },
+  { value: 'qa', label: 'QA/Tester' },
+  { value: 'architect', label: 'Solutions Architect' },
+  { value: 'scrum_master', label: 'Scrum Master' },
+  { value: 'product_manager', label: 'Product Manager' },
+  { value: 'tech_lead', label: 'Tech Lead' },
+  { value: 'ml_engineer', label: 'ML/AI Engineer' },
+  { value: 'security', label: 'Security Engineer' },
+  { value: 'cloud_engineer', label: 'Cloud Engineer' },
+];
+
+const roleModal = document.getElementById('roleModal');
+const roleModalBackdrop = document.getElementById('roleModalBackdrop');
+const roleGrid = document.getElementById('roleGrid');
+const confirmRoleBtn = document.getElementById('confirmRoleBtn');
+const cancelRoleBtn = document.getElementById('cancelRoleBtn');
+const closeRoleModal = document.getElementById('closeRoleModal');
+
+function initializeRoleSelector() {
+  // Generar grid de roles
+  roleGrid.innerHTML = ROLES_IT.map(role => `
+    <button class="role-item" data-role="${role.value}">
+      <div class="role-item-label">${role.label}</div>
+    </button>
+  `).join('');
+  
+  // Agregar event listeners
+  roleGrid.querySelectorAll('.role-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      roleGrid.querySelectorAll('.role-item').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      currentRolIt = btn.dataset.role;
+      confirmRoleBtn.disabled = false;
+    });
+  });
+  
+  confirmRoleBtn.addEventListener('click', closeRoleSelectorModal);
+  cancelRoleBtn.addEventListener('click', closeRoleSelectorModal);
+  closeRoleModal.addEventListener('click', closeRoleSelectorModal);
+  roleModalBackdrop.addEventListener('click', closeRoleSelectorModal);
+  
+  // Mostrar modal al cargar
+  openRoleSelectorModal();
+}
+
+function openRoleSelectorModal() {
+  roleModal.classList.add('active');
+  roleModalBackdrop.classList.add('active');
+}
+
+function closeRoleSelectorModal() {
+  roleModal.classList.remove('active');
+  roleModalBackdrop.classList.remove('active');
+}
 
 const chatArea   = document.getElementById('chatArea');
 const emptyState = document.getElementById('emptyState');
@@ -288,10 +437,16 @@ msgInput.addEventListener('keydown', (e) => {
 });
 sendBtn.addEventListener('click', doSend);
 
-tipoBar.querySelectorAll('.tipo-btn').forEach(btn => {
+// Event listener para botón "Cambiar rol"
+const changeRoleBtn = document.getElementById('changeRoleBtn');
+changeRoleBtn.addEventListener('click', () => {
+  openRoleSelectorModal();
+});
+
+tipoBar.querySelectorAll('.tipo-btn:not(#changeRoleBtn)').forEach(btn => {
   btn.addEventListener('click', () => {
     if (isLoading) return;
-    tipoBar.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+    tipoBar.querySelectorAll('.tipo-btn:not(#changeRoleBtn)').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     startSession(btn.dataset.tipo);
   });
@@ -379,7 +534,7 @@ async function startSession(tipo) {
     const res  = await fetch('{% url "core:mentor_ia_api_new_session" %}', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
-      body: JSON.stringify({ tipo }),
+      body: JSON.stringify({ tipo, rol_it_sesion: currentRolIt }),
     });
     const data = await res.json();
     hideTyping();
@@ -429,6 +584,11 @@ async function doSend() {
     unlock();
   }
 }
+
+// Inicializar selector de rol al cargar
+document.addEventListener('DOMContentLoaded', () => {
+  initializeRoleSelector();
+});
 </script>
 </body>
 </html>
