@@ -71,24 +71,39 @@ def roleplay_chat_page(request, session_id):
         return redirect('core:mentor_ia_subscription')
     session = get_object_or_404(RoleplaySession.objects.select_related('scenario'),
                                 pk=session_id, user=request.user)
-    scenario = session.scenario
-
-    # Primer mensaje del historial o el campo estático del escenario como fallback
-    if session.chat_history:
-        initial_bot_message = session.chat_history[0].get('content', scenario.initial_bot_message)
+    
+    # Manejar escenarios estáticos (FK a scenario) o dinámicamente generados (scenario=None)
+    if session.scenario:
+        scenario = session.scenario
+        scenario_json = {
+            'id':        scenario.id,
+            'category':  scenario.category,
+            'title':     scenario.title,
+            'context':   scenario.context,
+            'user_role': scenario.user_role,
+            'bot_role':  scenario.bot_role,
+            'max_turns': scenario.max_turns,
+        }
+        # Primer mensaje del historial o el campo estático del escenario como fallback
+        if session.chat_history:
+            initial_bot_message = session.chat_history[0].get('content', scenario.initial_bot_message)
+        else:
+            initial_bot_message = scenario.initial_bot_message
     else:
-        initial_bot_message = scenario.initial_bot_message
-
-    # Diccionario que Vue leerá via json_script
-    scenario_json = {
-        'id':        scenario.id,
-        'category':  scenario.category,
-        'title':     scenario.title,
-        'context':   scenario.context,
-        'user_role': scenario.user_role,
-        'bot_role':  scenario.bot_role,
-        'max_turns': scenario.max_turns,
-    }
+        # Escenario generado dinámicamente
+        scenario_generated = session.scenario_generated or {}
+        scenario_json = {
+            'title':     scenario_generated.get('title', 'Escenario dinámico'),
+            'context':   scenario_generated.get('context', ''),
+            'user_role': scenario_generated.get('user_role', ''),
+            'bot_role':  scenario_generated.get('bot_role', ''),
+            'max_turns': scenario_generated.get('max_turns', 4),
+        }
+        # Usar el primer mensaje del historial (que se creó en sessions/start/)
+        if session.chat_history:
+            initial_bot_message = session.chat_history[0].get('content', 'Hola, ¿cómo estás?')
+        else:
+            initial_bot_message = scenario_generated.get('initial_bot_message', 'Hola, ¿cómo estás?')
 
     return render(request, 'core/roleplay/roleplay_chat.html', {
         'session':              session,

@@ -81,9 +81,10 @@ async function onRoleSelected(rolItSesion) {
   <div class="scenario-selector">
     <!-- Modal Selector de Rol -->
     <RoleSelector 
-      v-if="showRoleSelector"
+      :is-open="showRoleSelector"
       @role-selected="onRoleSelected"
       :disabled="isStarting"
+      :csrf-token="csrfToken"
     />
 
     <!-- Mensaje de error -->
