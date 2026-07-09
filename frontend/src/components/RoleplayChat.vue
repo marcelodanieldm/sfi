@@ -46,8 +46,19 @@ onMounted(async () => {
   
   if (!store.currentSession && route?.params?.sessionId) {
     await store.fetchSession(route.params.sessionId)
+    // Forzar rerender después de que los datos se cargan
+    await nextTick()
   }
 })
+
+// Watch para asegurar que se re-renderiza cuando cambia currentSession
+watch(
+  () => currentSession.value?.id,
+  () => {
+    // Cuando el ID de sesión cambia, forzamos un rerender
+    nextTick()
+  }
+)
 
 const userInput     = ref('')
 const chatContainer = ref(null)
