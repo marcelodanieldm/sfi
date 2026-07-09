@@ -13,10 +13,35 @@ class User(AbstractUser):
     - id: UUID autogenerado (pk)
     - email: único, requerido
     - created_at: timestamp de registro (auto)
+    - rol_it_preferido: rol del usuario en IT (para personalizar soft skills)
     - Hereda username, password, is_staff, is_superuser, etc.
     """
+    # Roles IT disponibles
+    ROLES_IT = [
+        ('frontend', 'Frontend Developer'),
+        ('backend', 'Backend Developer'),
+        ('fullstack', 'Fullstack Developer'),
+        ('devops', 'DevOps Engineer'),
+        ('data_engineer', 'Data Engineer'),
+        ('qa', 'QA/Tester'),
+        ('architect', 'Solutions Architect'),
+        ('scrum_master', 'Scrum Master'),
+        ('product_manager', 'Product Manager'),
+        ('tech_lead', 'Tech Lead'),
+        ('ml_engineer', 'ML/AI Engineer'),
+        ('security', 'Security Engineer'),
+        ('cloud_engineer', 'Cloud Engineer'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
+    rol_it_preferido = models.CharField(
+        max_length=20,
+        choices=ROLES_IT,
+        null=True,
+        blank=True,
+        help_text='Rol del usuario en IT para personalizar soft skills'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -383,6 +408,14 @@ class MentorIASession(models.Model):
     id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user       = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='mentoria_sessions')
     tipo       = models.CharField(max_length=30, choices=TIPO_CHOICES)
+    # Rol IT del usuario durante esta sesión (para personalizar preguntas basadas en su rol)
+    rol_it_sesion = models.CharField(
+        max_length=20,
+        choices=User.ROLES_IT,
+        null=True,
+        blank=True,
+        help_text='Rol IT del usuario al iniciar esta sesión'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -460,6 +493,14 @@ class RoleplaySession(models.Model):
     turn_count       = models.PositiveSmallIntegerField(default=0)
     chat_history     = models.JSONField(default=list)
     informe_feedback = models.TextField(null=True, blank=True)
+    # Rol IT del usuario durante esta sesión (para personalizar respuestas de IA)
+    rol_it_sesion    = models.CharField(
+        max_length=20,
+        choices=User.ROLES_IT,
+        null=True,
+        blank=True,
+        help_text='Rol IT del usuario al iniciar esta sesión'
+    )
     created_at       = models.DateTimeField(auto_now_add=True)
     updated_at       = models.DateTimeField(auto_now=True)
 

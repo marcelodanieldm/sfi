@@ -38,17 +38,49 @@ class RoleplayEngineService:
     #  Prompt de sistema
     # ──────────────────────────────────────────────────────────────────
 
-    def generate_system_prompt(self, scenario: SoftskillsScenario) -> str:
+    def _get_role_context(self, rol_it: str | None) -> str:
+        """
+        Genera contexto adicional basado en el rol IT del usuario.
+        Personaliza el escenario para ser relevante a su rol específico.
+        """
+        if not rol_it:
+            return ""
+        
+        # Mapeo de rol IT a contexto de aplicación profesional
+        role_contexts = {
+            'frontend': "El usuario trabaja como Frontend Developer. Personaliza el escenario considerando desafíos típicos de frontend: diseño responsivo, performance, compatibilidad entre navegadores, user experience, testing de UI, y colaboración con diseñadores.",
+            'backend': "El usuario trabaja como Backend Developer. Personaliza el escenario considerando desafíos típicos de backend: escalabilidad, seguridad, manejo de bases de datos, APIs, testing, debugging en producción, y arquitectura de sistemas.",
+            'fullstack': "El usuario trabaja como Fullstack Developer. Personaliza el escenario considerando su visión end-to-end: desde la experiencia del usuario hasta la infraestructura, integrando desafíos de frontend y backend.",
+            'devops': "El usuario trabaja como DevOps Engineer. Personaliza el escenario considerando desafíos de DevOps: CI/CD, infraestructura como código, monitoreo, escalado, seguridad en deployment, y automatización.",
+            'data_engineer': "El usuario trabaja como Data Engineer. Personaliza el escenario considerando desafíos de data: pipelines ETL, big data, calidad de datos, performance de queries, y manejo de grandes volúmenes.",
+            'qa': "El usuario trabaja como QA/Tester. Personaliza el escenario considerando desafíos de testing: cobertura de tests, bugs difíciles de reproducir, automatización de tests, y comunicación con devs.",
+            'architect': "El usuario trabaja como Solutions Architect. Personaliza el escenario considerando desafíos de arquitectura: decisiones de diseño, trade-offs, escalabilidad, tecnología y negocios.",
+            'scrum_master': "El usuario trabaja como Scrum Master. Personaliza el escenario considerando desafíos de facilitación: conflictos en el equipo, impedimentos, retrospectivas, y manejo ágil.",
+            'product_manager': "El usuario trabaja como Product Manager. Personaliza el escenario considerando desafíos de PM: priorización, comunicación entre equipos, roadmap, y toma de decisiones.",
+            'tech_lead': "El usuario trabaja como Tech Lead. Personaliza el escenario considerando desafíos de liderazgo técnico: mentoring, decisiones técnicas, balance entre crecimiento del equipo y delivery.",
+            'ml_engineer': "El usuario trabaja como ML/AI Engineer. Personaliza el escenario considerando desafíos de ML: datasets, training, validación, deployment de modelos, y ethics de IA.",
+            'security': "El usuario trabaja como Security Engineer. Personaliza el escenario considerando desafíos de seguridad: vulnerabilidades, compliance, auditorías, y educación en seguridad.",
+            'cloud_engineer': "El usuario trabaja como Cloud Engineer. Personaliza el escenario considerando desafíos de cloud: migrations, costos, compliance multi-cloud, y optimización.",
+        }
+        
+        return role_contexts.get(rol_it, "")
+
+    def generate_system_prompt(self, scenario: SoftskillsScenario, rol_it_sesion: str | None = None) -> str:
         """
         Construye el prompt de sistema a partir de los datos del escenario.
+        Opcionalmente personaliza con contexto del rol IT del usuario.
 
         Estructura:
-          1. Contexto y roles
-          2. Reglas de la simulación (max_turns turnos)
-          3. Formato obligatorio del Informe Final
+          1. Contexto del rol IT (si disponible)
+          2. Contexto y roles del escenario
+          3. Reglas de la simulación (max_turns turnos)
+          4. Formato obligatorio del Informe Final
         """
+        role_context = self._get_role_context(rol_it_sesion)
+        role_context_section = f"\n## Contexto del rol profesional del usuario\n{role_context}\n" if role_context else ""
+        
         return f"""Eres un facilitador de roleplay de habilidades blandas en SkillsForIT.
-
+{role_context_section}
 ## Contexto del escenario
 {scenario.context}
 
@@ -121,9 +153,9 @@ class RoleplayEngineService:
 
         is_final = session.turn_count >= scenario.max_turns
 
-        # Construir mensajes para la API
+        # Construir mensajes para la API (pasando el rol IT si existe)
         messages: list[dict] = [
-            {'role': 'system', 'content': self.generate_system_prompt(scenario)},
+            {'role': 'system', 'content': self.generate_system_prompt(scenario, session.rol_it_sesion)},
             *history,
         ]
         if is_final:

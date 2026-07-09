@@ -185,6 +185,7 @@ def roleplay_start_session(request):
 
     Body JSON:
       scenario_id (int, requerido): ID del escenario a simular.
+      rol_it_sesion (str, opcional): Rol IT del usuario (si no se proporciona, usa el preferido).
 
     Respuesta 201:
       session_id (str): UUID de la sesión creada.
@@ -207,10 +208,19 @@ def roleplay_start_session(request):
     except SoftskillsScenario.DoesNotExist:
         return JsonResponse({'error': 'Escenario no encontrado'}, status=404)
 
+    # Determinar el rol IT para esta sesión
+    rol_it_sesion = data.get('rol_it_sesion') or request.user.rol_it_preferido
+    
+    # Validar que el rol IT sea válido (si se proporciona)
+    valid_roles = dict(request.user.ROLES_IT)
+    if rol_it_sesion and rol_it_sesion not in valid_roles:
+        return JsonResponse({'error': f'Rol IT inválido: {rol_it_sesion}'}, status=400)
+
     initial_message = scenario.initial_bot_message
     session = RoleplaySession.objects.create(
         user=request.user,
         scenario=scenario,
+        rol_it_sesion=rol_it_sesion,
         turn_count=0,
         chat_history=[{'role': 'assistant', 'content': initial_message}],
     )
@@ -279,4 +289,74 @@ def roleplay_send_message(request, session_id):
         'turn_count':       result['turn_count'],
         'is_final':         result['is_final'],
         'informe_feedback': result['informe_feedback'],
+    })
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  GET /api/v1/roleplay/roles/
+# ──────────────────────────────────────────────────────────────────────────────
+
+@login_required
+@require_GET
+def roleplay_get_available_roles(request):
+    """
+    Devuelve los roles IT disponibles para que el usuario pueda seleccionar.
+    
+    Respuesta 200:
+      roles (list): Lista de tuplas [valor, nombre] de los roles IT.
+      user_role (str|null): Rol IT preferido actual del usuario (si tiene).
+    """
+    from core.models import User
+    
+    roles = [{'value': value, 'label': label} for value, label in User.ROLES_IT]
+    
+    return JsonResponse({
+        'roles': roles,
+        'user_role': request.user.rol_it_preferido,
+    })
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  POST /api/v1/roleplay/profile/update-role/
+# ──────────────────────────────────────────────────────────────────────────────
+
+@login_required
+@csrf_exempt
+@require_POST
+def roleplay_update_user_role(request):
+    """
+    Actualiza el rol IT preferido del usuario.
+    
+    Body JSON:
+      rol_it_preferido (str, requerido): Uno de los valores válidos de User.ROLES_IT
+    
+    Respuesta 200:
+      rol_it_preferido (str): Rol actualizado.
+    """
+    from core.models import User
+    
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+    
+    rol_preferido = data.get('rol_it_preferido', '').strip()
+    
+    if not rol_preferido:
+        return JsonResponse({'error': 'rol_it_preferido es requerido'}, status=400)
+    
+    # Validar que sea un rol válido
+    valid_roles = dict(User.ROLES_IT)
+    if rol_preferido not in valid_roles:
+        return JsonResponse({
+            'error': f'Rol inválido. Opciones válidas: {", ".join(valid_roles.keys())}'
+        }, status=400)
+    
+    # Actualizar el rol del usuario
+    request.user.rol_it_preferido = rol_preferido
+    request.user.save(update_fields=['rol_it_preferido'])
+    
+    return JsonResponse({
+        'rol_it_preferido': rol_preferido,
+        'message': 'Rol actualizado exitosamente'
     })

@@ -31,6 +31,7 @@ from core.controllers.admin_controller import panel_admin
 from core.controllers.roleplay_controller import (
     roleplay_list_scenarios, roleplay_start_session, roleplay_send_message,
     roleplay_selector, roleplay_chat_page, roleplay_get_session,
+    roleplay_get_available_roles, roleplay_update_user_role,
 )
 
 __all__ = [
@@ -54,5 +55,6 @@ __all__ = [
     'login_view', 'logout_view', 'panel_admin',
     'roleplay_list_scenarios', 'roleplay_start_session', 'roleplay_send_message',
     'roleplay_selector', 'roleplay_chat_page', 'roleplay_get_session',
+    'roleplay_get_available_roles', 'roleplay_update_user_role',
 ]
 

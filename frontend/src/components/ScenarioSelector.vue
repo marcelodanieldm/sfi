@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useRoleplayStore } from '../stores/useRoleplayStore'
+import RoleSelector from './RoleSelector.vue'
 
 const props = defineProps({
   category:  { type: String, default: '' },
@@ -18,6 +19,8 @@ const scenarios   = ref([])
 const isLoading   = ref(true)
 const error       = ref(null)
 const startingId  = ref(null)
+const showRoleSelector = ref(false)
+const selectedScenario = ref(null)
 
 const catBar       = ref(null)
 const showCatLeft  = ref(false)
@@ -97,14 +100,28 @@ function selectCategory(slug) {
   }
 }
 
-async function startSession(scenario) {
+function openRoleSelector(scenario) {
+  selectedScenario.value = scenario
+  showRoleSelector.value = true
+}
+
+async function onRoleSelected(rolItSesion) {
+  showRoleSelector.value = false
+  await startSession(selectedScenario.value, rolItSesion)
+}
+
+async function startSession(scenario, rolItSesion) {
   startingId.value = scenario.id
   try {
     const csrf = store.csrfToken || props.csrfToken
+    const payload = { scenario_id: scenario.id }
+    if (rolItSesion) {
+      payload.rol_it_sesion = rolItSesion
+    }
     const res  = await fetch('/api/v1/roleplay/sessions/start/', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
-      body:    JSON.stringify({ scenario_id: scenario.id }),
+      body:    JSON.stringify(payload),
     })
     if (!res.ok) throw new Error(`Error ${res.status}`)
     const data = await res.json()
@@ -132,6 +149,14 @@ async function startSession(scenario) {
 
 <template>
   <div class="min-h-[calc(100vh-52px)] bg-[#0d1117] font-sans">
+
+    <!-- ── RoleSelector Modal ───────────────────────────────────── -->
+    <RoleSelector
+      :is-open="showRoleSelector"
+      :csrf-token="csrfToken"
+      @role-selected="onRoleSelected"
+      @close="showRoleSelector = false"
+    />
 
     <!-- ── Category tab bar (sticky under nav) ──────────────── -->
     <div class="bg-[#111827] border-b border-[#2d3748] sticky top-[52px] z-10">
@@ -275,7 +300,7 @@ async function startSession(scenario) {
             :disabled="startingId === scenario.id"
             class="w-full py-3 px-4 rounded-lg text-sm font-semibold text-[#0d1117] bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150 flex items-center justify-center gap-2"
             style="font-family:'JetBrains Mono',monospace;touch-action:manipulation;min-height:44px"
-            @click="startSession(scenario)"
+            @click="openRoleSelector(scenario)"
           >
             <svg
               v-if="startingId === scenario.id"
