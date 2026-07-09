@@ -1,4 +1,4 @@
-django>=4.2,<5.0
+git add . && git commit -m "Deploy en producción" && git push origin maindjango>=4.2,<5.0
 python-dotenv>=1.0
 requests>=2.31
 gunicorn>=21.2
