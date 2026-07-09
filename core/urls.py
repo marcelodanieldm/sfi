@@ -56,6 +56,7 @@ urlpatterns = [
     path('api/v1/roleplay/sessions/start/',                         views.roleplay_start_session,  name='roleplay_start_session'),
     path('api/v1/roleplay/sessions/<uuid:session_id>/',             views.roleplay_get_session,    name='roleplay_get_session'),
     path('api/v1/roleplay/sessions/<uuid:session_id>/message/',     views.roleplay_send_message,   name='roleplay_send_message'),
+    path('api/v1/roleplay/sessions/<uuid:session_id>/regenerate/',  views.roleplay_regenerate_scenario, name='roleplay_regenerate_scenario'),
     path('api/v1/roleplay/roles/',                                  views.roleplay_get_available_roles, name='roleplay_get_available_roles'),
     path('api/v1/roleplay/profile/update-role/',                    views.roleplay_update_user_role,    name='roleplay_update_user_role'),
     # Página de confirmación de pago + polling de estado

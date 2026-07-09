@@ -182,15 +182,14 @@ def roleplay_list_scenarios(request):
 @require_POST
 def roleplay_start_session(request):
     """
-    Crea una nueva sesión de roleplay y devuelve el contexto inicial.
+    Crea una nueva sesión de roleplay con escenario DINÁMICAMENTE generado.
 
     Body JSON:
-      scenario_id (int, requerido): ID del escenario a simular.
-      rol_it_sesion (str, opcional): Rol IT del usuario (si no se proporciona, usa el preferido).
+      rol_it_sesion (str, requerido): Rol IT del usuario para generar escenario personalizado.
 
     Respuesta 201:
       session_id (str): UUID de la sesión creada.
-      scenario   (obj): Datos del escenario (título, contexto, roles, max_turns).
+      scenario   (obj): Escenario generado dinámicamente (título, contexto, roles, max_turns).
       initial_bot_message (str): Primer mensaje del bot para pintar en el chat.
     """
     try:
@@ -198,29 +197,32 @@ def roleplay_start_session(request):
     except (json.JSONDecodeError, AttributeError):
         return JsonResponse({'error': 'JSON inválido'}, status=400)
 
-    scenario_id = data.get('scenario_id')
-    if not scenario_id:
-        return JsonResponse({'error': 'scenario_id es requerido'}, status=400)
-    if not isinstance(scenario_id, int):
-        return JsonResponse({'error': 'scenario_id debe ser un entero'}, status=400)
-
-    try:
-        scenario = SoftskillsScenario.objects.get(pk=scenario_id)
-    except SoftskillsScenario.DoesNotExist:
-        return JsonResponse({'error': 'Escenario no encontrado'}, status=404)
-
-    # Determinar el rol IT para esta sesión
+    # Rol IT es ahora requerido para generar el escenario
     rol_it_sesion = data.get('rol_it_sesion') or request.user.rol_it_preferido
     
-    # Validar que el rol IT sea válido (si se proporciona)
+    if not rol_it_sesion:
+        return JsonResponse({'error': 'rol_it_sesion es requerido'}, status=400)
+    
+    # Validar que el rol IT sea válido
     valid_roles = dict(request.user.ROLES_IT)
-    if rol_it_sesion and rol_it_sesion not in valid_roles:
+    if rol_it_sesion not in valid_roles:
         return JsonResponse({'error': f'Rol IT inválido: {rol_it_sesion}'}, status=400)
 
-    initial_message = scenario.initial_bot_message
+    # Generar escenario dinámicamente con OpenAI
+    engine = RoleplayEngineService()
+    try:
+        scenario_generated = engine.generate_dynamic_scenario(rol_it_sesion)
+    except RuntimeError as e:
+        logger.error('Error generating dynamic scenario: %s', e)
+        return JsonResponse({'error': str(e)}, status=500)
+
+    # Crear sesión con escenario generado
+    initial_message = scenario_generated.get('initial_bot_message', 'Hola, ¿cómo estás?')
+    
     session = RoleplaySession.objects.create(
         user=request.user,
-        scenario=scenario,
+        scenario=None,  # No hay FK a escenario predefinido
+        scenario_generated=scenario_generated,
         rol_it_sesion=rol_it_sesion,
         turn_count=0,
         chat_history=[{'role': 'assistant', 'content': initial_message}],
@@ -230,12 +232,11 @@ def roleplay_start_session(request):
         {
             'session_id': str(session.id),
             'scenario': {
-                'id':       scenario.id,
-                'title':    scenario.title,
-                'context':  scenario.context,
-                'user_role': scenario.user_role,
-                'bot_role':  scenario.bot_role,
-                'max_turns': scenario.max_turns,
+                'title':     scenario_generated.get('title', 'Escenario dinámico'),
+                'context':   scenario_generated.get('context', ''),
+                'user_role': scenario_generated.get('user_role', ''),
+                'bot_role':  scenario_generated.get('bot_role', ''),
+                'max_turns': scenario_generated.get('max_turns', 4),
             },
             'initial_bot_message': initial_message,
         },
@@ -361,3 +362,69 @@ def roleplay_update_user_role(request):
         'rol_it_preferido': rol_preferido,
         'message': 'Rol actualizado exitosamente'
     })
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  POST /api/v1/roleplay/sessions/<uuid:session_id>/regenerate/
+# ──────────────────────────────────────────────────────────────────────────────
+
+@login_required
+@csrf_exempt
+@require_POST
+def roleplay_regenerate_scenario(request, session_id):
+    """
+    Regenera un nuevo escenario para la sesión si aún no ha comenzado el chat.
+    Máximo 3 regeneraciones por sesión.
+    
+    Respuesta 200:
+      scenario (obj): Nuevo escenario generado.
+      initial_bot_message (str): Primer mensaje del bot con el nuevo escenario.
+      regenerate_count (int): Contador de regeneraciones usadas.
+    
+    Respuesta 400:
+      error (str): Motivo del error (session started, max regenerations, etc).
+    """
+    try:
+        session = RoleplaySession.objects.get(pk=session_id, user=request.user)
+    except RoleplaySession.DoesNotExist:
+        return JsonResponse({'error': 'Sesión no encontrada'}, status=404)
+    
+    # Validar que no haya comenzado el chat (solo el mensaje inicial del bot)
+    if len(session.chat_history or []) > 1:
+        return JsonResponse({
+            'error': 'No se puede regenerar un escenario si ya han intercambiado mensajes'
+        }, status=400)
+    
+    # Validar que no haya excedido el máximo de regeneraciones
+    if session.regenerate_count >= 3:
+        return JsonResponse({
+            'error': 'Se alcanzó el máximo de regeneraciones (3)'
+        }, status=400)
+    
+    # Generar nuevo escenario
+    engine = RoleplayEngineService()
+    try:
+        scenario_generated = engine.generate_dynamic_scenario(session.rol_it_sesion)
+    except RuntimeError as e:
+        logger.error('Error regenerating scenario: %s', e)
+        return JsonResponse({'error': str(e)}, status=500)
+    
+    # Actualizar sesión con nuevo escenario
+    initial_message = scenario_generated.get('initial_bot_message', 'Hola, ¿cómo estás?')
+    session.scenario_generated = scenario_generated
+    session.regenerate_count += 1
+    session.chat_history = [{'role': 'assistant', 'content': initial_message}]
+    session.save(update_fields=['scenario_generated', 'regenerate_count', 'chat_history', 'updated_at'])
+    
+    return JsonResponse({
+        'scenario': {
+            'title':     scenario_generated.get('title', 'Escenario dinámico'),
+            'context':   scenario_generated.get('context', ''),
+            'user_role': scenario_generated.get('user_role', ''),
+            'bot_role':  scenario_generated.get('bot_role', ''),
+            'max_turns': scenario_generated.get('max_turns', 4),
+        },
+        'initial_bot_message': initial_message,
+        'regenerate_count': session.regenerate_count,
+        'can_regenerate': session.regenerate_count < 3,
+    }, status=200)

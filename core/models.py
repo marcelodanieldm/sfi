@@ -488,7 +488,7 @@ class RoleplaySession(models.Model):
 
     id               = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user             = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='roleplay_sessions')
-    scenario         = models.ForeignKey(SoftskillsScenario, on_delete=models.CASCADE, related_name='sessions')
+    scenario         = models.ForeignKey(SoftskillsScenario, on_delete=models.CASCADE, related_name='sessions', null=True, blank=True)
     status           = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
     turn_count       = models.PositiveSmallIntegerField(default=0)
     chat_history     = models.JSONField(default=list)
@@ -501,6 +501,14 @@ class RoleplaySession(models.Model):
         blank=True,
         help_text='Rol IT del usuario al iniciar esta sesión'
     )
+    # Escenario generado dinámicamente por OpenAI
+    scenario_generated = models.JSONField(
+        null=True,
+        blank=True,
+        help_text='Escenario generado dinámicamente basado en el rol IT'
+    )
+    # Contador de regeneraciones (máximo 3)
+    regenerate_count = models.PositiveSmallIntegerField(default=0)
     created_at       = models.DateTimeField(auto_now_add=True)
     updated_at       = models.DateTimeField(auto_now=True)
 

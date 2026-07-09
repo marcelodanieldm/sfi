@@ -65,9 +65,61 @@ class RoleplayEngineService:
         
         return role_contexts.get(rol_it, "")
 
-    def generate_system_prompt(self, scenario: SoftskillsScenario, rol_it_sesion: str | None = None) -> str:
+    def generate_dynamic_scenario(self, rol_it: str) -> dict:
+        """
+        Genera un escenario de roleplay completamente nuevo basado en el rol IT.
+        
+        Retorna un diccionario con estructura:
+        {
+            'title': str,
+            'context': str,
+            'user_role': str,
+            'bot_role': str,
+            'initial_bot_message': str,
+            'max_turns': int
+        }
+        """
+        role_labels = dict(__import__('core.models', fromlist=['User']).User.ROLES_IT)
+        rol_label = role_labels.get(rol_it, rol_it)
+
+        prompt = f"""Genera un escenario de roleplay para entrenar soft skills de un profesional que trabaja como {rol_label}.
+
+El escenario debe:
+1. Ser realista y desafiante (no trivial)
+2. Simular una situación profesional común que requiera habilidades blandas
+3. Tener un conflicto o dilema que requiera comunicación, negociación o liderazgo
+4. Ser completable en 4-5 turnos de conversación
+
+Responde en EXACTAMENTE este formato JSON (sin markdown, sin código blocks):
+{{"title": "Nombre corto del escenario", "context": "Descripción de la situación profesional (2-3 párrafos que pinten el escenario)", "user_role": "El rol del usuario en la simulación", "bot_role": "El rol del personaje que va a jugar la IA", "initial_bot_message": "Primer mensaje que abre la conversación (como si fuera el bot_role)", "max_turns": 4}}
+
+Personaliza para {rol_label}: usa vocabulario, desafíos y situaciones relevantes a ese rol."""
+
+        try:
+            response = self._client.chat.completions.create(
+                model='gpt-4o-mini',
+                max_tokens=1000,
+                messages=[{'role': 'user', 'content': prompt}],
+            )
+            response_text = response.choices[0].message.content.strip()
+            
+            # Intentar parsear el JSON
+            import json
+            scenario_data = json.loads(response_text)
+            
+            return scenario_data
+        except Exception as exc:
+            logger.error('Error generating dynamic scenario for role %s: %s', rol_it, exc)
+            raise RuntimeError(f'Error al generar escenario dinámico para rol {rol_it}') from exc
+
+    # ──────────────────────────────────────────────────────────────────
+    #  Prompt de sistema
+    # ──────────────────────────────────────────────────────────────────
+
+    def generate_system_prompt(self, scenario: SoftskillsScenario | dict, rol_it_sesion: str | None = None) -> str:
         """
         Construye el prompt de sistema a partir de los datos del escenario.
+        Acepta tanto escenarios de BD (SoftskillsScenario) como dinámicos (dict).
         Opcionalmente personaliza con contexto del rol IT del usuario.
 
         Estructura:
@@ -79,28 +131,42 @@ class RoleplayEngineService:
         role_context = self._get_role_context(rol_it_sesion)
         role_context_section = f"\n## Contexto del rol profesional del usuario\n{role_context}\n" if role_context else ""
         
+        # Extraer datos del escenario (compatible con BD y dinámicos)
+        if isinstance(scenario, dict):
+            context = scenario.get('context', '')
+            bot_role = scenario.get('bot_role', '')
+            user_role = scenario.get('user_role', '')
+            max_turns = scenario.get('max_turns', 4)
+            title = scenario.get('title', 'Escenario dinámico')
+        else:
+            context = scenario.context
+            bot_role = scenario.bot_role
+            user_role = scenario.user_role
+            max_turns = scenario.max_turns
+            title = scenario.title
+        
         return f"""Eres un facilitador de roleplay de habilidades blandas en SkillsForIT.
 {role_context_section}
 ## Contexto del escenario
-{scenario.context}
+{context}
 
 ## Roles
-- **Tu personaje:** {scenario.bot_role}
-- **El usuario es:** {scenario.user_role}
+- **Tu personaje:** {bot_role}
+- **El usuario es:** {user_role}
 
 ## Reglas de la simulación
-1. Mantén tu personaje ({scenario.bot_role}) durante toda la simulación.
+1. Mantén tu personaje ({bot_role}) durante toda la simulación.
 2. Responde de forma realista y desafiante, como lo haría ese personaje en una situación real.
-3. La simulación tiene exactamente {scenario.max_turns} turnos del usuario.
-4. Responde a cada turno exclusivamente en el rol de {scenario.bot_role}.
+3. La simulación tiene exactamente {max_turns} turnos del usuario.
+4. Responde a cada turno exclusivamente en el rol de {bot_role}.
 5. No te adelantes ni respondas por el usuario. Una réplica por vez.
 6. Cuando recibas la señal de finalización, sal del personaje y genera el Informe de Feedback.
 
 ## Formato obligatorio del Informe Final (solo al recibir la señal de finalización)
 
 ### 🎯 Informe de Feedback de SkillsForIT
-**Escenario evaluado:** {scenario.title}
-**Rol del usuario:** {scenario.user_role}
+**Escenario evaluado:** {title}
+**Rol del usuario:** {user_role}
 
 #### 🟢 Aspectos Positivos
 *   [Punto fuerte 1]: Qué hizo bien el usuario durante la simulación.
@@ -144,14 +210,20 @@ class RoleplayEngineService:
         if session.status == 'completed':
             raise ValueError('La sesión ya está completada.')
 
-        scenario = session.scenario
+        # Usar escenario dinámico si existe, sino usar el de BD
+        if session.scenario_generated:
+            scenario = session.scenario_generated
+        else:
+            scenario = session.scenario
 
         # Agregar mensaje del usuario al historial
         history: list = list(session.chat_history or [])
         history.append({'role': 'user', 'content': user_message.strip()})
         session.turn_count += 1
 
-        is_final = session.turn_count >= scenario.max_turns
+        # Determinar max_turns del escenario (BD o dinámico)
+        max_turns = scenario.get('max_turns', 4) if isinstance(scenario, dict) else scenario.max_turns
+        is_final = session.turn_count >= max_turns
 
         # Construir mensajes para la API (pasando el rol IT si existe)
         messages: list[dict] = [
