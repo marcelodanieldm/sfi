@@ -126,7 +126,31 @@ def roleplay_get_session(request, session_id):
     """
     session = get_object_or_404(RoleplaySession.objects.select_related('scenario'),
                                 pk=session_id, user=request.user)
-    scenario = session.scenario
+    
+    # Construir respuesta con escenario estático o dinámico
+    if session.scenario:
+        # Escenario estático (FK a SoftskillsScenario)
+        scenario_data = {
+            'id':        session.scenario.id,
+            'category':  session.scenario.category,
+            'title':     session.scenario.title,
+            'context':   session.scenario.context,
+            'user_role': session.scenario.user_role,
+            'bot_role':  session.scenario.bot_role,
+            'max_turns': session.scenario.max_turns,
+        }
+    elif session.scenario_generated:
+        # Escenario dinámico (generado por OpenAI)
+        scenario_data = {
+            'title':     session.scenario_generated.get('title', 'Escenario dinámico'),
+            'context':   session.scenario_generated.get('context', ''),
+            'user_role': session.scenario_generated.get('user_role', ''),
+            'bot_role':  session.scenario_generated.get('bot_role', ''),
+            'max_turns': session.scenario_generated.get('max_turns', 4),
+        }
+    else:
+        scenario_data = {}
+    
     return JsonResponse({
         'session_id':       str(session.id),
         'status':           session.status,
@@ -134,15 +158,7 @@ def roleplay_get_session(request, session_id):
         'chat_history':     session.chat_history,
         'informe_feedback': session.informe_feedback,
         'rol_it_sesion':    session.rol_it_sesion,
-        'scenario': {
-            'id':        scenario.id,
-            'category':  scenario.category,
-            'title':     scenario.title,
-            'context':   scenario.context,
-            'user_role': scenario.user_role,
-            'bot_role':  scenario.bot_role,
-            'max_turns': scenario.max_turns,
-        },
+        'scenario':         scenario_data,
     })
 
 
