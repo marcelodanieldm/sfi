@@ -29,12 +29,18 @@ Railway.app ha sido configurado con webhook automático. Cuando pusheamos a GitH
 
 ## Opción 2: Deployment Manual al Servidor
 
+### ⚠️ Nota sobre SSH
+La autenticación SSH por contraseña puede tener limitaciones en algunos sistemas. Si SSH no funciona con contraseña, hay alternativas:
+1. **Usar SSH key** (recomendado): Configura una SSH key en el servidor
+2. **Usar Railway CLI** (más fácil): Instala Railway CLI y usa `railway up`
+3. **Acceso a servidor**: Usa console web del proveedor (DigitalOcean, Linode, etc.) para ejecutar comandos
+
 ### Requisitos
 - SSH access a `root@149.50.152.192` con puerto 5333
-- Contraseña SSH o SSH key configurada
-- `deploy.sh` en el servidor (ya existe)
+- O acceso a console web del servidor
+- O Railway CLI instalado
 
-### Pasos
+### Pasos (Opción A: SSH)
 
 #### 1. Conectarse al servidor
 ```bash
@@ -45,8 +51,17 @@ ssh -i ~/.ssh/id_rsa -p 5333 root@149.50.152.192
 ```
 
 #### 2. Navegar al directorio del proyecto
+El proyecto puede estar en diferentes ubicaciones. Ejecutar:
 ```bash
+# Buscar el proyecto
+find / -name "manage.py" -type f 2>/dev/null | head -1
+
+# O si ya sabes la ruta (ejemplo):
+cd /var/www/sfi
+# o
 cd /home/sfi
+# o
+cd /opt/sfi
 ```
 
 #### 3. Descargar cambios
@@ -56,6 +71,34 @@ git pull origin main
 
 #### 4. Ejecutar script de despliegue
 ```bash
+bash deploy.sh
+```
+
+### Pasos (Opción B: Railway CLI)
+
+Si tienes Railway CLI instalado:
+```bash
+# Instalar Railway CLI (si no lo tienes)
+npm install -g @railway/cli
+
+# Ingresar con GitHub
+railway login
+
+# Ver logs
+railway logs
+
+# Redeploy
+railway up
+```
+
+### Pasos (Opción C: Console Web del Servidor)
+
+Si accedes a través de la console web (DigitalOcean, Linode, Hetzner, etc.):
+1. Abre la console/terminal desde el panel del proveedor
+2. Copia y pega los comandos de despliegue:
+```bash
+cd /var/www/sfi  # o la ruta correcta
+git pull origin main
 bash deploy.sh
 ```
 
@@ -94,7 +137,22 @@ tail -f /var/log/sfi/app.log
 curl http://localhost:8000/api/v1/roleplay/roles/
 ```
 
-### Troubleshooting
+### Troubleshooting SSH
+
+**Error: "Permission denied, please try again"**
+- La contraseña SSH es incorrecta o no funciona por SSH interactivo
+- Solución: Usa Railway CLI, console web, o SSH key en lugar de contraseña
+
+**Error: "Could not resolve hostname"**
+- Problema de conectividad de red
+- Verifica: `ping 149.50.152.192`
+- Verifica que puerto 5333 no está bloqueado: `telnet 149.50.152.192 5333`
+
+**Error: "Connection refused"**
+- El servidor SSH no está escuchando
+- Contacta con tu proveedor de hosting
+
+### Troubleshooting Deployment
 
 **Error: "git pull" rechazado**
 ```bash
@@ -110,6 +168,17 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
+**Error: "pip install" falla**
+```bash
+# Asegurarse que venv está activado
+source venv/bin/activate  # Linux/Mac
+# o en Windows:
+venv\Scripts\activate
+
+# Intentar de nuevo
+pip install -r requirements.txt
+```
+
 **Error: Migraciones rechazadas**
 ```bash
 # Ver migraciones aplicadas
@@ -120,10 +189,17 @@ python manage.py migrate core 0010
 python manage.py migrate core 0011
 ```
 
+**Error: "manage.py: No such file or directory"**
+- Estás en el directorio equivocado
+- Ejecutar: `find / -name "manage.py" -type f 2>/dev/null`
+- Ir al directorio encontrado: `cd /path/to/project`
+
 **Error: Variable de entorno OPENAI_API_KEY no set**
 ```bash
 export OPENAI_API_KEY="sk-..."
 # O agregar a ~/.bashrc para persistencia
+echo 'export OPENAI_API_KEY="sk-..."' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ---
