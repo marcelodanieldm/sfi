@@ -7,6 +7,7 @@
 - Frontend: Selector de roles simplificado + botón regenerar
 - Migraciones: Schema actualizado
 
+✅ **GitHub Actions Deployment**: Configurado con 4 secrets (SERVER_HOST, SERVER_PORT, SERVER_SSH_KEY, SERVER_USER)
 ✅ **Despliegue Automático**: Railway.app ya detectó el push y está desplegando automáticamente via GitHub webhook
 
 ---
