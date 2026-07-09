@@ -189,6 +189,27 @@ pip install -r requirements.txt
 cp .env.example .env        # copiar y completar variables (mínimo: OPENAI_API_KEY)
 python manage.py migrate
 python manage.py create_test_user   # crea demo@skillsforit.com con suscripción activa
+
+# Usuarios de prueba con roles IT (opcional para testing roleplay)
+python manage.py load_role_test_users --add-subscriptions
+```
+
+**Usuarios de prueba creados** (contraseña: `test123456`):
+- `frontend@test.com` → Frontend Developer
+- `backend@test.com` → Backend Developer
+- `fullstack@test.com` → Fullstack Developer
+- `devops@test.com` → DevOps Engineer
+- `data@test.com` → Data Engineer
+- `qa@test.com` → QA/Tester
+- `architect@test.com` → Solutions Architect
+- `scrum@test.com` → Scrum Master
+- `product@test.com` → Product Manager
+- `techlead@test.com` → Tech Lead
+- `ml@test.com` → ML/AI Engineer
+- `security@test.com` → Security Engineer
+- `cloud@test.com` → Cloud Engineer
+
+```bash
 python manage.py runserver
 ```
 

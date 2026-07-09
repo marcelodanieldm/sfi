@@ -1,0 +1,197 @@
+[
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000001",
+    "fields": {
+      "username": "frontend_dev",
+      "email": "frontend@test.com",
+      "first_name": "Ana",
+      "last_name": "López",
+      "rol_it_preferido": "frontend",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000002",
+    "fields": {
+      "username": "backend_dev",
+      "email": "backend@test.com",
+      "first_name": "Carlos",
+      "last_name": "Gómez",
+      "rol_it_preferido": "backend",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000003",
+    "fields": {
+      "username": "fullstack_dev",
+      "email": "fullstack@test.com",
+      "first_name": "María",
+      "last_name": "Fernández",
+      "rol_it_preferido": "fullstack",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000004",
+    "fields": {
+      "username": "devops_eng",
+      "email": "devops@test.com",
+      "first_name": "Juan",
+      "last_name": "Martínez",
+      "rol_it_preferido": "devops",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000005",
+    "fields": {
+      "username": "data_engineer",
+      "email": "data@test.com",
+      "first_name": "Roberto",
+      "last_name": "Silva",
+      "rol_it_preferido": "data_engineer",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000006",
+    "fields": {
+      "username": "qa_tester",
+      "email": "qa@test.com",
+      "first_name": "Patricia",
+      "last_name": "García",
+      "rol_it_preferido": "qa",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000007",
+    "fields": {
+      "username": "architect",
+      "email": "architect@test.com",
+      "first_name": "Diego",
+      "last_name": "Rodríguez",
+      "rol_it_preferido": "architect",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000008",
+    "fields": {
+      "username": "scrum_master",
+      "email": "scrum@test.com",
+      "first_name": "Adriana",
+      "last_name": "López",
+      "rol_it_preferido": "scrum_master",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000009",
+    "fields": {
+      "username": "product_mgr",
+      "email": "product@test.com",
+      "first_name": "Santiago",
+      "last_name": "Pérez",
+      "rol_it_preferido": "product_manager",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000010",
+    "fields": {
+      "username": "tech_lead",
+      "email": "techlead@test.com",
+      "first_name": "Gabriela",
+      "last_name": "Torres",
+      "rol_it_preferido": "tech_lead",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000011",
+    "fields": {
+      "username": "ml_engineer",
+      "email": "ml@test.com",
+      "first_name": "Fernando",
+      "last_name": "Cruz",
+      "rol_it_preferido": "ml_engineer",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000012",
+    "fields": {
+      "username": "security_eng",
+      "email": "security@test.com",
+      "first_name": "Valeria",
+      "last_name": "Morales",
+      "rol_it_preferido": "security",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  },
+  {
+    "model": "core.user",
+    "pk": "10000000-0000-0000-0000-000000000013",
+    "fields": {
+      "username": "cloud_engineer",
+      "email": "cloud@test.com",
+      "first_name": "Andrés",
+      "last_name": "Ramírez",
+      "rol_it_preferido": "cloud_engineer",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$600000$abcdef123456$test+fixture+password"
+    }
+  }
+]
