@@ -122,6 +122,11 @@ function onRoleSelected(newRole) {
   console.log(`Rol IT cambiado a: ${roleLabel}. Los próximos escenarios serán personalizados según este rol.`)
 }
 
+function handleBackToChat() {
+  // Volver al chat ocultando el informe final
+  isCompleted.value = false
+}
+
 async function regenerateScenario() {
   if (!canRegenerate.value) return
   
@@ -156,6 +161,7 @@ async function regenerateScenario() {
     :scenario-id="scenario?.id ?? null"
     :category="scenario?.category ?? ''"
     :csrf-token="csrfToken"
+    @back-to-chat="handleBackToChat"
   />
 
   <!-- Chat activo -->

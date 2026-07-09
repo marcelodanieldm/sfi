@@ -12,12 +12,10 @@ const props = defineProps({
   csrfToken:      { type: String,  default: '' },
 })
 
-const emit = defineEmits(['retry', 'choose-another'])
+const emit = defineEmits(['back-to-chat', 'choose-another'])
 
 const router = useRouter()
 const store  = useRoleplayStore()
-
-const isRetrying = ref(false)
 
 const parsed = computed(() => parseReport(props.reportMarkdown))
 
@@ -103,34 +101,8 @@ function scoreTextClass(value, max) {
 }
 
 async function retry() {
-  const csrf = store.csrfToken || props.csrfToken
-  if (!props.scenarioId || !csrf) {
-    emit('retry')
-    return
-  }
-  isRetrying.value = true
-  try {
-    const res = await fetch('/api/v1/roleplay/sessions/start/', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
-      body:    JSON.stringify({ scenario_id: props.scenarioId }),
-    })
-    if (!res.ok) throw new Error()
-    const data = await res.json()
-
-    emit('retry')
-
-    if (router) {
-      store.initSession(data.session_id, data.scenario, data.initial_bot_message)
-      router.push(`/roleplay/${data.session_id}`)
-    } else {
-      window.location.href = `/roleplay/chat/${data.session_id}/`
-    }
-  } catch {
-    emit('retry')
-  } finally {
-    isRetrying.value = false
-  }
+  // Simplemente volver al chat sin crear una nueva sesión
+  emit('back-to-chat')
 }
 
 function chooseAnother() {
@@ -284,22 +256,11 @@ function chooseAnother() {
       <!-- ── Buttons ─────────────────────────────────────── -->
       <div class="flex flex-col sm:flex-row gap-3 pt-4 pb-12 sm:pb-10">
         <button
-          :disabled="isRetrying"
           class="flex-1 py-3 px-5 bg-[#34d399] hover:bg-[#6ee7b7] active:bg-[#10b981] disabled:opacity-60 disabled:cursor-not-allowed text-[#0d1117] text-sm font-semibold rounded-xl transition-colors duration-150 flex items-center justify-center gap-2"
           style="font-family:'JetBrains Mono',monospace"
           @click="retry"
         >
-          <svg
-            v-if="isRetrying"
-            class="w-4 h-4 animate-spin shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-          </svg>
-          <span>{{ isRetrying ? 'Iniciando...' : '🔄 Reintentar' }}</span>
+          <span>🔄 Volver al chat</span>
         </button>
 
         <button
