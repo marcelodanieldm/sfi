@@ -11,7 +11,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-insecure-key-cambiar-en-produccion')
 DEBUG      = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '149.50.152.192'] + os.environ.get('ALLOWED_HOSTS', '').split(',') if os.environ.get('ALLOWED_HOSTS') else ['localhost', '127.0.0.1', '149.50.152.192']
 
 # ── Aplicaciones ─────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
