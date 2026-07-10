@@ -124,7 +124,10 @@ function onRoleSelected(newRole) {
 
 function handleBackToChat() {
   // Volver al chat ocultando el informe final
-  isCompleted.value = false
+  // Cambiar el estado de la sesión a 'in_progress' en lugar de 'completed'
+  if (store.currentSession) {
+    store.currentSession.status = 'in_progress'
+  }
 }
 
 async function regenerateScenario() {
@@ -163,6 +166,24 @@ async function regenerateScenario() {
     :csrf-token="csrfToken"
     @back-to-chat="handleBackToChat"
   />
+
+<!-- Loading Scenario Message -->
+  <div v-if="isLoading && messages.length === 1" class="flex flex-col items-center justify-center bg-[#0d1117] font-sans antialiased" style="height:calc(100vh - 52px);height:calc(100dvh - 52px);min-height:0">
+    <div class="flex flex-col items-center gap-4">
+      <!-- Spinner -->
+      <div class="relative w-16 h-16">
+        <svg class="w-full h-full animate-spin text-[#34d399]" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+        </svg>
+      </div>
+      <!-- Message -->
+      <div class="text-center">
+        <p class="text-lg font-semibold text-[#34d399] mb-1">Generando escenario personalizado</p>
+        <p class="text-sm text-[#9ca3af]">Preparando tu entrenamiento como {{ currentRoleLabel }}...</p>
+      </div>
+    </div>
+  </div>
 
   <!-- Chat activo -->
   <div v-else class="flex flex-col bg-[#0d1117] font-sans antialiased" style="height:calc(100vh - 52px);height:calc(100dvh - 52px);min-height:0">
