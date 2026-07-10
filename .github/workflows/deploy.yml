@@ -19,6 +19,10 @@ jobs:
         script: |
           cd /var/www/sfi
           git pull origin main
+          cd frontend
+          npm install
+          npm run build
+          cd ..
           source venv/bin/activate
           python manage.py migrate
           python manage.py collectstatic --noinput
