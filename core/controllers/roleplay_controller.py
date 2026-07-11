@@ -31,6 +31,15 @@ def _is_subscriber(user):
         return user.mentoria_subscription.is_active
     except MentorIASubscription.DoesNotExist:
         return False
+
+
+def _subscription_required_response(user):
+    if _is_subscriber(user):
+        return None
+    return JsonResponse({
+        'error': 'Necesitás una suscripción activa para usar Roleplay.',
+        'subscription_url': '/mentoria/suscripcion/',
+    }, status=402)
 from core.services.roleplay_engine import RoleplayEngineService
 
 logger = logging.getLogger(__name__)
@@ -124,6 +133,10 @@ def roleplay_get_session(request, session_id):
     cuando el usuario navega directamente a /soft-skills/roleplay/:sessionId
     (p. ej. al refrescar la página).
     """
+    blocked = _subscription_required_response(request.user)
+    if blocked:
+        return blocked
+
     session = get_object_or_404(RoleplaySession.objects.select_related('scenario'),
                                 pk=session_id, user=request.user)
     
@@ -176,6 +189,10 @@ def roleplay_list_scenarios(request):
       category (str, opcional): una de communication | leadership | negotiation |
                                 critical-thinking | innovation | career
     """
+    blocked = _subscription_required_response(request.user)
+    if blocked:
+        return blocked
+
     category = request.GET.get('category', '').strip()
 
     qs = SoftskillsScenario.objects.order_by('?')
@@ -223,6 +240,10 @@ def roleplay_start_session(request):
       scenario   (obj): Escenario generado dinámicamente (título, contexto, roles, max_turns).
       initial_bot_message (str): Primer mensaje del bot para pintar en el chat.
     """
+    blocked = _subscription_required_response(request.user)
+    if blocked:
+        return blocked
+
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, AttributeError):
@@ -295,6 +316,10 @@ def roleplay_send_message(request, session_id):
       is_final         (bool):      True si la sesión acaba de completarse.
       informe_feedback (str|null):  Informe completo, presente solo en el turno final.
     """
+    blocked = _subscription_required_response(request.user)
+    if blocked:
+        return blocked
+
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, AttributeError):
@@ -415,6 +440,10 @@ def roleplay_regenerate_scenario(request, session_id):
     Respuesta 400:
       error (str): Motivo del error (session started, max regenerations, etc).
     """
+    blocked = _subscription_required_response(request.user)
+    if blocked:
+        return blocked
+
     try:
         session = RoleplaySession.objects.get(pk=session_id, user=request.user)
     except RoleplaySession.DoesNotExist:

@@ -84,7 +84,7 @@ class EbookAdmin(admin.ModelAdmin):
     readonly_fields    = ['created_at', 'updated_at']
     fieldsets = (
         ('Catálogo',  {'fields': ('titulo', 'slug', 'descripcion_corta', 'descripcion', 'portada_url', 'precio_usd')}),
-        ('Hotmart',   {'fields': ('hotlink_url', 'hotmart_product_id')}),
+        ('Compra y entrega',   {'fields': ('hotlink_url', 'hotmart_product_id', 'pdf_url')}),
         ('Control',   {'fields': ('activo', 'orden', 'created_at', 'updated_at')}),
     )
 
@@ -106,8 +106,8 @@ class EbookOrderAdmin(admin.ModelAdmin):
 
 @admin.register(MentorIASubscription)
 class MentorIASubscriptionAdmin(admin.ModelAdmin):
-    list_display    = ['user', 'status', 'stripe_subscription_id', 'current_period_end', 'created_at']
-    list_filter     = ['status']
+    list_display    = ['user', 'payment_provider', 'billing_cycle', 'status', 'stripe_subscription_id', 'mp_preapproval_id', 'current_period_end', 'created_at']
+    list_filter     = ['status', 'payment_provider', 'billing_cycle']
     search_fields   = ['user__email', 'stripe_customer_id', 'stripe_subscription_id']
     readonly_fields = ['created_at', 'updated_at']
 

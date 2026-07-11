@@ -210,6 +210,9 @@ def _sync_mp_preapproval(preapproval_id: str):
     local_status = _MP_STATUS_MAP.get(mp_status, 'inactive')
     payer_email  = preapproval.get('payer_email', '')
     external_ref = preapproval.get('external_reference', '')
+    user_ref, _, billing_cycle = external_ref.partition(':')
+    if billing_cycle not in ('monthly', 'bimonthly'):
+        billing_cycle = 'monthly'
 
     next_payment = preapproval.get('next_payment_date')
     period_end   = None
@@ -221,6 +224,7 @@ def _sync_mp_preapproval(preapproval_id: str):
 
     defaults = {
         'payment_provider': 'mercadopago',
+        'billing_cycle':    billing_cycle,
         'mp_preapproval_id': preapproval_id,
         'mp_payer_id':       str(preapproval.get('payer_id', '')),
         'status':            local_status,
@@ -236,7 +240,7 @@ def _sync_mp_preapproval(preapproval_id: str):
 
     # Vincular por external_reference (user_id)
     for lookup in [
-        lambda: User.objects.get(id=external_ref) if external_ref else None,
+        lambda: User.objects.get(id=user_ref) if user_ref else None,
         lambda: User.objects.get(email=payer_email.lower()) if payer_email else None,
     ]:
         try:

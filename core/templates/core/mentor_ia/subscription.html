@@ -130,7 +130,7 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
       {% endif %}
       <div class="info-row">
         <span class="info-label">Plan</span>
-        <span class="info-value">MentorIA · U$D {{ precio }}/mes</span>
+        <span class="info-value">MentorIA · {{ sub.get_billing_cycle_display|default:'Mensual' }}</span>
       </div>
     </div>
   </div>
@@ -169,7 +169,13 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
         </form>
         <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="margin:0">
           {% csrf_token %}
-          <button type="submit" class="btn btn-mp">Pagar con MercadoPago</button>
+          <input type="hidden" name="billing_cycle" value="monthly">
+          <button type="submit" class="btn btn-mp">MP mensual · {{ mp_currency }} {{ mp_monthly_amount }}</button>
+        </form>
+        <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="margin:0">
+          {% csrf_token %}
+          <input type="hidden" name="billing_cycle" value="bimonthly">
+          <button type="submit" class="btn btn-mp">MP bimensual · {{ mp_currency }} {{ mp_bimonthly_amount }}</button>
         </form>
       </div>
     </div>

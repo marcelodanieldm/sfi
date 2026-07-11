@@ -101,6 +101,21 @@ _TIPO_LABELS = {
 
 PRECIO_MENSUAL = '9.99'
 
+MP_BILLING_PLANS = {
+    'monthly': {
+        'label': 'Mensual',
+        'frequency': 1,
+        'amount_setting': 'MP_SUBSCRIPTION_AMOUNT',
+        'plan_setting': 'MP_PREAPPROVAL_PLAN_ID',
+    },
+    'bimonthly': {
+        'label': 'Bimensual',
+        'frequency': 2,
+        'amount_setting': 'MP_SUBSCRIPTION_AMOUNT_BIMONTHLY',
+        'plan_setting': 'MP_PREAPPROVAL_PLAN_ID_BIMONTHLY',
+    },
+}
+
 
 # ────────────────────────────────────────────────────────────────────────────
 #  Contextos de rol IT
@@ -171,6 +186,9 @@ def mentor_ia(request):
 
     return render(request, 'core/mentor_ia/landing.html', {
         'precio_mensual': PRECIO_MENSUAL,
+        'mp_monthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT', '9990'),
+        'mp_bimonthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT_BIMONTHLY', '19980'),
+        'mp_currency': getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS'),
         'is_authenticated': request.user.is_authenticated,
     })
 
@@ -186,6 +204,15 @@ def mentor_ia_checkout(request):
     POST /mentoria/checkout/
     Crea una sesión de checkout en Stripe para la suscripción mensual.
     """
+    return _start_stripe_checkout(request)
+
+
+@login_required
+def mentor_ia_checkout_start(request):
+    return _start_stripe_checkout(request)
+
+
+def _start_stripe_checkout(request):
     _stripe_client()
     price_id = getattr(settings, 'STRIPE_MENTORIA_PRICE_ID', '')
     if not price_id:
@@ -264,18 +291,29 @@ def mentor_ia_mp_checkout(request):
     Crea un Preapproval de MercadoPago para la suscripción mensual
     y redirige al usuario al init_point de pago.
     """
+    return _start_mp_checkout(request, request.POST.get('billing_cycle', 'monthly'))
+
+
+@login_required
+def mentor_ia_mp_checkout_start(request, billing_cycle):
+    return _start_mp_checkout(request, billing_cycle)
+
+
+def _start_mp_checkout(request, billing_cycle):
     access_token = getattr(settings, 'MP_ACCESS_TOKEN', '')
     if not access_token:
         logger.error('MP_ACCESS_TOKEN no configurado')
         return redirect('core:mentor_ia')
 
     site_url = getattr(settings, 'SITE_URL', 'https://skillsforit.online')
-    amount   = float(getattr(settings, 'MP_SUBSCRIPTION_AMOUNT', '9990'))
+    plan_config = MP_BILLING_PLANS.get(billing_cycle, MP_BILLING_PLANS['monthly'])
+    amount   = float(getattr(settings, plan_config['amount_setting'], '9990'))
     currency = getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS')
 
     sdk = _mp_sdk()
 
-    plan_id = getattr(settings, 'MP_PREAPPROVAL_PLAN_ID', '')
+    plan_id = getattr(settings, plan_config['plan_setting'], '')
+    reason = f'MentorIA — Coach de Soft Skills IT ({plan_config["label"]})'
 
     if plan_id:
         # Con Plan ID (recomendado) — equivalente a STRIPE_MENTORIA_PRICE_ID
@@ -284,22 +322,22 @@ def mentor_ia_mp_checkout(request):
             'payer_email':         request.user.email,
             'back_url':            f'{site_url}/mentoria/mp/checkout/success/',
             'status':              'pending',
-            'external_reference':  str(request.user.id),
+            'external_reference':  f'{request.user.id}:{billing_cycle}',
         }
     else:
         # Sin Plan ID — precio definido directamente (fallback)
         preapproval_data = {
-            'reason':      'MentorIA — Coach de Soft Skills IT',
+            'reason':      reason,
             'payer_email': request.user.email,
             'auto_recurring': {
-                'frequency':          1,
+                'frequency':          plan_config['frequency'],
                 'frequency_type':     'months',
                 'transaction_amount': amount,
                 'currency_id':        currency,
             },
             'back_url':           f'{site_url}/mentoria/mp/checkout/success/',
             'status':             'pending',
-            'external_reference': str(request.user.id),
+            'external_reference': f'{request.user.id}:{billing_cycle}',
         }
 
     try:
@@ -315,6 +353,7 @@ def mentor_ia_mp_checkout(request):
             user=request.user,
             defaults={
                 'payment_provider': 'mercadopago',
+                'billing_cycle': billing_cycle,
                 'mp_preapproval_id': preapproval['id'],
                 'status': 'inactive',
             },
@@ -331,9 +370,17 @@ def mentor_ia_mp_checkout(request):
 def mentor_ia_mp_checkout_success(request):
     """
     GET /mentoria/mp/checkout/success/
-    MercadoPago redirige aquí tras el pago. El estado real llega por webhook;
-    mostramos el chat y dejamos que el webhook active la suscripción.
+    MercadoPago redirige aquí tras el pago. Sincronizamos el preapproval para
+    activar la suscripción si MP ya confirmó el pago; el webhook mantiene el
+    estado actualizado si la confirmación llega después.
     """
+    sub = _get_subscription(request.user)
+    if sub and sub.payment_provider == 'mercadopago' and sub.mp_preapproval_id:
+        try:
+            from core.controllers.mercadopago_webhook_controller import _sync_mp_subscription
+            _sync_mp_subscription(sub.mp_preapproval_id)
+        except Exception as exc:
+            logger.error('Error sincronizando preapproval MP en success redirect: %s', exc)
     return redirect('core:mentor_ia_chat')
 
 
@@ -357,15 +404,25 @@ def _activate_subscription(user, stripe_customer_id, stripe_subscription):
             timezone.utc,
         )
 
-    MentorIASubscription.objects.update_or_create(
+    existing = _get_subscription(user)
+    old_status = existing.status if existing else ''
+    sub, _ = MentorIASubscription.objects.update_or_create(
         user=user,
         defaults={
+            'payment_provider':       'stripe',
+            'billing_cycle':          'monthly',
             'stripe_customer_id':     stripe_customer_id,
             'stripe_subscription_id': stripe_subscription.id,
             'status':                 stripe_subscription.status,
             'current_period_end':     period_end,
         },
     )
+    if sub.status == 'active' and old_status != 'active':
+        try:
+            from core.services.email_service import send_subscription_confirmation_email
+            send_subscription_confirmation_email(user, 'stripe', period_end)
+        except Exception as exc:
+            logger.error('Error enviando email de confirmación Stripe en success redirect: %s', exc)
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -379,6 +436,9 @@ def mentor_ia_subscription(request):
     return render(request, 'core/mentor_ia/subscription.html', {
         'sub': sub,
         'precio': PRECIO_MENSUAL,
+        'mp_monthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT', '9990'),
+        'mp_bimonthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT_BIMONTHLY', '19980'),
+        'mp_currency': getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS'),
     })
 
 
@@ -605,9 +665,11 @@ def _handle_subscription_change(subscription, is_new=False):
 
     try:
         existing = MentorIASubscription.objects.get(stripe_subscription_id=sub_id)
+        existing.payment_provider = 'stripe'
+        existing.billing_cycle = 'monthly'
         existing.status = status
         existing.current_period_end = period_end
-        existing.save(update_fields=['status', 'current_period_end', 'updated_at'])
+        existing.save(update_fields=['payment_provider', 'billing_cycle', 'status', 'current_period_end', 'updated_at'])
         logger.info('MentorIA subscription updated: %s → %s', sub_id, status)
     except MentorIASubscription.DoesNotExist:
         # El evento llegó antes del redirect de success — intentamos vincular por customer
@@ -618,6 +680,8 @@ def _handle_subscription_change(subscription, is_new=False):
             sub, _ = MentorIASubscription.objects.update_or_create(
                 user=user,
                 defaults={
+                    'payment_provider':       'stripe',
+                    'billing_cycle':          'monthly',
                     'stripe_customer_id':     customer_id,
                     'stripe_subscription_id': sub_id,
                     'status':                 status,

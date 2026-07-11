@@ -32,12 +32,14 @@ urlpatterns = [
 
     # MentorIA — MercadoPago checkout
     path('mentoria/mp/checkout/', views.mentor_ia_mp_checkout, name='mentor_ia_mp_checkout'),
+    path('mentoria/mp/checkout/<str:billing_cycle>/start/', views.mentor_ia_mp_checkout_start, name='mentor_ia_mp_checkout_start'),
     path('mentoria/mp/checkout/success/', views.mentor_ia_mp_checkout_success, name='mentor_ia_mp_checkout_success'),
     path('mentoria/mp/checkout/cancel/', views.mentor_ia_mp_checkout_cancel, name='mentor_ia_mp_checkout_cancel'),
 
     # MentorIA
     path('mentoria/',                          views.mentor_ia,                    name='mentor_ia'),
     path('mentoria/checkout/',                 views.mentor_ia_checkout,           name='mentor_ia_checkout'),
+    path('mentoria/checkout/start/',           views.mentor_ia_checkout_start,     name='mentor_ia_checkout_start'),
     path('mentoria/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
     path('mentoria/checkout/cancel/',          views.mentor_ia_checkout_cancel,    name='mentor_ia_checkout_cancel'),
     path('mentoria/suscripcion/',                views.mentor_ia_subscription,        name='mentor_ia_subscription'),
@@ -64,6 +66,8 @@ urlpatterns = [
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/status/', views.check_payment_status, name='check_payment_status'),
     path('ats-evaluator/pago-exitoso/<uuid:report_id>/reenviar-email/', views.api_reenviar_email_reporte, name='api_reenviar_email_reporte'),
     path('ebook/', views.ebook, name='ebook'),
+    path('ebook/<slug:slug>/mp/checkout/', views.ebook_mp_checkout, name='ebook_mp_checkout'),
+    path('ebook/mp/success/', views.ebook_mp_success, name='ebook_mp_success'),
     # Soft Skills SPA — Django sirve el shell para / y todas las subrutas;
     # Vue Router maneja la navegación interna.
     path('soft-skills/', views.soft_skills, name='soft_skills'),

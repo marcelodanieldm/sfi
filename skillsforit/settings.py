@@ -130,6 +130,8 @@ OPENAI_API_KEY      = os.environ.get('OPENAI_API_KEY', '')
 RESEND_API_KEY      = os.environ.get('RESEND_API_KEY', '')
 DEFAULT_FROM_EMAIL  = os.environ.get('DEFAULT_FROM_EMAIL', 'SkillsForIT <info@skillsforit.com>')
 EBOOK_WELCOME_COUPON = os.environ.get('EBOOK_WELCOME_COUPON', 'SKILLS20')
+EBOOK_MP_AMOUNT      = os.environ.get('EBOOK_MP_AMOUNT', '19990')
+EBOOK_MP_CURRENCY    = os.environ.get('EBOOK_MP_CURRENCY', 'ARS')
 SUPPORT_URL         = os.environ.get('SUPPORT_URL', 'https://skillsforit.online/soporte/')
 SITE_URL            = os.environ.get('SITE_URL', 'https://skillsforit.online')
 
@@ -141,7 +143,9 @@ STRIPE_MENTORIA_WEBHOOK_SECRET = os.environ.get('STRIPE_MENTORIA_WEBHOOK_SECRET'
 MP_ACCESS_TOKEN          = os.environ.get('MP_ACCESS_TOKEN', '')
 MP_WEBHOOK_SECRET        = os.environ.get('MP_WEBHOOK_SECRET', '')
 MP_PREAPPROVAL_PLAN_ID   = os.environ.get('MP_PREAPPROVAL_PLAN_ID', '')
+MP_PREAPPROVAL_PLAN_ID_BIMONTHLY = os.environ.get('MP_PREAPPROVAL_PLAN_ID_BIMONTHLY', '')
 MP_SUBSCRIPTION_AMOUNT   = os.environ.get('MP_SUBSCRIPTION_AMOUNT', '9990')
+MP_SUBSCRIPTION_AMOUNT_BIMONTHLY = os.environ.get('MP_SUBSCRIPTION_AMOUNT_BIMONTHLY', '19980')
 MP_SUBSCRIPTION_CURRENCY = os.environ.get('MP_SUBSCRIPTION_CURRENCY', 'ARS')
 
 HOTMART_WEBHOOK_TOKEN = os.environ.get('HOTMART_WEBHOOK_TOKEN', '')

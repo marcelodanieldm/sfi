@@ -22,7 +22,7 @@ import resend
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from core.models import EbookOrder
+from core.models import Ebook, EbookOrder
 
 logger = logging.getLogger(__name__)
 
@@ -61,13 +61,26 @@ def _buyer_first_name(order: EbookOrder) -> str:
 
 
 def _product_name(order: EbookOrder) -> str:
-    """Lee el nombre del producto desde el payload de Hotmart."""
-    return (
-        order.hotmart_payload
-        .get('data', {})
-        .get('product', {})
-        .get('name', 'tu eBook')
-    )
+    """Lee el nombre del producto desde el payload o desde el catálogo."""
+    ebook_obj = _ebook_for_order(order)
+    if ebook_obj:
+        return ebook_obj.titulo
+    return order.hotmart_payload.get('data', {}).get('product', {}).get('name', 'tu eBook')
+
+
+def _ebook_for_order(order: EbookOrder) -> Ebook | None:
+    if order.hotmart_offer_code == 'mercadopago':
+        external_reference = order.hotmart_payload.get('external_reference', '')
+        if external_reference.startswith('ebook:'):
+            return Ebook.objects.filter(slug=external_reference.split(':', 1)[1]).first()
+    if order.hotmart_product_id:
+        return Ebook.objects.filter(hotmart_product_id=order.hotmart_product_id).first()
+    return None
+
+
+def _download_url(order: EbookOrder) -> str:
+    ebook_obj = _ebook_for_order(order)
+    return ebook_obj.pdf_url if ebook_obj else ''
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -90,6 +103,8 @@ def send_welcome_ebook_email(order: EbookOrder) -> bool:
     context = {
         'first_name':   _buyer_first_name(order),
         'product_name': _product_name(order),
+        'download_url': _download_url(order),
+        'is_mercadopago': order.hotmart_offer_code == 'mercadopago',
         'coupon_code':  _COUPON,
         'support_url':  _SUPPORT_URL,
         'site_url':     _SITE_URL,
@@ -175,6 +190,11 @@ def _send_mentoria_email(to_email: str, subject: str, template: str, context: di
 def send_subscription_confirmation_email(user, provider: str, period_end: Optional[datetime] = None) -> bool:
     subscription_url = f'{_SITE_URL.rstrip("/")}/mentoria/suscripcion/'
     chat_url = f'{_SITE_URL.rstrip("/")}/mentoria/chat/'
+    billing_cycle_display = 'Mensual'
+    try:
+        billing_cycle_display = user.mentoria_subscription.get_billing_cycle_display()
+    except Exception:
+        pass
     return _send_mentoria_email(
         to_email=user.email,
         subject='¡Tu suscripción a MentorIA está activa! 🤖',
@@ -182,6 +202,7 @@ def send_subscription_confirmation_email(user, provider: str, period_end: Option
         context={
             'first_name':      _user_first_name(user),
             'provider_display': _PROVIDER_DISPLAY.get(provider, provider),
+            'billing_cycle_display': billing_cycle_display,
             'period_end_str':  _format_date(period_end),
             'chat_url':        chat_url,
             'subscription_url': subscription_url,

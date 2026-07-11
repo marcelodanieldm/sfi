@@ -303,7 +303,7 @@ footer a{color:var(--accent)}
 <section class="hero">
   <div class="hero-glow"></div>
   <span class="hero-kicker">// SkillsForIT Pro · Coach IA + Roleplay · 24/7</span>
-  <h1>Entrenate en las soft skills que separan al dev mediocre del <em>referente del equipo</em>.</h1>
+  <h1>Entrenate en las soft skills que separan al profesional de software promedio de alguien con habilidades mas alla de lo tecnico.</h1>
   <p class="hero-sub">
     Dos herramientas de práctica intensiva basadas en IA. MentorIA evalúa tus respuestas con feedback real. El Roleplay te pone en conversaciones difíciles donde tenés que actuar.
   </p>
@@ -314,11 +314,6 @@ footer a{color:var(--accent)}
       <a href="#pricing" class="btn btn-lg">Comenzar ahora →</a>
     {% endif %}
     <a href="#productos" class="btn btn-outline btn-lg">Ver los productos ↓</a>
-  </div>
-  <div>
-    <span class="hero-badge">
-      <strong>USD ${{ precio_mensual }}</strong>/mes · ambas herramientas · cancelá cuando quieras
-    </span>
   </div>
 </section>
 
@@ -473,6 +468,7 @@ footer a{color:var(--accent)}
       <sup>USD $</sup>{{ precio_mensual }}<span>/mes</span>
     </div>
     <p class="pricing-tagline">Cancelá cuando quieras · sin contratos</p>
+    <p class="pricing-tagline" style="margin-top:-12px;color:var(--accent)">También podés pagar en pesos argentinos vía MercadoPago: {{ mp_currency }} {{ mp_monthly_amount }}/mes</p>
 
     <div class="pricing-includes">
       <p class="pricing-includes-title">// incluye acceso completo a:</p>
@@ -496,18 +492,29 @@ footer a{color:var(--accent)}
         </form>
         <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="width:100%">
           {% csrf_token %}
+          <input type="hidden" name="billing_cycle" value="monthly">
           <button type="submit" class="btn btn-mp btn-lg btn-full">
-            🇦🇷 Pagar con MercadoPago →
+            🇦🇷 MercadoPago mensual · {{ mp_currency }} {{ mp_monthly_amount }} →
+          </button>
+        </form>
+        <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="width:100%">
+          {% csrf_token %}
+          <input type="hidden" name="billing_cycle" value="bimonthly">
+          <button type="submit" class="btn btn-mp btn-lg btn-full">
+            🇦🇷 MercadoPago bimensual · {{ mp_currency }} {{ mp_bimonthly_amount }} →
           </button>
         </form>
       </div>
     {% else %}
       <div class="cta-stack">
-        <a href="{% url 'core:login' %}" class="btn btn-stripe btn-lg btn-full">
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_checkout_start' %}" class="btn btn-stripe btn-lg btn-full">
           💳 Registrarme y pagar con Stripe →
         </a>
-        <a href="{% url 'core:login' %}" class="btn btn-mp btn-lg btn-full">
-          🇦🇷 Registrarme con MercadoPago →
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_mp_checkout_start' 'monthly' %}" class="btn btn-mp btn-lg btn-full">
+          🇦🇷 Registrarme y pagar MP mensual →
+        </a>
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_mp_checkout_start' 'bimonthly' %}" class="btn btn-mp btn-lg btn-full">
+          🇦🇷 Registrarme y pagar MP bimensual →
         </a>
       </div>
     {% endif %}

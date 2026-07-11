@@ -58,23 +58,50 @@
                 </tr>
               </table>
 
-              <!-- Hotmart reminder -->
-              <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                     style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;margin-bottom:28px;">
-                <tr>
-                  <td style="padding:20px 24px;">
-                    <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1d4ed8;">
-                      📬 Revisá tu bandeja de entrada
-                    </p>
-                    <p style="margin:0;font-size:14px;color:#1e40af;line-height:1.6;">
-                      <strong>Hotmart</strong> ya te envió el correo de acceso al eBook a
-                      esta misma dirección. Si no aparece en los próximos minutos,
-                      revisá tu carpeta de <strong>spam</strong> o
-                      <strong>correo no deseado</strong>.
-                    </p>
-                  </td>
-                </tr>
-              </table>
+              {% if download_url %}
+                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                       style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;margin-bottom:28px;">
+                  <tr>
+                    <td style="padding:20px 24px;">
+                      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1d4ed8;">
+                        Descarga de tu PDF
+                      </p>
+                      <p style="margin:0 0 18px;font-size:14px;color:#1e40af;line-height:1.6;">
+                        Tu pago fue confirmado y el PDF ya está listo para descargar.
+                        Guardá este correo para volver al enlace cuando lo necesites.
+                      </p>
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td align="center">
+                            <a href="{{ download_url }}"
+                               style="display:inline-block;background:#0ea5e9;color:#ffffff;font-size:15px;font-weight:700;
+                                      text-decoration:none;border-radius:8px;padding:14px 36px;">
+                              Descargar PDF
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              {% else %}
+                <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                       style="background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;margin-bottom:28px;">
+                  <tr>
+                    <td style="padding:20px 24px;">
+                      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#1d4ed8;">
+                        Revisá tu bandeja de entrada
+                      </p>
+                      <p style="margin:0;font-size:14px;color:#1e40af;line-height:1.6;">
+                        <strong>Hotmart</strong> ya te envió el correo de acceso al eBook a
+                        esta misma dirección. Si no aparece en los próximos minutos,
+                        revisá tu carpeta de <strong>spam</strong> o
+                        <strong>correo no deseado</strong>.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              {% endif %}
 
               <!-- Coupon -->
               <p style="margin:0 0 12px;font-size:15px;font-weight:600;color:#0f172a;">

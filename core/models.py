@@ -274,6 +274,7 @@ class Ebook(models.Model):
         max_length=50, blank=True, db_index=True,
         help_text='ID del producto en Hotmart — usado para vincular con EbookOrder',
     )
+    pdf_url            = models.URLField(blank=True, help_text='URL privada o firmada de descarga del PDF para compras por MercadoPago')
 
     # ── Precio (solo visualización en catálogo) ──
     precio_usd = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
@@ -361,9 +362,11 @@ class MentorIASubscription(models.Model):
     ]
 
     PROVIDER_CHOICES = [('stripe', 'Stripe'), ('mercadopago', 'MercadoPago')]
+    BILLING_CYCLE_CHOICES = [('monthly', 'Mensual'), ('bimonthly', 'Bimensual')]
 
     user                   = models.OneToOneField('core.User', on_delete=models.CASCADE, related_name='mentoria_subscription')
     payment_provider       = models.CharField(max_length=20, choices=PROVIDER_CHOICES, default='stripe', blank=True)
+    billing_cycle          = models.CharField(max_length=20, choices=BILLING_CYCLE_CHOICES, default='monthly')
 
     # Stripe
     stripe_customer_id     = models.CharField(max_length=100, blank=True)

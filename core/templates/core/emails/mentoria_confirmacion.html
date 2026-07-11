@@ -45,7 +45,7 @@
                       Suscripción activa
                     </p>
                     <p style="margin:0 0 8px;font-size:17px;font-weight:700;color:#0f172a;">
-                      MentorIA — Plan mensual
+                      MentorIA — Plan {{ billing_cycle_display|lower }}
                     </p>
                     <p style="margin:0;font-size:13px;color:#475569;">
                       Procesado vía <strong>{{ provider_display }}</strong>{% if period_end_str %} · Próxima renovación: <strong>{{ period_end_str }}</strong>{% endif %}

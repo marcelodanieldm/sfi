@@ -150,6 +150,10 @@ def handle_mercadopago_webhook(params: dict) -> None:
 
         report_id  = payment.get('external_reference', '')
         payment_id = str(payment.get('id', ''))
+        if report_id.startswith('ebook:'):
+            from core.controllers.ebook_controller import _confirm_mp_ebook_payment
+            _confirm_mp_ebook_payment(payment_id)
+            return
         _apply_mp_payment(report_id, payment_id)
 
     except Exception as exc:

@@ -115,6 +115,9 @@ def _sync_mp_subscription(preapproval_id: str):
     payer_id     = str(preapproval.get('payer_id', ''))
     payer_email  = preapproval.get('payer_email', '')
     external_ref = preapproval.get('external_reference', '')
+    user_ref, _, billing_cycle = external_ref.partition(':')
+    if billing_cycle not in ('monthly', 'bimonthly'):
+        billing_cycle = 'monthly'
 
     # Calcular next_payment_date como period_end aproximado
     next_payment = preapproval.get('next_payment_date')
@@ -132,6 +135,7 @@ def _sync_mp_subscription(preapproval_id: str):
 
     defaults = {
         'payment_provider': 'mercadopago',
+        'billing_cycle':    billing_cycle,
         'mp_preapproval_id': preapproval_id,
         'mp_payer_id':       payer_id,
         'status':            local_status,
@@ -160,13 +164,13 @@ def _sync_mp_subscription(preapproval_id: str):
 
     # 2. Buscar por external_reference (= user_id guardado en el checkout)
     from core.models import User
-    if external_ref:
+    if user_ref:
         try:
-            user = User.objects.get(id=external_ref)
+            user = User.objects.get(id=user_ref)
             sub, created = MentorIASubscription.objects.update_or_create(
                 user=user, defaults=defaults,
             )
-            logger.info('MP sub vinculada por external_ref: user=%s status=%s', external_ref, local_status)
+            logger.info('MP sub vinculada por external_ref: user=%s status=%s', user_ref, local_status)
             _notify(sub, '' if created else local_status)
             return
         except User.DoesNotExist:

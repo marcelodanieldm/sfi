@@ -7,6 +7,7 @@ from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.forms import UserCreationForm
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from core.models import User
@@ -73,13 +74,21 @@ def _login_ctx(form=None, tab='login', next_url='/mentoria/'):
     }
 
 
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('/mentoria/')
+def _safe_next_url(request, value=None):
+    next_url = value or request.POST.get('next') or request.GET.get('next') or '/mentoria/'
+    if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return next_url
+    return '/mentoria/'
 
-    next_url = request.GET.get('next', '/mentoria/')
+
+def login_view(request):
+    next_url = _safe_next_url(request)
+
+    if request.user.is_authenticated:
+        return redirect(next_url)
 
     if request.method == 'POST':
+        next_url = _safe_next_url(request)
         action = request.POST.get('action', 'login')
 
         if action == 'register':
@@ -117,7 +126,7 @@ def google_oauth_login(request):
     try:
         data       = json.loads(request.body)
         credential = data.get('credential', '')
-        next_url   = data.get('next', '/mentoria/')
+        next_url   = _safe_next_url(request, data.get('next', '/mentoria/'))
     except (json.JSONDecodeError, AttributeError):
         return JsonResponse({'error': 'Solicitud inválida.'}, status=400)
 
