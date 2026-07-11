@@ -173,6 +173,7 @@ nav.lp-nav{
 .pricing-price sup{font-size:1rem;font-weight:600;vertical-align:top;margin-top:8px}
 .pricing-price span{font-size:.82rem;font-weight:400;color:var(--muted)}
 .pricing-tagline{color:var(--muted);font-size:.8rem;margin:10px 0 24px}
+.pricing-mp-note{color:var(--accent);font-size:1rem;font-weight:800;margin-top:-12px}
 .pricing-includes{text-align:left;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:24px}
 .pricing-includes-title{font-family:var(--mono);font-size:.65rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
 .pricing-features{list-style:none;display:flex;flex-direction:column;gap:9px}
@@ -303,7 +304,7 @@ footer a{color:var(--accent)}
 <section class="hero">
   <div class="hero-glow"></div>
   <span class="hero-kicker">// SkillsForIT Pro · Coach IA + Roleplay · 24/7</span>
-  <h1>Entrenate en las soft skills que separan al profesional de software promedio de alguien con habilidades mas alla de lo tecnico.</h1>
+  <h1>Entrénate en las soft skills escenciales para cualquier profesional de IT.</h1>
   <p class="hero-sub">
     Dos herramientas de práctica intensiva basadas en IA. MentorIA evalúa tus respuestas con feedback real. El Roleplay te pone en conversaciones difíciles donde tenés que actuar.
   </p>
@@ -460,7 +461,6 @@ footer a{color:var(--accent)}
 ════════════════════════════════════════════════════════════ -->
 <section class="pricing-section" id="pricing">
   <p class="section-label">// pricing</p>
-  <h2 class="section-title" style="margin-bottom:40px">Un precio. Dos herramientas. Sin sorpresas.</h2>
 
   <div class="pricing-card">
     <span class="pricing-badge">SkillsForIT Pro</span>
@@ -468,7 +468,7 @@ footer a{color:var(--accent)}
       <sup>USD $</sup>{{ precio_mensual }}<span>/mes</span>
     </div>
     <p class="pricing-tagline">Cancelá cuando quieras · sin contratos</p>
-    <p class="pricing-tagline" style="margin-top:-12px;color:var(--accent)">También podés pagar en pesos argentinos vía MercadoPago: {{ mp_currency }} {{ mp_monthly_amount }}/mes</p>
+    <p class="pricing-tagline pricing-mp-note">También podés pagar en pesos argentinos vía MercadoPago: {{ mp_currency }} {{ mp_monthly_amount }}/mes</p>
 
     <div class="pricing-includes">
       <p class="pricing-includes-title">// incluye acceso completo a:</p>
