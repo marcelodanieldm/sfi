@@ -147,7 +147,7 @@ function handleClose() {
               class="w-full px-4 py-3 text-left rounded-lg border-2 transition-all duration-200"
               :class="selectedRole === role.value
                 ? 'bg-[#34d399]/10 border-[#34d399] text-[#34d399] font-medium'
-                : 'bg-[#111827] border-[#374151] text-[#9ca3af] hover:border-[#34d399]/50 hover:text-gray-100'"
+                : 'bg-[#111827] border-[#374151] text-white hover:border-[#34d399]/50 hover:text-white'"
             >
               <div class="flex items-center gap-3">
                 <div
