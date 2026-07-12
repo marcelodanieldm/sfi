@@ -32,11 +32,7 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 }
 
 /* ── Layout ─────────────────────────────────────────────────── */
-.layout{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  min-height:100vh;
-}
+.layout{min-height:100vh}
 
 /* ── LEFT PANEL ─────────────────────────────────────────────── */
 .left-panel{
@@ -45,11 +41,11 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
     linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
     linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);
   background-size:40px 40px;
-  padding:48px 40px;
+  padding:64px clamp(18px,5vw,72px);
   display:flex;
   flex-direction:column;
-  gap:56px;
-  border-right:1px solid var(--border-subtle);
+  gap:48px;
+  border-bottom:1px solid var(--border-subtle);
   position:relative;
   overflow:hidden;
 }
@@ -66,11 +62,12 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 /* ── RIGHT PANEL ────────────────────────────────────────────── */
 .right-panel{
   background-color:var(--bg-right);
-  padding:48px 40px;
+  padding:56px clamp(18px,5vw,72px) 72px;
   display:flex;
   flex-direction:column;
-  gap:56px;
+  gap:48px;
 }
+.left-panel>section,.left-panel>.footer-cta,.right-panel>section{width:min(100%,1080px);margin:0 auto}
 
 /* ── Shared ─────────────────────────────────────────────────── */
 .section-label{
@@ -96,18 +93,18 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 /* ── HERO ───────────────────────────────────────────────────── */
 .hero{}
 .hero h1{
-  font-size:clamp(1.6rem,2.6vw,2.4rem);
+  font-size:clamp(2rem,6vw,4.4rem);
   font-weight:800;
-  line-height:1.2;
+  line-height:1.05;
   color:var(--text-primary);
   margin:12px 0 16px;
   letter-spacing:-.02em;
 }
 .hero h1 em{color:var(--accent);font-style:normal}
 .hero p{
-  font-size:.92rem;
+  font-size:clamp(1rem,2vw,1.22rem);
   color:var(--text-muted);
-  max-width:520px;
+  max-width:780px;
   margin-bottom:28px;
   line-height:1.75;
 }
@@ -141,8 +138,7 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 .tree-grid{
   display:grid;
   grid-template-columns:1fr auto 1fr;
-  grid-template-rows:1fr auto 1fr;
-  gap:0;
+  gap:18px;
   align-items:center;
   justify-items:center;
   position:relative;
@@ -176,7 +172,7 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 .tree-branch-left,.tree-branch-right{
   display:flex;
   flex-direction:column;
-  gap:20px;
+  gap:16px;
 }
 .tree-branch-left{
   grid-column:1;
@@ -195,7 +191,7 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
   border:1px solid var(--border);
   border-radius:var(--radius);
   padding:12px 14px;
-  max-width:200px;
+  max-width:260px;
   position:relative;
   transition:border-color .2s,box-shadow .2s;
 }
@@ -229,8 +225,8 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 /* ── PROBLEM GRID ───────────────────────────────────────────── */
 .problem-grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
 }
 .problem-card{
   background:var(--bg-card);
@@ -252,16 +248,18 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 
 /* ── ADVANTAGES ROW ─────────────────────────────────────────── */
 .advantages-row{
-  display:flex;
-  gap:20px;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
 }
 .adv-item{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   gap:10px;
-  flex:1;
-  min-width:140px;
+  background:rgba(55,65,81,.65);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
 }
 .adv-icon{
   width:32px;height:32px;
@@ -289,8 +287,8 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 /* ── ADVANTAGES CARDS (right) ───────────────────────────────── */
 .adv-cards{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
 }
 .adv-card{
   background:var(--bg-card);
@@ -311,60 +309,11 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 .adv-card h4{font-size:.78rem;font-weight:600;color:var(--text-primary);margin-bottom:6px;line-height:1.35}
 .adv-card p{font-size:.72rem;color:var(--text-dim)}
 
-/* ── SOCIAL PROOF ───────────────────────────────────────────── */
-.social-proof-grid{
-  display:grid;
-  grid-template-columns:1fr 2fr 1fr;
-  gap:12px;
-  align-items:start;
-}
-.chat-card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px;
-}
-.chat-bubble{
-  background:var(--border-subtle);
-  border-radius:4px;
-  padding:8px 10px;
-  margin-bottom:8px;
-}
-.chat-bubble:last-child{margin-bottom:0}
-.chat-bubble p{font-size:.7rem;color:var(--text-muted);line-height:1.4}
-.chat-bubble .name{font-size:.65rem;color:var(--accent);font-weight:600;margin-bottom:3px;font-family:var(--mono)}
-.video-card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  overflow:hidden;
-}
-.video-thumb{
-  aspect-ratio:16/9;
-  background:linear-gradient(135deg,#1a2332 0%,#0d1117 100%);
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
-}
-.play-btn{
-  width:52px;height:52px;
-  border-radius:50%;
-  background:rgba(52,211,153,.9);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;
-  transition:transform .2s,background .2s;
-  border:none;
-}
-.play-btn:hover{transform:scale(1.08);background:var(--accent)}
-.play-btn svg{width:20px;height:20px;fill:#0d1117;margin-left:3px}
-.video-caption{padding:12px 14px}
-.video-caption p{font-size:.75rem;color:var(--text-muted)}
-.video-caption strong{color:var(--text-primary);display:block;font-size:.82rem;margin-bottom:4px}
-
 /* ── EBOOK CATALOG ──────────────────────────────────────────── */
 .catalog-grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:18px;
 }
 .ebook-card{
   background:var(--bg-card);
@@ -495,24 +444,23 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media(max-width:1100px){
-  .left-panel,.right-panel{padding:36px 28px}
+  .problem-grid,.advantages-row,.adv-cards{grid-template-columns:1fr 1fr}
 }
 @media(max-width:860px){
-  .layout{grid-template-columns:1fr}
-  .left-panel{border-right:none;border-bottom:1px solid var(--border-subtle)}
-  .problem-grid,.adv-cards,.catalog-grid{grid-template-columns:1fr}
-  .social-proof-grid{grid-template-columns:1fr}
+  .problem-grid,.advantages-row,.adv-cards,.catalog-grid{grid-template-columns:1fr}
   .tree-grid{grid-template-columns:1fr;grid-template-rows:auto}
   .tree-branch-left,.tree-branch-right{grid-column:1;align-items:stretch;padding:0}
   .tree-center{grid-column:1;flex-direction:row;padding:8px 0}
   .tree-trunk{width:80px;height:2px;min-height:unset}
   .skill-card.left::after,.skill-card.right::before{display:none}
-  .advantages-row{flex-direction:column}
   .footer-cta{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:560px){
-  .left-panel,.right-panel{padding:24px 18px}
-  .hero h1{font-size:1.45rem}
+  .left-panel{padding:42px 18px}
+  .right-panel{padding:40px 18px 56px}
+  .hero h1{font-size:2.05rem}
+  .btn{width:100%;justify-content:center;text-align:center}
+  .problem-card,.adv-item,.adv-card,.ebook-body,.ebook-footer{padding:16px}
 }
 </style>
 </head>
@@ -527,10 +475,10 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 
     <!-- ── HERO ── -->
     <section class="hero">
-      <span class="tag">// DOCUMENTACIÓN TÉCNICA PARA EL COMPONENTE HUMANO</span>
-      <h1>Tu código es la parte fácil.<br>El sistema real es <em>humano</em>.</h1>
-      <p>La mayoría de los ingenieros tocan techo cuando su capacidad técnica supera sus posibilidades de influenciar. <strong>Hackea tu carrera</strong> es el manual técnico que te faltó en la universidad para gestionar la fricción en entornos de software.</p>
-      <a href="#catalogo" class="btn">Obtener el manual de ingeniería humana ↓</a>
+      <span class="tag">// HABILIDADES HUMANAS PARA SISTEMAS Y SOFTWARE</span>
+      <h1>Tu código es importante.<br>Tu forma de trabajar con personas también.</h1>
+      <p><strong>Hackea tu carrera</strong> es una guía práctica para cualquier persona que trabaje en sistemas, tecnología o desarrollo de software y quiera comunicarse mejor, influir con claridad y crecer profesionalmente sin dejar de ser técnica.</p>
+      <a href="#catalogo" class="btn">Obtener el libro ↓</a>
     </section>
 
     <!-- ── SKILL TREE ── -->
@@ -541,11 +489,11 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
         <div class="tree-branch-left">
           <div class="skill-card left">
             <span class="code">01</span>
-            <p>El Ecosistema Humano: infraestructura psicológica y colaboración real.</p>
+            <p>El Ecosistema Humano: cómo colaborar mejor con equipos, líderes y áreas de negocio.</p>
           </div>
           <div class="skill-card left">
             <span class="code">02</span>
-            <p>Ingeniería de Problemas: método científico aplicado a crisis y sistemas.</p>
+            <p>Ingeniería de Problemas: ordenar conversaciones difíciles y tomar mejores decisiones.</p>
           </div>
         </div>
 
@@ -558,11 +506,11 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
         <div class="tree-branch-right">
           <div class="skill-card right">
             <span class="code">03</span>
-            <p>Productividad Estratégica: foco, autonomía y trabajo fuera de la microgestión.</p>
+            <p>Productividad Estratégica: foco, autonomía y acuerdos claros para trabajar mejor.</p>
           </div>
           <div class="skill-card right">
             <span class="code">04</span>
-            <p>El Profesional Líquido: adaptabilidad técnica y mental en mercados cambiantes.</p>
+            <p>El Profesional Líquido: adaptabilidad para crecer en roles técnicos, funcionales o de liderazgo.</p>
           </div>
         </div>
 
@@ -572,26 +520,26 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
     <!-- ── EL PROBLEMA ── -->
     <section>
       <p class="section-label">el problema</p>
-      <h2 style="font-size:1.15rem;line-height:1.35;margin-bottom:16px">No eres un ermitaño. Deja de trabajar como si lo fueras.</h2>
-      <p style="font-size:.86rem;color:var(--text-muted);margin-bottom:18px;line-height:1.7">Escribir código legible y eficiente es vital, pero es solo el 50% de la ecuación. Si no dominas el <em>middleware</em> humano, tu arquitectura técnica eventualmente colapsará bajo el peso de los malentendidos.</p>
+      <h2 style="font-size:1.15rem;line-height:1.35;margin-bottom:16px">En tecnología, casi nunca trabajamos solos.</h2>
+      <p style="font-size:.86rem;color:var(--text-muted);margin-bottom:18px;line-height:1.7">Aunque tu rol sea muy técnico, tu impacto depende de cómo explicás ideas, pedís ayuda, negociás prioridades y resolvés desacuerdos. Este libro te ayuda a mejorar ese lado del trabajo sin perder tu identidad profesional.</p>
       <div class="problem-grid">
 
         <div class="problem-card">
           <span class="icon">!</span>
-          <h3>DEUDA HUMANA</h3>
-          <p>Ego en los Pull Requests, feedback defensivo y falta de comunicación técnica que multiplica retrabajo.</p>
+          <h3>FRICCIÓN EN EL EQUIPO</h3>
+          <p>Code reviews tensas, feedback poco claro y conversaciones que generan más retrabajo que soluciones.</p>
         </div>
 
         <div class="problem-card">
           <span class="icon">!</span>
-          <h3>SILOS DE INFORMACIÓN</h3>
-          <p>Equipos que no hablan entre sí, decisiones que se pierden y contexto que nunca llega a quien implementa.</p>
+          <h3>CONTEXTO QUE NO LLEGA</h3>
+          <p>Producto, desarrollo, QA, datos, soporte e infraestructura trabajando con información incompleta.</p>
         </div>
 
         <div class="problem-card">
           <span class="icon">!</span>
-          <h3>PARÁLISIS Y BURNOUT</h3>
-          <p>Debates interminables de arquitectura y cultura de "siempre urgente" que degrada la calidad del sistema.</p>
+          <h3>PRIORIDADES CONFUSAS</h3>
+          <p>Urgencias, cambios de rumbo y decisiones técnicas que necesitan mejores acuerdos entre personas.</p>
         </div>
 
       </div>
@@ -603,22 +551,22 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
       <div class="advantages-row">
         <div class="adv-item">
           <div class="adv-icon">{}</div>
-          <span><strong style="color:var(--text-primary)">Sin humo:</strong> Radical Candor, SCARF, post-mortems sin culpa y alineación de equipo.</span>
+          <span><strong style="color:var(--text-primary)">Directo y claro:</strong> conceptos útiles explicados con ejemplos del día a día en equipos de tecnología.</span>
         </div>
         <div class="adv-item">
           <div class="adv-icon">fn</div>
-          <span><strong style="color:var(--text-primary)">Accionable:</strong> protocolos técnicos para implementar el lunes por la mañana.</span>
+          <span><strong style="color:var(--text-primary)">Accionable:</strong> herramientas para reuniones, feedback, prioridades, conflictos y colaboración.</span>
         </div>
         <div class="adv-item">
           <div class="adv-icon">io</div>
-          <span><strong style="color:var(--text-primary)">Tangible:</strong> negociar, liderar sin autoridad y gestionar cambio sin quemarte.</span>
+          <span><strong style="color:var(--text-primary)">Para cualquier rol IT:</strong> desarrollo, QA, data, soporte, producto, UX, infraestructura, seguridad o liderazgo.</span>
         </div>
       </div>
     </section>
 
     <!-- ── FOOTER CTA ── -->
     <div class="footer-cta">
-      <p><strong>Deja de apagar incendios. Empieza a escalar el sistema.</strong></p>
+      <p><strong>Mejorá tu forma de comunicar, colaborar e influir en equipos de software.</strong></p>
       <a href="#catalogo" class="btn btn-outline">Obtener el libro ahora →</a>
     </div>
 
@@ -635,65 +583,21 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
       <div class="adv-cards">
 
         <div class="adv-card">
-          <div class="adv-icon-big">SR</div>
-          <h4>Developers Senior</h4>
-          <p>Para pasar de resolver tickets a influenciar decisiones técnicas.</p>
+          <div class="adv-icon-big">IT</div>
+          <h4>Cualquier rol en sistemas</h4>
+          <p>Para quienes trabajan en tecnología y necesitan comunicarse mejor con personas técnicas y no técnicas.</p>
         </div>
 
         <div class="adv-card">
-          <div class="adv-icon-big">QA</div>
-          <h4>QA Automation</h4>
-          <p>Para elevar conversaciones de calidad, riesgo y criterio de release.</p>
+          <div class="adv-icon-big">SW</div>
+          <h4>Desarrollo de software</h4>
+          <p>Para developers, QA, data, UX, producto, DevOps, soporte, seguridad e infraestructura.</p>
         </div>
 
         <div class="adv-card">
-          <div class="adv-icon-big">TL</div>
-          <h4>Tech Leads y Arquitectos</h4>
-          <p>Para alinear stakeholders, bajar fricción y liderar sin depender del cargo.</p>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ── SOCIAL PROOF ── -->
-    <section>
-      <p class="section-label">preview técnico</p>
-      <div class="social-proof-grid">
-
-        <div class="chat-card">
-          <div class="chat-bubble">
-            <p class="name">capítulo 01</p>
-            <p>El mito del genio solitario y cómo construir infraestructura psicológica en equipos técnicos.</p>
-          </div>
-          <div class="chat-bubble">
-            <p class="name">capítulo 02</p>
-            <p>Pensamiento sistémico para diagnosticar crisis sin caer en culpables fáciles.</p>
-          </div>
-        </div>
-
-        <div class="video-card">
-          <div class="video-thumb">
-            <button class="play-btn" aria-label="Reproducir video">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-            </button>
-          </div>
-          <div class="video-caption">
-            <strong>"Soft Skills" es ingeniería de sistemas sociales</strong>
-            <p>La documentación técnica para el componente más inestable del sistema: el humano.</p>
-          </div>
-        </div>
-
-        <div class="chat-card">
-          <div class="chat-bubble">
-            <p class="name">capítulo 03</p>
-            <p>Bloques de enfoque, autonomía real y productividad fuera de la microgestión.</p>
-          </div>
-          <div class="chat-bubble">
-            <p class="name">capítulo 04</p>
-            <p>Adaptabilidad técnica y mental cuando el mercado cambia cada semestre.</p>
-          </div>
+          <div class="adv-icon-big">+1</div>
+          <h4>Personas que quieren crecer</h4>
+          <p>Para ganar claridad, confianza e influencia sin importar tu seniority o cargo actual.</p>
         </div>
 
       </div>
@@ -757,12 +661,12 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
         <div class="faq-item">
           <input type="checkbox" class="faq-toggle" id="faq1" checked>
           <label class="faq-label" for="faq1">
-            ¿Esto es un libro de recursos humanos?
+            ¿Para quién es este libro?
             <span class="faq-arrow">▼</span>
           </label>
           <div class="faq-body">
             <div class="faq-body-inner">
-              No. Está planteado como documentación técnica para el componente más inestable del sistema: el humano. Habla de Pull Requests, stakeholders, post-mortems, fricción operativa y liderazgo técnico.
+              Para cualquier persona que trabaje en sistemas, tecnología o desarrollo de software: developers, QA, data, producto, UX, DevOps, soporte, seguridad, infraestructura, analistas, líderes técnicos y perfiles funcionales.
             </div>
           </div>
         </div>
@@ -801,7 +705,7 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
           </label>
           <div class="faq-body">
             <div class="faq-body-inner">
-              Está diseñado para desarrolladores senior, QA automation, tech leads, arquitectos y perfiles IT que ya dominan lo técnico pero necesitan más influencia, criterio de negocio y gestión de fricción.
+              No. Sirve tanto si estás empezando como si ya tenés experiencia. La idea es ayudarte a comunicar mejor, ordenar conversaciones difíciles y aumentar tu impacto en equipos de software.
             </div>
           </div>
         </div>
