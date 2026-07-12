@@ -147,9 +147,10 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
 
     {% elif sub.payment_provider == 'mercadopago' %}
     <div class="actions">
+      <button class="btn btn-mp" id="syncMpBtn">Actualizar estado desde MercadoPago</button>
       <button class="btn btn-danger" id="cancelMpBtn">Cancelar suscripción</button>
     </div>
-    <p class="hint">Tu acceso continuará activo hasta el {{ sub.current_period_end|date:"d/m/Y" }}. Para cambiar el método de pago hacelo desde la app de MercadoPago.</p>
+    <p class="hint">Desde esta pantalla podés sincronizar el estado real de MercadoPago o cancelar la suscripción. Para cambiar el método de pago, hacelo desde tu cuenta de MercadoPago.</p>
     {% endif %}
 
   {% else %}
@@ -292,6 +293,29 @@ function copyUrl(id, btn) {
 
 {% if sub and sub.is_active and sub.payment_provider == 'mercadopago' %}
 const overlay = document.getElementById('cancelModal');
+document.getElementById('syncMpBtn').addEventListener('click', async function() {
+  this.textContent = 'Actualizando...';
+  this.disabled = true;
+  try {
+    const res = await fetch('{% url "core:mentor_ia_mp_sync" %}', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('Estado actualizado desde MercadoPago.');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      showToast(data.error || 'Error al actualizar', 'err');
+      this.textContent = 'Actualizar estado desde MercadoPago';
+      this.disabled = false;
+    }
+  } catch {
+    showToast('Error de conexión', 'err');
+    this.textContent = 'Actualizar estado desde MercadoPago';
+    this.disabled = false;
+  }
+});
 document.getElementById('cancelMpBtn').addEventListener('click', () => {
   overlay.classList.add('open');
 });

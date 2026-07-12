@@ -6,6 +6,7 @@ Rutas:
   POST /mentoria/checkout/           → crea sesión de checkout en Stripe
   GET  /mentoria/checkout/success/   → retorno desde Stripe, activa suscripción
   GET  /mentoria/checkout/cancel/    → cancelación del checkout
+    POST /mentoria/mp/sync/            → sincroniza el estado de MercadoPago
   GET  /mentoria/chat/               → interfaz de chat (requiere suscripción)
   POST /mentoria/api/session/        → crea sesión de evaluación + mensaje inicial de la IA
   POST /mentoria/api/message/<id>/   → envía mensaje del usuario, devuelve respuesta de la IA
@@ -440,6 +441,29 @@ def mentor_ia_subscription(request):
         'mp_bimonthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT_BIMONTHLY', '19980'),
         'mp_currency': getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS'),
     })
+
+
+@login_required
+@require_POST
+def mentor_ia_mp_sync(request):
+    """POST /mentoria/mp/sync/ — Sincroniza el estado del preapproval de MercadoPago."""
+    sub = _get_subscription(request.user)
+    if not sub or sub.payment_provider != 'mercadopago' or not sub.mp_preapproval_id:
+        return JsonResponse({'error': 'No tenés una suscripción de MercadoPago para sincronizar.'}, status=400)
+
+    try:
+        from core.controllers.mercadopago_webhook_controller import _sync_mp_subscription
+        _sync_mp_subscription(sub.mp_preapproval_id)
+        sub.refresh_from_db()
+        return JsonResponse({
+            'ok': True,
+            'status': sub.get_status_display(),
+            'is_active': sub.is_active,
+            'current_period_end': sub.current_period_end.isoformat() if sub.current_period_end else None,
+        })
+    except Exception as exc:
+        logger.error('MP sync error: %s', exc)
+        return JsonResponse({'error': 'Error al sincronizar con MercadoPago.'}, status=500)
 
 
 @login_required

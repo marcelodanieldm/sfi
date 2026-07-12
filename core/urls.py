@@ -43,6 +43,7 @@ urlpatterns = [
     path('mentoria/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
     path('mentoria/checkout/cancel/',          views.mentor_ia_checkout_cancel,    name='mentor_ia_checkout_cancel'),
     path('mentoria/suscripcion/',                views.mentor_ia_subscription,        name='mentor_ia_subscription'),
+    path('mentoria/mp/sync/',                    views.mentor_ia_mp_sync,             name='mentor_ia_mp_sync'),
     path('mentoria/mp/cancel/',                  views.mentor_ia_mp_cancel,           name='mentor_ia_mp_cancel'),
     path('mentoria/chat/',                       views.mentor_ia_chat,               name='mentor_ia_chat'),
     path('mentoria/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),

@@ -17,7 +17,7 @@ from core.controllers.unified_webhook_controller import unified_webhook
 from core.controllers.mentor_ia_controller import (
     mentor_ia, mentor_ia_checkout, mentor_ia_checkout_start, mentor_ia_checkout_success, mentor_ia_checkout_cancel,
     mentor_ia_mp_checkout, mentor_ia_mp_checkout_start, mentor_ia_mp_checkout_success, mentor_ia_mp_checkout_cancel,
-    mentor_ia_chat, mentor_ia_subscription, mentor_ia_mp_cancel,
+    mentor_ia_chat, mentor_ia_subscription, mentor_ia_mp_sync, mentor_ia_mp_cancel,
     mentor_ia_api_new_session, mentor_ia_api_send_message,
     webhook_stripe_mentoria,
 )
@@ -48,7 +48,7 @@ __all__ = [
     'unified_webhook',
     'mentor_ia', 'mentor_ia_checkout', 'mentor_ia_checkout_start', 'mentor_ia_checkout_success', 'mentor_ia_checkout_cancel',
     'mentor_ia_mp_checkout', 'mentor_ia_mp_checkout_start', 'mentor_ia_mp_checkout_success', 'mentor_ia_mp_checkout_cancel',
-    'mentor_ia_chat', 'mentor_ia_subscription', 'mentor_ia_mp_cancel',
+    'mentor_ia_chat', 'mentor_ia_subscription', 'mentor_ia_mp_sync', 'mentor_ia_mp_cancel',
     'mentor_ia_api_new_session', 'mentor_ia_api_send_message',
     'webhook_stripe_mentoria',
     'ebook', 'ebook_mp_checkout', 'ebook_mp_success', 'soft_skills', 'mentoring', 'premium', 'dashboard',
