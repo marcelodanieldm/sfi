@@ -4,6 +4,8 @@ Servicio de pagos para el flujo ATS Evaluator.
 Integra Stripe (USD) y MercadoPago (ARS/BRL) para el checkout del informe.
 """
 
+import hashlib
+import hmac
 import logging
 import stripe
 from django.conf import settings
@@ -12,6 +14,45 @@ logger = logging.getLogger(__name__)
 
 PRICE_USD = '4.99'
 PRICE_ARS = '4990'
+
+
+# ────────────────────────────────────────────────────────────────────────────
+#  Validación de firma MercadoPago (Notifications v2)
+# ────────────────────────────────────────────────────────────────────────────
+
+def validate_mp_signature(request) -> bool:
+    """
+    Valida la firma HMAC-SHA256 del webhook de MercadoPago.
+    x-signature: ts=<timestamp>,v1=<hex>  ·  manifest: id={data.id}&request-id={x-request-id}&ts={ts}
+    Si MP_WEBHOOK_SECRET no está configurado, acepta sin validar (solo dev).
+    """
+    secret = getattr(settings, 'MP_WEBHOOK_SECRET', '')
+    if not secret:
+        logger.warning('MP_WEBHOOK_SECRET no configurado — saltando validación de firma')
+        return True
+
+    sig_header = request.META.get('HTTP_X_SIGNATURE', '')
+    request_id = request.META.get('HTTP_X_REQUEST_ID', '')
+    data_id    = request.GET.get('data.id') or request.GET.get('id', '')
+
+    if not sig_header:
+        return False
+
+    parts = {}
+    for chunk in sig_header.split(','):
+        if '=' in chunk:
+            k, v = chunk.split('=', 1)
+            parts[k.strip()] = v.strip()
+
+    ts = parts.get('ts', '')
+    v1 = parts.get('v1', '')
+    if not ts or not v1:
+        return False
+
+    manifest = f'id={data_id}&request-id={request_id}&ts={ts}'
+    expected = hmac.new(secret.encode('utf-8'), manifest.encode('utf-8'), hashlib.sha256).hexdigest()
+
+    return hmac.compare_digest(expected, v1)
 
 
 # ────────────────────────────────────────────────────────────────────────────

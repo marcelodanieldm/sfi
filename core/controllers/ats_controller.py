@@ -30,6 +30,7 @@ from core.services.payment_service import (
     confirm_payment,
     handle_stripe_webhook,
     handle_mercadopago_webhook,
+    validate_mp_signature,
     PRICE_USD,
     PRICE_ARS,
 )
@@ -261,6 +262,10 @@ def webhook_stripe(request):
 
 @csrf_exempt
 def webhook_mercadopago(request):
+    if not validate_mp_signature(request):
+        logger.warning('MercadoPago webhook: firma inválida o ausente')
+        return HttpResponse('invalid signature', status=400)
+
     params = {**request.GET.dict(), **request.POST.dict()}
     try:
         handle_mercadopago_webhook(params)
