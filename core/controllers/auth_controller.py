@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
+from django_ratelimit.decorators import ratelimit
 
 from core.models import User
 
@@ -81,6 +82,7 @@ def _safe_next_url(request, value=None):
     return '/mentoria/'
 
 
+@ratelimit(key='ip', rate='10/5m', method=['POST'], block=False)
 def login_view(request):
     next_url = _safe_next_url(request)
 
@@ -88,6 +90,11 @@ def login_view(request):
         return redirect(next_url)
 
     if request.method == 'POST':
+        if getattr(request, 'limited', False):
+            messages.error(request, 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.')
+            return render(request, 'core/auth/login.html',
+                          _login_ctx(tab='login', next_url=next_url))
+
         next_url = _safe_next_url(request)
         action = request.POST.get('action', 'login')
 
@@ -122,7 +129,11 @@ def logout_view(request):
 
 
 @require_POST
+@ratelimit(key='ip', rate='10/5m', method=['POST'], block=False)
 def google_oauth_login(request):
+    if getattr(request, 'limited', False):
+        return JsonResponse({'error': 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'}, status=429)
+
     try:
         data       = json.loads(request.body)
         credential = data.get('credential', '')
@@ -146,6 +157,8 @@ def google_oauth_login(request):
     email = idinfo.get('email', '').lower()
     if not email:
         return JsonResponse({'error': 'No se pudo obtener el email de Google.'}, status=400)
+    if not idinfo.get('email_verified', False):
+        return JsonResponse({'error': 'El email de Google no está verificado.'}, status=400)
 
     user, _ = User.objects.get_or_create(
         email=email,

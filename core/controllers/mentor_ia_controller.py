@@ -468,7 +468,6 @@ def mentor_ia_mp_sync(request):
 
 @login_required
 @require_POST
-@csrf_exempt
 def mentor_ia_mp_cancel(request):
     """POST /mentoria/mp/cancel/ — Cancela el preapproval activo de MercadoPago."""
     sub = _get_subscription(request.user)
@@ -509,10 +508,6 @@ def mentor_ia_chat(request):
 
 @login_required
 @require_POST
-@csrf_exempt
-@login_required
-@require_POST
-@csrf_exempt
 def mentor_ia_api_new_session(request):
     """
     POST /mentoria/api/session/
@@ -586,7 +581,6 @@ def mentor_ia_api_new_session(request):
 
 @login_required
 @require_POST
-@csrf_exempt
 def mentor_ia_api_send_message(request, session_id):
     """
     POST /mentoria/api/message/<session_id>/
