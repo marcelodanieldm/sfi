@@ -44,6 +44,20 @@ const routes = [
     meta: { title: 'Simulación — SkillsForIT' },
   },
   {
+    path: '/terminos',
+    name: 'terminos',
+    component: () => import('../components/LegalPage.vue'),
+    props: { type: 'terminos' },
+    meta: { title: 'Términos y Condiciones — SkillsForIT' },
+  },
+  {
+    path: '/privacidad',
+    name: 'privacidad',
+    component: () => import('../components/LegalPage.vue'),
+    props: { type: 'privacidad' },
+    meta: { title: 'Política de Privacidad — SkillsForIT' },
+  },
+  {
     // Cualquier ruta no reconocida vuelve a la landing
     path: '/:pathMatch(.*)*',
     redirect: '/',

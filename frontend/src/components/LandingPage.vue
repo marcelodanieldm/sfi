@@ -280,7 +280,12 @@ const COLOR_MAP = {
          FOOTER mínimo
     ════════════════════════════════════════════════════════ -->
     <footer class="bg-slate-900 text-slate-500 text-sm text-center py-6">
-      © {{ new Date().getFullYear() }} SkillsForIT · Todos los derechos reservados
+      <p>© {{ new Date().getFullYear() }} SkillsForIT · Todos los derechos reservados</p>
+      <p class="mt-2 space-x-3">
+        <RouterLink to="/terminos" class="hover:text-slate-300 underline">Términos y Condiciones</RouterLink>
+        <span aria-hidden="true">·</span>
+        <RouterLink to="/privacidad" class="hover:text-slate-300 underline">Política de Privacidad</RouterLink>
+      </p>
     </footer>
 
   </div>

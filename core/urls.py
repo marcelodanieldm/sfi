@@ -79,6 +79,10 @@ urlpatterns = [
     path('habilidades/', views.lista_habilidades, name='lista_habilidades'),
     path('habilidades/<int:pk>/', views.detalle_habilidad, name='detalle_habilidad'),
 
+    # Legal
+    path('terminos-y-condiciones/', views.terminos_condiciones, name='terminos'),
+    path('politica-de-privacidad/', views.politica_privacidad, name='privacidad'),
+
     # Auth
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

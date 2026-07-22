@@ -133,6 +133,16 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
 }
 .btn-outline:hover{background:var(--accent-glow);transform:translateY(-1px)}
 
+/* ── FOOTER ─────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border-subtle);
+  padding:24px clamp(18px,5vw,72px);
+  text-align:center;
+  font-size:.75rem;
+  color:var(--text-dim);
+}
+footer a{color:var(--accent)}
+
 /* ── SKILL TREE ─────────────────────────────────────────────── */
 .skill-tree{position:relative}
 .tree-grid{
@@ -716,6 +726,10 @@ body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height
   </aside>
 
 </div>
+
+<footer>
+  <p>© 2025 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="{% url 'core:terminos' %}">Términos y Condiciones</a> · <a href="{% url 'core:privacidad' %}">Política de Privacidad</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
 
 </body>
 </html>

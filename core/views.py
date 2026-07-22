@@ -33,6 +33,7 @@ from core.controllers.roleplay_controller import (
     roleplay_selector, roleplay_chat_page, roleplay_get_session,
     roleplay_get_available_roles, roleplay_update_user_role, roleplay_regenerate_scenario,
 )
+from core.controllers.legal_controller import terminos_condiciones, politica_privacidad
 
 __all__ = [
     'inicio', 'lista_habilidades', 'detalle_habilidad',
@@ -56,5 +57,6 @@ __all__ = [
     'roleplay_list_scenarios', 'roleplay_start_session', 'roleplay_send_message',
     'roleplay_selector', 'roleplay_chat_page', 'roleplay_get_session',
     'roleplay_get_available_roles', 'roleplay_update_user_role', 'roleplay_regenerate_scenario',
+    'terminos_condiciones', 'politica_privacidad',
 ]
 

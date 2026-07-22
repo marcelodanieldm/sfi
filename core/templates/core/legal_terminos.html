@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Términos y Condiciones — SkillsForIT</title>
+<meta name="description" content="Términos y condiciones de uso de los servicios de SkillsForIT: eBooks, Evaluador ATS, MentorIA y Soft Skills con IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6;min-height:100vh}
+:root{
+  --bg:#111827;--bg2:#1f2937;--card:#1f2937;--border:#374151;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--accent-dark:#10b981;--glow:rgba(52,211,153,.12);
+  --mono:'JetBrains Mono',monospace;--r:8px;
+}
+a{color:inherit;text-decoration:none}
+
+nav.lp-nav{
+  background:rgba(13,17,23,.97);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--dim);
+  padding:0 40px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+}
+.nav-logo{font-family:var(--mono);font-size:.9rem;font-weight:700;color:var(--text)}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-links{display:flex;gap:18px;align-items:center}
+.nav-links a{font-size:.82rem;color:var(--muted);transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+
+.legal-wrap{max-width:820px;margin:0 auto;padding:56px 24px 80px}
+.legal-kicker{font-family:var(--mono);font-size:.72rem;color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:14px}
+.legal-title{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:10px}
+.legal-updated{font-size:.8rem;color:var(--faint);margin-bottom:36px}
+
+.legal-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px;margin-bottom:20px}
+.legal-card h2{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.legal-card h2 .num{font-family:var(--mono);color:var(--accent);font-size:.85rem}
+.legal-card p{font-size:.9rem;color:var(--muted);margin-bottom:12px}
+.legal-card p:last-child{margin-bottom:0}
+.legal-card ul{margin:0 0 12px 1.1rem;color:var(--muted);font-size:.9rem}
+.legal-card li{margin-bottom:6px}
+.legal-card strong{color:var(--text)}
+.legal-card a{color:var(--accent);text-decoration:underline}
+
+.legal-toc{background:transparent;border:1px dashed var(--border);border-radius:14px;padding:20px 24px;margin-bottom:32px}
+.legal-toc p{font-family:var(--mono);font-size:.72rem;color:var(--faint);text-transform:uppercase;letter-spacing:.14em;margin-bottom:12px}
+.legal-toc ol{margin:0;padding-left:1.2rem;columns:2;gap:8px;font-size:.82rem}
+.legal-toc li{margin-bottom:6px}
+.legal-toc a{color:var(--muted)}
+.legal-toc a:hover{color:var(--accent)}
+
+footer{border-top:1px solid var(--dim);padding:24px 40px;text-align:center;font-size:.75rem;color:var(--faint)}
+footer a{color:var(--accent)}
+
+@media(max-width:640px){
+  nav.lp-nav{padding:0 16px}
+  .legal-wrap{padding:40px 16px 56px}
+  .legal-card{padding:22px 18px}
+  .legal-toc ol{columns:1}
+}
+</style>
+</head>
+<body>
+
+<nav class="lp-nav">
+  <a href="{% url 'core:inicio' %}" class="nav-logo">Skills<em>For</em>IT</a>
+  <div class="nav-links">
+    <a href="{% url 'core:privacidad' %}">Política de Privacidad</a>
+    <a href="{% url 'core:inicio' %}">Volver al inicio</a>
+  </div>
+</nav>
+
+<main class="legal-wrap">
+  <p class="legal-kicker">legal</p>
+  <h1 class="legal-title">Términos y Condiciones de Uso</h1>
+  <p class="legal-updated">Última actualización: 21 de julio de 2026</p>
+
+  <div class="legal-toc">
+    <p>Contenido</p>
+    <ol>
+      <li><a href="#aceptacion">Aceptación de los términos</a></li>
+      <li><a href="#servicios">Descripción de los servicios</a></li>
+      <li><a href="#cuenta">Cuenta de usuario</a></li>
+      <li><a href="#uso-aceptable">Uso aceptable</a></li>
+      <li><a href="#propiedad">Propiedad intelectual</a></li>
+      <li><a href="#pagos">Precios, pagos y facturación</a></li>
+      <li><a href="#suscripciones">Suscripciones y cancelación</a></li>
+      <li><a href="#reembolsos">Reembolsos y garantías</a></li>
+      <li><a href="#ia">Contenido generado por IA</a></li>
+      <li><a href="#contenido-usuario">Contenido subido por el usuario</a></li>
+      <li><a href="#responsabilidad">Limitación de responsabilidad</a></li>
+      <li><a href="#indemnizacion">Indemnización</a></li>
+      <li><a href="#modificaciones">Modificaciones</a></li>
+      <li><a href="#terminacion">Terminación</a></li>
+      <li><a href="#legislacion">Legislación aplicable</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ol>
+  </div>
+
+  <div class="legal-card" id="aceptacion">
+    <h2><span class="num">01.</span> Aceptación de los términos</h2>
+    <p>Estos Términos y Condiciones ("Términos") regulan el acceso y uso del sitio <strong>skillsforit.online</strong> y de todos los productos y servicios ofrecidos por <strong>SkillsForIT</strong> ("nosotros", "la Plataforma"), incluyendo el Evaluador ATS, los eBooks de Soft Skills, MentorIA y el módulo de Roleplay de Soft Skills con IA.</p>
+    <p>Al registrarte, comprar un producto, iniciar una suscripción o utilizar cualquier funcionalidad de la Plataforma, aceptás estos Términos en su totalidad. Si no estás de acuerdo, no debés utilizar el servicio.</p>
+  </div>
+
+  <div class="legal-card" id="servicios">
+    <h2><span class="num">02.</span> Descripción de los servicios</h2>
+    <p>SkillsForIT ofrece los siguientes productos, que podrán actualizarse, ampliarse o discontinuarse sin previo aviso:</p>
+    <ul>
+      <li><strong>Evaluador ATS:</strong> análisis automatizado de currículums (CV) mediante inteligencia artificial, con recomendaciones y un informe premium de pago único.</li>
+      <li><strong>eBooks de Soft Skills:</strong> contenido digital descargable comercializado a través de Hotmart o MercadoPago.</li>
+      <li><strong>MentorIA:</strong> coach de soft skills disponible por chat, bajo un modelo de suscripción mensual o anual recurrente.</li>
+      <li><strong>Roleplay de Soft Skills:</strong> simulaciones de situaciones laborales con retroalimentación generada por IA.</li>
+      <li><strong>Mentorías 1 a 1:</strong> sesiones de mentoría agendadas con profesionales del rubro IT.</li>
+    </ul>
+    <p>Los servicios se prestan "tal cual" y "según disponibilidad", pudiendo sufrir interrupciones por mantenimiento, causas de fuerza mayor o factores fuera de nuestro control.</p>
+  </div>
+
+  <div class="legal-card" id="cuenta">
+    <h2><span class="num">03.</span> Cuenta de usuario</h2>
+    <p>Para acceder a determinadas funcionalidades es necesario crear una cuenta con datos veraces, completos y actualizados. Sos responsable de mantener la confidencialidad de tus credenciales y de toda actividad realizada desde tu cuenta.</p>
+    <p>Debés notificarnos de inmediato ante cualquier uso no autorizado de tu cuenta escribiendo a <a href="mailto:info@skillsforit.com">info@skillsforit.com</a>.</p>
+  </div>
+
+  <div class="legal-card" id="uso-aceptable">
+    <h2><span class="num">04.</span> Uso aceptable</h2>
+    <p>Al utilizar la Plataforma, te comprometés a no:</p>
+    <ul>
+      <li>Utilizar el servicio con fines ilícitos, fraudulentos o para vulnerar derechos de terceros.</li>
+      <li>Intentar acceder sin autorización a sistemas, cuentas o datos de otros usuarios.</li>
+      <li>Realizar ingeniería inversa, scraping automatizado o explotar vulnerabilidades de la Plataforma.</li>
+      <li>Revender, redistribuir o sublicenciar el contenido de los eBooks, informes o materiales sin autorización expresa.</li>
+      <li>Compartir credenciales de acceso a MentorIA o al Roleplay con terceros no autorizados.</li>
+    </ul>
+    <p>Nos reservamos el derecho de suspender o cancelar cuentas que incumplan estas condiciones.</p>
+  </div>
+
+  <div class="legal-card" id="propiedad">
+    <h2><span class="num">05.</span> Propiedad intelectual</h2>
+    <p>Todo el contenido de la Plataforma —textos, eBooks, informes, marcas, logotipos, código fuente, diseño e interfaces— es propiedad de SkillsForIT o de sus licenciantes y está protegido por leyes de propiedad intelectual. Se otorga al usuario una licencia limitada, personal, no exclusiva e intransferible para uso personal, quedando prohibida su explotación comercial sin autorización previa por escrito.</p>
+  </div>
+
+  <div class="legal-card" id="pagos">
+    <h2><span class="num">06.</span> Precios, pagos y facturación</h2>
+    <p>Los precios se muestran en la Plataforma en la moneda indicada (USD o ARS según el producto) e incluyen los impuestos aplicables salvo indicación contraria. Los pagos se procesan a través de proveedores externos —<strong>Stripe</strong>, <strong>MercadoPago</strong> y <strong>Hotmart</strong>— y están sujetos a los términos de dichas plataformas.</p>
+    <p>SkillsForIT no almacena números de tarjeta de crédito ni datos financieros sensibles; esa información es gestionada exclusivamente por los procesadores de pago mencionados.</p>
+  </div>
+
+  <div class="legal-card" id="suscripciones">
+    <h2><span class="num">07.</span> Suscripciones y cancelación</h2>
+    <p>MentorIA se ofrece bajo un modelo de suscripción con renovación automática (mensual o anual, según el plan elegido) hasta que el usuario la cancele. La cancelación puede realizarse en cualquier momento desde el panel de suscripciones y tiene efecto al finalizar el período ya abonado, sin generar cargos adicionales ni penalidades.</p>
+    <p>El usuario es responsable de cancelar antes de la fecha de renovación si no desea continuar con el servicio.</p>
+  </div>
+
+  <div class="legal-card" id="reembolsos">
+    <h2><span class="num">08.</span> Reembolsos y garantías</h2>
+    <p>Las compras de eBooks realizadas a través de Hotmart cuentan con la garantía de devolución de 7 días establecida por dicha plataforma. Para compras procesadas por MercadoPago, escribinos a <a href="mailto:info@skillsforit.com">info@skillsforit.com</a> indicando el email utilizado en la compra y evaluaremos el caso.</p>
+    <p>Los informes del Evaluador ATS y las sesiones de MentorIA/Roleplay ya consumidos o generados no son reembolsables, salvo error atribuible a SkillsForIT.</p>
+  </div>
+
+  <div class="legal-card" id="ia">
+    <h2><span class="num">09.</span> Contenido generado por Inteligencia Artificial</h2>
+    <p>Los informes, recomendaciones, escenarios de roleplay y respuestas de chat son generados total o parcialmente por modelos de inteligencia artificial (incluyendo modelos de OpenAI). Este contenido tiene fines <strong>orientativos y educativos</strong>, no constituye asesoramiento profesional, legal, psicológico ni laboral, y puede contener imprecisiones. La decisión final sobre tu carrera profesional es siempre tuya.</p>
+  </div>
+
+  <div class="legal-card" id="contenido-usuario">
+    <h2><span class="num">10.</span> Contenido subido por el usuario</h2>
+    <p>Al subir tu CV, respuestas de evaluaciones o mensajes de chat, declarás que sos titular de dicha información o contás con derecho suficiente para compartirla, y nos autorizás a procesarla —incluso mediante proveedores de IA— con el único fin de prestarte el servicio solicitado. Consultá nuestra <a href="{% url 'core:privacidad' %}">Política de Privacidad</a> para más detalles sobre el tratamiento de estos datos.</p>
+  </div>
+
+  <div class="legal-card" id="responsabilidad">
+    <h2><span class="num">11.</span> Limitación de responsabilidad</h2>
+    <p>En la máxima medida permitida por la ley, SkillsForIT no será responsable por daños indirectos, incidentales, especiales o consecuentes derivados del uso o la imposibilidad de uso de la Plataforma, incluyendo pero no limitado a pérdida de oportunidades laborales, decisiones tomadas en base a informes generados por IA, o interrupciones del servicio provistas por terceros (proveedores de pago, hosting, IA).</p>
+  </div>
+
+  <div class="legal-card" id="indemnizacion">
+    <h2><span class="num">12.</span> Indemnización</h2>
+    <p>Te comprometés a mantener indemne a SkillsForIT frente a cualquier reclamo, daño o gasto (incluidos honorarios legales razonables) derivado del incumplimiento de estos Términos o del uso indebido de la Plataforma.</p>
+  </div>
+
+  <div class="legal-card" id="modificaciones">
+    <h2><span class="num">13.</span> Modificaciones a los términos y al servicio</h2>
+    <p>Podemos actualizar estos Términos o modificar, suspender o discontinuar funcionalidades de la Plataforma en cualquier momento. Los cambios relevantes se comunicarán publicando la nueva versión en esta página junto con la fecha de actualización. El uso continuado del servicio implica la aceptación de los Términos vigentes.</p>
+  </div>
+
+  <div class="legal-card" id="terminacion">
+    <h2><span class="num">14.</span> Terminación de la cuenta</h2>
+    <p>Podés dejar de usar la Plataforma y solicitar la baja de tu cuenta en cualquier momento. Nosotros podemos suspender o cancelar el acceso ante incumplimientos graves de estos Términos, fraude o uso indebido, sin perjuicio de las acciones legales que correspondan.</p>
+  </div>
+
+  <div class="legal-card" id="legislacion">
+    <h2><span class="num">15.</span> Legislación aplicable y jurisdicción</h2>
+    <p>Estos Términos se rigen por las leyes aplicables en la República Argentina. Cualquier controversia derivada de su interpretación o cumplimiento se someterá a los tribunales ordinarios competentes, sin perjuicio de los derechos que la normativa de protección al consumidor te otorgue en tu país de residencia.</p>
+  </div>
+
+  <div class="legal-card" id="contacto">
+    <h2><span class="num">16.</span> Contacto</h2>
+    <p>Ante cualquier consulta sobre estos Términos, podés escribirnos a <a href="mailto:info@skillsforit.com">info@skillsforit.com</a>.</p>
+  </div>
+</main>
+
+<footer>
+  <p>© 2026 SkillsForIT · <a href="{% url 'core:inicio' %}">skillsforit.online</a> · <a href="{% url 'core:privacidad' %}">Política de Privacidad</a> · <a href="mailto:info@skillsforit.com">info@skillsforit.com</a></p>
+</footer>
+
+</body>
+</html>
