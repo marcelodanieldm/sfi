@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 def ebook(request):
     ebooks = Ebook.objects.filter(activo=True).order_by('orden', 'titulo')
-    return render(request, 'core/ebook_landing.html', {'ebooks': ebooks})
+    # Ebook principal: usado para que los CTA del hero apunten directo a Hotmart
+    primary_ebook = ebooks.first()
+    return render(request, 'core/ebook_landing.html', {'ebooks': ebooks, 'primary_ebook': primary_ebook})
 
 
 @require_POST

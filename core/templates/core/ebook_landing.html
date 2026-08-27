@@ -385,24 +385,22 @@ footer a{color:var(--accent)}
 }
 .ebook-features li::before{content:'›';color:var(--accent);flex-shrink:0}
 .ebook-footer{
-  padding:12px 14px;
+  padding:14px;
   border-top:1px solid var(--border-subtle);
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
+  flex-direction:column;
+  align-items:stretch;
+  gap:12px;
 }
 .ebook-price{
   font-family:var(--mono);
-  font-size:.85rem;
+  font-size:1rem;
   font-weight:700;
   color:var(--accent);
 }
-.btn-sm{
-  font-size:.68rem;
-  padding:8px 12px;
-  letter-spacing:.02em;
-  white-space:nowrap;
+.ebook-footer .btn{
+  width:100%;
+  justify-content:center;
 }
 
 /* ── FAQ ────────────────────────────────────────────────────── */
@@ -488,7 +486,11 @@ footer a{color:var(--accent)}
       <span class="tag">// HABILIDADES HUMANAS PARA SISTEMAS Y SOFTWARE</span>
       <h1>Tu código es importante.<br>Tu forma de trabajar con personas también.</h1>
       <p><strong>Hackea tu carrera</strong> es una guía práctica para cualquier persona que trabaje en sistemas, tecnología o desarrollo de software y quiera comunicarse mejor, influir con claridad y crecer profesionalmente sin dejar de ser técnica.</p>
-      <a href="#catalogo" class="btn">Obtener el libro ↓</a>
+      {% if primary_ebook %}
+        <a href="{{ primary_ebook.hotlink_url }}" class="btn" target="_blank" rel="noopener">Comprar en Hotmart →</a>
+      {% else %}
+        <a href="#catalogo" class="btn">Obtener el libro ↓</a>
+      {% endif %}
     </section>
 
     <!-- ── SKILL TREE ── -->
@@ -577,7 +579,11 @@ footer a{color:var(--accent)}
     <!-- ── FOOTER CTA ── -->
     <div class="footer-cta">
       <p><strong>Mejorá tu forma de comunicar, colaborar e influir en equipos de software.</strong></p>
-      <a href="#catalogo" class="btn btn-outline">Obtener el libro ahora →</a>
+      {% if primary_ebook %}
+        <a href="{{ primary_ebook.hotlink_url }}" class="btn btn-outline" target="_blank" rel="noopener">Comprar en Hotmart →</a>
+      {% else %}
+        <a href="#catalogo" class="btn btn-outline">Obtener el libro ahora →</a>
+      {% endif %}
     </div>
 
   </main>
@@ -638,14 +644,9 @@ footer a{color:var(--accent)}
                 <li>{{ ebook.descripcion_corta|default:ebook.descripcion|truncatechars:120 }}</li>
               </ul>
             </div>
-            <div class="ebook-footer" style="align-items:stretch;gap:10px;flex-direction:column">
+            <div class="ebook-footer">
               <span class="ebook-price">USD {{ ebook.precio_usd|default:'19.99' }}</span>
-              <a href="{{ ebook.hotlink_url }}" class="btn btn-sm" target="_blank" rel="noopener">Comprar en Hotmart</a>
-              <form method="post" action="{% url 'core:ebook_mp_checkout' ebook.slug %}" style="display:flex;gap:8px;flex-direction:column">
-                {% csrf_token %}
-                <input type="email" name="email" placeholder="tu@email.com" required style="width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text)">
-                <button type="submit" class="btn btn-sm" style="border:0;cursor:pointer">Pagar en pesos con MercadoPago</button>
-              </form>
+              <a href="{{ ebook.hotlink_url }}" class="btn" target="_blank" rel="noopener">Comprar en Hotmart →</a>
             </div>
           </div>
         {% empty %}
@@ -653,7 +654,7 @@ footer a{color:var(--accent)}
             <div class="ebook-body">
               <h3 class="ebook-title">Configurá tus eBooks en el admin</h3>
               <ul class="ebook-features">
-                <li>Cargá título, precio, portada, HotLink de Hotmart y slug para habilitar MercadoPago.</li>
+                <li>Cargá título, precio, portada, HotLink de Hotmart y slug para habilitar la compra.</li>
               </ul>
             </div>
           </div>
@@ -689,7 +690,7 @@ footer a{color:var(--accent)}
           </label>
           <div class="faq-body">
             <div class="faq-body-inner">
-              PDF optimizado para pantalla y lectura en tablet. Hotmart o MercadoPago confirman el pago y te enviamos el acceso al email de compra.
+              PDF optimizado para pantalla y lectura en tablet. Hotmart confirma el pago y te enviamos el acceso al email de compra.
             </div>
           </div>
         </div>
@@ -702,7 +703,7 @@ footer a{color:var(--accent)}
           </label>
           <div class="faq-body">
             <div class="faq-body-inner">
-              Si comprás por Hotmart, aplica la garantía de la plataforma. Para MercadoPago, escribinos con el email de compra y revisamos el caso.
+              Comprás con la garantía de devolución de 7 días de Hotmart, sin preguntas.
             </div>
           </div>
         </div>
