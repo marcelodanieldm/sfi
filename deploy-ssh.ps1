@@ -1,12 +1,20 @@
 # Script de Deploy por SSH en PowerShell
 # Uso: .\deploy-ssh.ps1
+# Autenticación por clave SSH (sin contraseña en texto plano): la clave
+# privada debe estar en ~/.ssh/sfi_deploy y su pública ya debe estar
+# autorizada en el servidor (ver sfi_deploy_public_key.txt).
 
 param(
     [string]$Host = "149.50.152.192",
     [int]$Port = 5333,
     [string]$User = "root",
-    [string]$Password = "9/gBTfa52)HuZk"
+    [string]$KeyPath = "$HOME\.ssh\sfi_deploy"
 )
+
+if (-not (Test-Path $KeyPath)) {
+    Write-Host "❌ No se encontró la clave privada en $KeyPath" -ForegroundColor Red
+    exit 1
+}
 
 Write-Host "═══════════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host "🚀 SFI DEPLOYMENT VIA SSH" -ForegroundColor Cyan
@@ -60,7 +68,7 @@ try {
         Write-Host ""
         
         # Ejecutar deployment
-        ssh -o StrictHostKeyChecking=no -p $Port $User`@$Host @"
+        ssh -i $KeyPath -o StrictHostKeyChecking=no -p $Port $User`@$Host @"
             $deployCommands
 "@
         
