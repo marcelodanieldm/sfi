@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centro de práctica — SkillsForIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{font-family:'Inter',sans-serif;background:#0d1117;color:#f3f4f6;line-height:1.6}
+:root{
+  --bg:#111827;--bg2:#1f2937;--card:#374151;--border:#4b5563;--dim:#2d3748;
+  --text:#f3f4f6;--muted:#9ca3af;--faint:#6b7280;
+  --accent:#34d399;--mono:'JetBrains Mono',monospace;--r:8px;
+}
+.wrap{max-width:960px;margin:0 auto;padding:40px 20px 64px}
+.hub-header{margin-bottom:32px}
+.hub-kicker{font-family:var(--mono);font-size:.72rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;display:block}
+.hub-header h1{font-size:clamp(1.5rem,4vw,2rem);font-weight:800;margin-bottom:8px}
+.hub-header p{color:var(--muted);font-size:.9rem}
+.hub-role{
+  display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+  font-family:var(--mono);font-size:.75rem;color:var(--muted);
+  background:var(--bg);border:1px solid var(--dim);border-radius:20px;padding:6px 14px;
+}
+.hub-role strong{color:var(--accent);font-weight:600}
+.hub-role button{
+  background:none;border:none;color:var(--muted);text-decoration:underline;
+  cursor:pointer;font-family:var(--mono);font-size:.75rem;padding:0;
+}
+.hub-role button:hover{color:var(--accent)}
+
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:720px){.hub-grid{grid-template-columns:1fr}}
+
+.hub-card{
+  background:var(--bg);border:1px solid var(--dim);border-radius:12px;
+  padding:24px;display:flex;flex-direction:column;gap:14px;
+  transition:border-color .2s,transform .15s;
+}
+.hub-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.hub-card-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+}
+.hub-card h2{font-size:1.05rem;font-weight:700}
+.hub-card p{font-size:.82rem;color:var(--muted);line-height:1.6}
+.hub-card-stats{
+  font-family:var(--mono);font-size:.72rem;color:var(--faint);
+  display:flex;flex-direction:column;gap:4px;
+  border-top:1px solid var(--dim);padding-top:12px;margin-top:auto;
+}
+.hub-card-stats span strong{color:var(--muted);font-weight:600}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--accent);color:#0d1117;font-size:.82rem;font-weight:700;
+  font-family:var(--mono);padding:11px 20px;border-radius:var(--r);border:none;
+  cursor:pointer;text-decoration:none;transition:background .2s,transform .15s;
+}
+.btn:hover{background:#6ee7b7;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+
+{% include 'core/partials/_nav.html' with active='hub' active_label='Inicio' %}
+
+<div class="wrap">
+  <div class="hub-header">
+    <span class="hub-kicker">// Centro de práctica</span>
+    <h1>¿Qué querés entrenar hoy?</h1>
+    <p>MentorIA y Roleplay son dos modos del mismo entrenador de soft skills — elegí uno para continuar.</p>
+    {% if rol_it_preferido_label %}
+      <div class="hub-role">Rol actual: <strong>{{ rol_it_preferido_label }}</strong></div>
+    {% else %}
+      <div class="hub-role">Todavía no elegiste tu rol IT — usá el botón "Elegir rol" del menú de arriba.</div>
+    {% endif %}
+  </div>
+
+  <div class="hub-grid">
+    <div class="hub-card">
+      <div class="hub-card-icon">🤖</div>
+      <h2>MentorIA</h2>
+      <p>La IA plantea un escenario situacional real de trabajo IT. Vos respondés y recibís un informe de feedback con tu "respuesta perfecta" nivel Staff/Principal.</p>
+      <a href="{% url 'core:mentor_ia_chat' %}" class="btn">
+        {% if mentoria_count %}Continuar en MentorIA →{% else %}Empezar en MentorIA →{% endif %}
+      </a>
+      <div class="hub-card-stats">
+        <span><strong>{{ mentoria_count }}</strong> sesión{{ mentoria_count|pluralize:"es" }} realizada{{ mentoria_count|pluralize }}</span>
+        {% if mentoria_last %}<span>Última: {{ mentoria_last.get_tipo_display }} · {{ mentoria_last.created_at|date:"d/m/Y" }}</span>{% endif %}
+      </div>
+    </div>
+
+    <div class="hub-card">
+      <div class="hub-card-icon">🎭</div>
+      <h2>Roleplay</h2>
+      <p>Simulá una conversación difícil de principio a fin, turno a turno, con progreso visible y feedback al finalizar el escenario.</p>
+      <a href="{% url 'core:roleplay_selector' %}" class="btn">
+        {% if roleplay_count %}Continuar en Roleplay →{% else %}Empezar en Roleplay →{% endif %}
+      </a>
+      <div class="hub-card-stats">
+        <span><strong>{{ roleplay_count }}</strong> sesión{{ roleplay_count|pluralize:"es" }} realizada{{ roleplay_count|pluralize }}</span>
+        {% if roleplay_last %}<span>Última: {{ roleplay_last.get_status_display }} · {{ roleplay_last.created_at|date:"d/m/Y" }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

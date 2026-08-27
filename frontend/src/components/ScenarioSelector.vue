@@ -13,11 +13,28 @@ const emit = defineEmits(['scenario-selected'])
 const router = useRouter()
 const store  = useRoleplayStore()
 
-const showRoleSelector = ref(true)
+const showRoleSelector = ref(false)
 const isStarting      = ref(false)
 const error           = ref(null)
 
-onMounted(() => {
+onMounted(async () => {
+  // Si el usuario ya tiene un rol IT guardado en su perfil (p. ej. porque lo
+  // eligió desde el selector compartido del nav, o en una sesión anterior),
+  // arrancamos directo sin pedirlo de nuevo. Solo mostramos el modal la
+  // primera vez que no hay ningún rol guardado todavía.
+  try {
+    const res = await fetch('/api/v1/roleplay/roles/')
+    if (res.ok) {
+      const data = await res.json()
+      if (data.user_role) {
+        showRoleSelector.value = false
+        await onRoleSelected(data.user_role)
+        return
+      }
+    }
+  } catch (err) {
+    console.error('[ScenarioSelector] error chequeando rol guardado:', err)
+  }
   showRoleSelector.value = true
 })
 

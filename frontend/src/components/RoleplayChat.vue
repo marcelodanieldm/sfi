@@ -130,12 +130,15 @@ function handleBackToChat() {
   }
 }
 
-async function regenerateScenario() {
+const showRegenerateConfirm = ref(false)
+
+function regenerateScenario() {
   if (!canRegenerate.value) return
-  
-  const userConfirmed = confirm('¿Regenerar escenario? Se borrará el chat actual. Tienes ' + (3 - regenerateCount.value) + ' regeneraciones disponibles.')
-  if (!userConfirmed) return
-  
+  showRegenerateConfirm.value = true
+}
+
+async function confirmRegenerate() {
+  showRegenerateConfirm.value = false
   try {
     await store.regenerateScenario()
     regenerateCount.value += 1
@@ -155,6 +158,29 @@ async function regenerateScenario() {
     @role-selected="onRoleSelected"
     @close="showRoleSelector = false"
   />
+
+  <!-- Confirmación de regenerar escenario -->
+  <transition
+    enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
+    leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0"
+  >
+    <div v-if="showRegenerateConfirm" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" @click="showRegenerateConfirm = false" />
+  </transition>
+  <transition
+    enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100"
+    leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95"
+  >
+    <div v-if="showRegenerateConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4" @click.self="showRegenerateConfirm = false">
+      <div class="bg-[#1f2937] border border-[#374151] rounded-xl shadow-xl w-full max-w-sm p-6">
+        <h2 class="text-base font-semibold text-gray-100 mb-2">¿Regenerar escenario?</h2>
+        <p class="text-sm text-[#9ca3af] mb-5">Se borrará el chat actual y se generará uno nuevo. Te quedan {{ 3 - regenerateCount }} regeneraciones disponibles.</p>
+        <div class="flex gap-3">
+          <button @click="showRegenerateConfirm = false" class="flex-1 px-4 py-2 rounded-lg border border-[#374151] text-sm font-medium text-[#9ca3af] hover:bg-[#111827] hover:text-gray-100 transition-colors">Cancelar</button>
+          <button @click="confirmRegenerate" class="flex-1 px-4 py-2 rounded-lg bg-[#34d399] text-[#0d1117] text-sm font-semibold hover:bg-[#6ee7b7] transition-colors">Regenerar</button>
+        </div>
+      </div>
+    </div>
+  </transition>
 
   <!-- Informe final -->
   <EvaluationReport

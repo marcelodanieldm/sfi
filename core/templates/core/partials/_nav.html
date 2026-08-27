@@ -91,15 +91,60 @@
   .sfi-logo{font-size:.8rem}
   .sfi-badge{font-size:.65rem;padding:4px 8px}
 }
+
+/* ── Selector de rol IT compartido ── */
+.sfi-role-backdrop{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  z-index:210;
+}
+.sfi-role-backdrop.open{display:block}
+.sfi-role-modal{
+  display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:#1f2937;border:1px solid #374151;border-radius:12px;
+  width:92%;max-width:440px;box-shadow:0 20px 25px -5px rgba(0,0,0,.35);
+  z-index:211;max-height:82vh;overflow-y:auto;
+  font-family:'JetBrains Mono',monospace;
+}
+.sfi-role-modal.open{display:flex;flex-direction:column}
+.sfi-role-header{
+  border-bottom:1px solid #374151;padding:18px 22px;
+  display:flex;justify-content:space-between;align-items:center;flex-shrink:0;
+}
+.sfi-role-header h2{font-size:1rem;font-weight:600;color:#f3f4f6;margin:0;font-family:'Inter',sans-serif}
+.sfi-role-close{
+  background:none;border:none;color:#9ca3af;cursor:pointer;font-size:1.2rem;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+}
+.sfi-role-close:hover{color:#f3f4f6}
+.sfi-role-body{padding:20px 22px;flex:1;overflow-y:auto}
+.sfi-role-body p{font-size:.78rem;color:#9ca3af;margin-bottom:14px;line-height:1.6;font-family:'Inter',sans-serif}
+.sfi-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sfi-role-item{
+  padding:10px;border:2px solid #374151;border-radius:8px;
+  background:#111827;color:#f3f4f6;cursor:pointer;text-align:left;
+  font-size:.7rem;font-family:'JetBrains Mono',monospace;transition:all .15s;
+}
+.sfi-role-item:hover{border-color:#34d399;color:#34d399}
+.sfi-role-item.selected{background:rgba(52,211,153,.1);border-color:#34d399;color:#34d399;font-weight:600}
+.sfi-role-error{font-size:.72rem;color:#f87171;margin-top:10px;font-family:'Inter',sans-serif}
+.sfi-role-footer{
+  border-top:1px solid #374151;padding:14px 22px;
+  display:flex;gap:10px;flex-shrink:0;
+}
+.sfi-role-footer .np{flex:1;text-align:center;padding:9px 12px}
+.sfi-role-footer .np:disabled{opacity:.5;cursor:not-allowed}
 </style>
 
 <header class="sfi-hdr">
-  <a href="{% url 'core:mentor_ia' %}" class="sfi-logo">Skills<em>For</em>IT</a>
+  <a href="{% url 'core:practica_hub' %}" class="sfi-logo">Skills<em>For</em>IT</a>
 
   <nav class="sfi-nav sfi-nav-d" aria-label="Principal">
+    <a href="{% url 'core:practica_hub' %}"         class="np {% if active == 'hub'          %}on{% endif %}">Inicio</a>
     <a href="{% url 'core:mentor_ia_chat' %}"       class="np {% if active == 'mentoria'     %}on{% endif %}">MentorIA</a>
     <a href="{% url 'core:roleplay_selector' %}"    class="np {% if active == 'roleplay'     %}on{% endif %}">Roleplay</a>
     <a href="{% url 'core:mentor_ia_subscription' %}" class="np {% if active == 'subscription' %}on{% endif %}">Mi suscripción</a>
+    <button type="button" class="np" id="sfiRoleBtn">👤 {{ user.get_rol_it_preferido_display|default:'Elegir rol' }}</button>
     <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
       {% csrf_token %}
       <button type="submit" class="np danger">Salir</button>
@@ -120,9 +165,11 @@
 </header>
 
 <nav class="sfi-drop" id="sfiDrop" aria-label="Menú móvil">
+  <a href="{% url 'core:practica_hub' %}"         class="np {% if active == 'hub'          %}on{% endif %}">🏠 Inicio</a>
   <a href="{% url 'core:mentor_ia_chat' %}"       class="np {% if active == 'mentoria'     %}on{% endif %}">🤖 MentorIA</a>
   <a href="{% url 'core:roleplay_selector' %}"    class="np {% if active == 'roleplay'     %}on{% endif %}">🎭 Roleplay</a>
   <a href="{% url 'core:mentor_ia_subscription' %}" class="np {% if active == 'subscription' %}on{% endif %}">💳 Mi suscripción</a>
+  <button type="button" class="np" id="sfiRoleBtnMobile">👤 {{ user.get_rol_it_preferido_display|default:'Elegir rol' }}</button>
   <div class="sfi-drop-sep"></div>
   <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
     {% csrf_token %}
@@ -130,6 +177,24 @@
   </form>
 </nav>
 <div class="sfi-ovl" id="sfiOvl"></div>
+
+<!-- ── Selector de rol IT (compartido MentorIA + Roleplay) ── -->
+<div class="sfi-role-backdrop" id="sfiRoleBackdrop"></div>
+<div class="sfi-role-modal" id="sfiRoleModal" role="dialog" aria-modal="true" aria-label="Selecciona tu rol en IT">
+  <div class="sfi-role-header">
+    <h2>Tu rol en IT</h2>
+    <button class="sfi-role-close" id="sfiRoleClose" aria-label="Cerrar">×</button>
+  </div>
+  <div class="sfi-role-body">
+    <p>Se usa para personalizar los escenarios de MentorIA y Roleplay. Se guarda en tu perfil — no hace falta elegirlo de nuevo cada vez.</p>
+    <div class="sfi-role-grid" id="sfiRoleGrid"></div>
+    <p class="sfi-role-error" id="sfiRoleError" hidden></p>
+  </div>
+  <div class="sfi-role-footer">
+    <button class="np" id="sfiRoleCancel" type="button">Cancelar</button>
+    <button class="np on" id="sfiRoleConfirm" type="button" disabled>Guardar</button>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -155,5 +220,85 @@
   ham.addEventListener('click',function(){open?hide():show();});
   ovl.addEventListener('click',hide);
   drop.querySelectorAll('a').forEach(function(a){a.addEventListener('click',hide);});
+}());
+
+(function(){
+  // ── Selector de rol IT compartido (MentorIA + Roleplay) ──
+  var ROLES_IT = [
+    ['frontend', 'Frontend Developer'], ['backend', 'Backend Developer'],
+    ['fullstack', 'Fullstack Developer'], ['devops', 'DevOps Engineer'],
+    ['data_engineer', 'Data Engineer'], ['qa', 'QA/Tester'],
+    ['architect', 'Solutions Architect'], ['scrum_master', 'Scrum Master'],
+    ['product_manager', 'Product Manager'], ['tech_lead', 'Tech Lead'],
+    ['ml_engineer', 'ML/AI Engineer'], ['security', 'Security Engineer'],
+    ['cloud_engineer', 'Cloud Engineer']
+  ];
+  var currentRole = {% if user.rol_it_preferido %}'{{ user.rol_it_preferido }}'{% else %}''{% endif %};
+  var selected    = currentRole;
+
+  var backdrop = document.getElementById('sfiRoleBackdrop');
+  var modal    = document.getElementById('sfiRoleModal');
+  var grid     = document.getElementById('sfiRoleGrid');
+  var errorEl  = document.getElementById('sfiRoleError');
+  var confirmBtn = document.getElementById('sfiRoleConfirm');
+  var cancelBtn  = document.getElementById('sfiRoleCancel');
+  var closeBtn   = document.getElementById('sfiRoleClose');
+  var openBtns   = [document.getElementById('sfiRoleBtn'), document.getElementById('sfiRoleBtnMobile')];
+
+  function renderGrid(){
+    grid.innerHTML = ROLES_IT.map(function(r){
+      var cls = 'sfi-role-item' + (r[0] === selected ? ' selected' : '');
+      return '<button type="button" class="' + cls + '" data-role="' + r[0] + '">' + r[1] + '</button>';
+    }).join('');
+    grid.querySelectorAll('.sfi-role-item').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selected = btn.dataset.role;
+        grid.querySelectorAll('.sfi-role-item').forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        confirmBtn.disabled = false;
+      });
+    });
+  }
+
+  function openModal(){
+    selected = currentRole;
+    errorEl.hidden = true;
+    renderGrid();
+    confirmBtn.disabled = !selected;
+    modal.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function closeModal(){
+    modal.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+
+  openBtns.forEach(function(b){ if (b) b.addEventListener('click', openModal); });
+  cancelBtn.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal);
+  backdrop.addEventListener('click', closeModal);
+
+  confirmBtn.addEventListener('click', function(){
+    if (!selected || selected === currentRole) { closeModal(); return; }
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Guardando...';
+    var csrfMatch = document.cookie.match(/csrftoken=([^;]+)/);
+    fetch('/api/v1/roleplay/profile/update-role/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfMatch ? csrfMatch[1] : '' },
+      body: JSON.stringify({ rol_it_preferido: selected }),
+    })
+      .then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+      .then(function(r){
+        if (!r.ok) throw new Error(r.data.error || 'Error al guardar el rol');
+        window.location.reload();
+      })
+      .catch(function(err){
+        errorEl.textContent = err.message;
+        errorEl.hidden = false;
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Guardar';
+      });
+  });
 }());
 </script>

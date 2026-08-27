@@ -183,7 +183,7 @@ def mentor_ia(request):
     Si no → landing con planes y CTA de checkout.
     """
     if request.user.is_authenticated and _is_subscriber(request.user):
-        return redirect('core:mentor_ia_chat')
+        return redirect('core:practica_hub')
 
     return render(request, 'core/mentor_ia/landing.html', {
         'precio_mensual': PRECIO_MENSUAL,
@@ -268,7 +268,7 @@ def mentor_ia_checkout_success(request):
         except Exception as exc:
             logger.error('Error activating subscription on success redirect: %s', exc)
 
-    return redirect('core:mentor_ia_chat')
+    return redirect('core:practica_hub')
 
 
 def mentor_ia_checkout_cancel(request):
@@ -382,7 +382,7 @@ def mentor_ia_mp_checkout_success(request):
             _sync_mp_subscription(sub.mp_preapproval_id)
         except Exception as exc:
             logger.error('Error sincronizando preapproval MP en success redirect: %s', exc)
-    return redirect('core:mentor_ia_chat')
+    return redirect('core:practica_hub')
 
 
 def mentor_ia_mp_checkout_cancel(request):
@@ -499,6 +499,32 @@ def mentor_ia_chat(request):
 
     return render(request, 'core/mentor_ia/chat.html', {
         'tipos': list(_TIPO_LABELS.items()),
+        'rol_it_preferido': request.user.rol_it_preferido or '',
+    })
+
+
+@login_required
+def practica_hub(request):
+    """
+    GET /practica/
+    Centro de práctica: punto de entrada único post-login para suscriptores.
+    Muestra MentorIA y Roleplay como dos modos de la misma herramienta, con
+    el historial reciente de cada uno.
+    """
+    if not _is_subscriber(request.user):
+        return redirect('core:mentor_ia')
+
+    from core.models import RoleplaySession
+
+    mentoria_sessions = MentorIASession.objects.filter(user=request.user)
+    roleplay_sessions = RoleplaySession.objects.filter(user=request.user)
+
+    return render(request, 'core/mentor_ia/hub.html', {
+        'rol_it_preferido_label': request.user.get_rol_it_preferido_display() if request.user.rol_it_preferido else '',
+        'mentoria_count': mentoria_sessions.count(),
+        'mentoria_last': mentoria_sessions.order_by('-created_at').first(),
+        'roleplay_count': roleplay_sessions.count(),
+        'roleplay_last': roleplay_sessions.order_by('-created_at').first(),
     })
 
 

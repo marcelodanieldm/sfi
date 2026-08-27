@@ -38,6 +38,7 @@ urlpatterns = [
 
     # MentorIA
     path('mentoria/',                          views.mentor_ia,                    name='mentor_ia'),
+    path('practica/',                          views.practica_hub,                 name='practica_hub'),
     path('mentoria/checkout/',                 views.mentor_ia_checkout,           name='mentor_ia_checkout'),
     path('mentoria/checkout/start/',           views.mentor_ia_checkout_start,     name='mentor_ia_checkout_start'),
     path('mentoria/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
