@@ -319,90 +319,6 @@ footer a{color:var(--accent)}
 .adv-card h4{font-size:.78rem;font-weight:600;color:var(--text-primary);margin-bottom:6px;line-height:1.35}
 .adv-card p{font-size:.72rem;color:var(--text-dim)}
 
-/* ── EBOOK CATALOG ──────────────────────────────────────────── */
-.catalog-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:18px;
-}
-.ebook-card{
-  background:var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  transition:border-color .2s,transform .15s;
-}
-.ebook-card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.ebook-cover{
-  aspect-ratio:3/4;
-  background:linear-gradient(160deg,#1e3a4a 0%,#0f2535 50%,#0d1117 100%);
-  display:flex;align-items:center;justify-content:center;
-  border-bottom:1px solid var(--border);
-  position:relative;
-  overflow:hidden;
-}
-.ebook-cover::before{
-  content:'';
-  position:absolute;inset:0;
-  background:linear-gradient(45deg,transparent 60%,rgba(52,211,153,.06) 100%);
-}
-.ebook-cover-inner{
-  font-family:var(--mono);
-  font-size:.6rem;
-  color:rgba(52,211,153,.3);
-  text-align:center;
-  padding:16px;
-  line-height:2;
-}
-.ebook-body{padding:14px;flex:1;display:flex;flex-direction:column;gap:8px}
-.ebook-kicker{
-  font-family:var(--mono);
-  font-size:.62rem;
-  color:var(--accent);
-  letter-spacing:.1em;
-}
-.ebook-title{
-  font-size:.82rem;
-  font-weight:700;
-  color:var(--text-primary);
-  line-height:1.35;
-}
-.ebook-features{
-  list-style:none;
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-  flex:1;
-}
-.ebook-features li{
-  font-size:.71rem;
-  color:var(--text-dim);
-  display:flex;
-  align-items:flex-start;
-  gap:6px;
-}
-.ebook-features li::before{content:'›';color:var(--accent);flex-shrink:0}
-.ebook-footer{
-  padding:14px;
-  border-top:1px solid var(--border-subtle);
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  gap:12px;
-}
-.ebook-price{
-  font-family:var(--mono);
-  font-size:1rem;
-  font-weight:700;
-  color:var(--accent);
-}
-.ebook-footer .btn{
-  width:100%;
-  justify-content:center;
-}
-
 /* ── FAQ ────────────────────────────────────────────────────── */
 .faq{display:flex;flex-direction:column;gap:2px}
 .faq-item{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
@@ -455,7 +371,7 @@ footer a{color:var(--accent)}
   .problem-grid,.advantages-row,.adv-cards{grid-template-columns:1fr 1fr}
 }
 @media(max-width:860px){
-  .problem-grid,.advantages-row,.adv-cards,.catalog-grid{grid-template-columns:1fr}
+  .problem-grid,.advantages-row,.adv-cards{grid-template-columns:1fr}
   .tree-grid{grid-template-columns:1fr;grid-template-rows:auto}
   .tree-branch-left,.tree-branch-right{grid-column:1;align-items:stretch;padding:0}
   .tree-center{grid-column:1;flex-direction:row;padding:8px 0}
@@ -468,7 +384,7 @@ footer a{color:var(--accent)}
   .right-panel{padding:40px 18px 56px}
   .hero h1{font-size:2.05rem}
   .btn{width:100%;justify-content:center;text-align:center}
-  .problem-card,.adv-item,.adv-card,.ebook-body,.ebook-footer{padding:16px}
+  .problem-card,.adv-item,.adv-card{padding:16px}
 }
 </style>
 </head>
@@ -489,7 +405,7 @@ footer a{color:var(--accent)}
       {% if primary_ebook %}
         <a href="{{ primary_ebook.hotlink_url }}" class="btn" target="_blank" rel="noopener">Comprar en Hotmart →</a>
       {% else %}
-        <a href="#catalogo" class="btn">Obtener el libro ↓</a>
+        <a href="mailto:info@skillsforit.com" class="btn">Consultar disponibilidad</a>
       {% endif %}
     </section>
 
@@ -582,7 +498,7 @@ footer a{color:var(--accent)}
       {% if primary_ebook %}
         <a href="{{ primary_ebook.hotlink_url }}" class="btn btn-outline" target="_blank" rel="noopener">Comprar en Hotmart →</a>
       {% else %}
-        <a href="#catalogo" class="btn btn-outline">Obtener el libro ahora →</a>
+        <a href="mailto:info@skillsforit.com" class="btn btn-outline">Consultar disponibilidad</a>
       {% endif %}
     </div>
 
@@ -615,50 +531,6 @@ footer a{color:var(--accent)}
           <h4>Personas que quieren crecer</h4>
           <p>Para ganar claridad, confianza e influencia sin importar tu seniority o cargo actual.</p>
         </div>
-
-      </div>
-    </section>
-
-    <!-- ── CATÁLOGO ── -->
-    <section id="catalogo">
-      <p class="section-label">obtener el manual</p>
-      <div class="catalog-grid">
-        {% for ebook in ebooks %}
-          <div class="ebook-card">
-            <div class="ebook-cover">
-              <div class="ebook-cover-inner">
-                {% if ebook.portada_url %}
-                  <img src="{{ ebook.portada_url }}" alt="{{ ebook.titulo }}" style="width:100%;height:100%;object-fit:cover;border-radius:6px">
-                {% else %}
-                  &lt;book/&gt;<br>
-                  ──────<br>
-                  cover<br>
-                  ──────
-                {% endif %}
-              </div>
-            </div>
-            <div class="ebook-body">
-              <span class="ebook-kicker">### HACK ◦ CARRERA</span>
-              <h3 class="ebook-title">{{ ebook.titulo }}</h3>
-              <ul class="ebook-features">
-                <li>{{ ebook.descripcion_corta|default:ebook.descripcion|truncatechars:120 }}</li>
-              </ul>
-            </div>
-            <div class="ebook-footer">
-              <span class="ebook-price">USD {{ ebook.precio_usd|default:'19.99' }}</span>
-              <a href="{{ ebook.hotlink_url }}" class="btn" target="_blank" rel="noopener">Comprar en Hotmart →</a>
-            </div>
-          </div>
-        {% empty %}
-          <div class="ebook-card">
-            <div class="ebook-body">
-              <h3 class="ebook-title">Configurá tus eBooks en el admin</h3>
-              <ul class="ebook-features">
-                <li>Cargá título, precio, portada, HotLink de Hotmart y slug para habilitar la compra.</li>
-              </ul>
-            </div>
-          </div>
-        {% endfor %}
 
       </div>
     </section>

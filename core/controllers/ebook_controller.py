@@ -12,10 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 def ebook(request):
-    ebooks = Ebook.objects.filter(activo=True).order_by('orden', 'titulo')
-    # Ebook principal: usado para que los CTA del hero apunten directo a Hotmart
-    primary_ebook = ebooks.first()
-    return render(request, 'core/ebook_landing.html', {'ebooks': ebooks, 'primary_ebook': primary_ebook})
+    # Ebook principal: los CTA de la landing apuntan directo a su checkout de Hotmart
+    primary_ebook = Ebook.objects.filter(activo=True).order_by('orden', 'titulo').first()
+    return render(request, 'core/ebook_landing.html', {'primary_ebook': primary_ebook})
 
 
 @require_POST
@@ -43,8 +42,8 @@ def ebook_mp_checkout(request, slug):
         'payer': {'email': buyer_email},
         'back_urls': {
             'success': f'{site_url}/ebook/mp/success/',
-            'failure': f'{site_url}/ebook/#catalogo',
-            'pending': f'{site_url}/ebook/#catalogo',
+            'failure': f'{site_url}/ebook/',
+            'pending': f'{site_url}/ebook/',
         },
         'auto_return': 'approved',
         'external_reference': f'ebook:{ebook_obj.slug}',
