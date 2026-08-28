@@ -175,8 +175,8 @@ EBOOK_MP_AMOUNT=19990            # Pago único eBook por MercadoPago
 EBOOK_MP_CURRENCY=ARS
 MP_PREAPPROVAL_PLAN_ID=...       # Suscripción MentorIA; equivalente al Price ID de Stripe
 MP_PREAPPROVAL_PLAN_ID_BIMONTHLY=...
-MP_SUBSCRIPTION_AMOUNT=9990      # Suscripción MentorIA; solo si no usás Plan ID
-MP_SUBSCRIPTION_AMOUNT_BIMONTHLY=59980
+MP_SUBSCRIPTION_AMOUNT=39999     # Suscripción MentorIA; solo si no usás Plan ID
+MP_SUBSCRIPTION_AMOUNT_BIMONTHLY=69999
 MP_SUBSCRIPTION_CURRENCY=ARS     # Suscripción MentorIA; solo si no usás Plan ID
 
 # Hotmart
