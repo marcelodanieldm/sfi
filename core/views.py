@@ -18,7 +18,7 @@ from core.controllers.mentor_ia_controller import (
     mentor_ia, mentor_ia_checkout, mentor_ia_checkout_start, mentor_ia_checkout_success, mentor_ia_checkout_cancel,
     mentor_ia_mp_checkout, mentor_ia_mp_checkout_start, mentor_ia_mp_checkout_success, mentor_ia_mp_checkout_cancel,
     mentor_ia_chat, mentor_ia_subscription, mentor_ia_mp_sync, mentor_ia_mp_cancel,
-    mentor_ia_api_new_session, mentor_ia_api_send_message,
+    mentor_ia_api_new_session, mentor_ia_api_send_message, mentor_ia_api_regenerate_session,
     webhook_stripe_mentoria, practica_hub,
 )
 from core.controllers.ebook_controller import ebook, ebook_mp_checkout, ebook_mp_success
@@ -50,7 +50,7 @@ __all__ = [
     'mentor_ia', 'mentor_ia_checkout', 'mentor_ia_checkout_start', 'mentor_ia_checkout_success', 'mentor_ia_checkout_cancel',
     'mentor_ia_mp_checkout', 'mentor_ia_mp_checkout_start', 'mentor_ia_mp_checkout_success', 'mentor_ia_mp_checkout_cancel',
     'mentor_ia_chat', 'mentor_ia_subscription', 'mentor_ia_mp_sync', 'mentor_ia_mp_cancel',
-    'mentor_ia_api_new_session', 'mentor_ia_api_send_message',
+    'mentor_ia_api_new_session', 'mentor_ia_api_send_message', 'mentor_ia_api_regenerate_session',
     'webhook_stripe_mentoria', 'practica_hub',
     'ebook', 'ebook_mp_checkout', 'ebook_mp_success', 'soft_skills', 'mentoring', 'premium', 'dashboard',
     'login_view', 'logout_view', 'panel_admin',

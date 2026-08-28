@@ -500,6 +500,7 @@ def mentor_ia_chat(request):
     return render(request, 'core/mentor_ia/chat.html', {
         'tipos': list(_TIPO_LABELS.items()),
         'rol_it_preferido': request.user.rol_it_preferido or '',
+        'rol_it_preferido_label': request.user.get_rol_it_preferido_display() if request.user.rol_it_preferido else '',
     })
 
 
@@ -598,6 +599,67 @@ def mentor_ia_api_new_session(request):
         'tipo_label': _TIPO_LABELS[tipo],
         'rol_it_sesion': rol_it_sesion,
         'message':    ai_text,
+    })
+
+
+# ────────────────────────────────────────────────────────────────────────────
+#  API: regenerar la pregunta inicial (máx. 5 veces por sesión)
+# ────────────────────────────────────────────────────────────────────────────
+
+MAX_REGENERATE = 5
+
+
+@login_required
+@require_POST
+def mentor_ia_api_regenerate_session(request, session_id):
+    """
+    POST /mentoria/api/session/<session_id>/regenerate/
+    Descarta la pregunta inicial de la sesión y pide a la IA un escenario
+    nuevo para el mismo tipo/rol. Solo permitido antes de que el usuario
+    haya respondido (sesión todavía en su primer intercambio) y hasta
+    MAX_REGENERATE veces por sesión.
+    """
+    if not _is_subscriber(request.user):
+        return JsonResponse({'error': 'Suscripción requerida'}, status=403)
+
+    session = get_object_or_404(MentorIASession, id=session_id, user=request.user)
+
+    if session.messages.count() > 2:
+        return JsonResponse({'error': 'Ya respondiste esta sesión, no se puede regenerar.'}, status=400)
+
+    if session.regenerate_count >= MAX_REGENERATE:
+        return JsonResponse({'error': f'Llegaste al máximo de {MAX_REGENERATE} regeneraciones para esta sesión.'}, status=400)
+
+    try:
+        client = _openai_client()
+        system_prompt = _SYSTEM_PROMPTS[session.tipo]
+        role_context = _get_role_context(session.rol_it_sesion) if session.rol_it_sesion else ''
+        if role_context:
+            system_prompt += f"\n\n**Contexto del usuario:** {role_context}\nPersonaliza el escenario y preguntas según este rol IT."
+
+        response = client.chat.completions.create(
+            model='gpt-4o-mini',
+            max_tokens=1024,
+            messages=[
+                {'role': 'system', 'content': system_prompt},
+                {'role': 'user',   'content': 'Comenzá la sesión de evaluación con un escenario distinto al anterior.'},
+            ],
+        )
+        ai_text = response.choices[0].message.content
+    except Exception as exc:
+        logger.error('OpenAI API error al regenerar sesión: %s', exc)
+        return JsonResponse({'error': 'Error al conectar con la IA'}, status=502)
+
+    session.messages.all().delete()
+    MentorIAMessage.objects.create(session=session, rol='user', contenido='Comenzá la sesión de evaluación.')
+    MentorIAMessage.objects.create(session=session, rol='assistant', contenido=ai_text)
+    session.regenerate_count += 1
+    session.save(update_fields=['regenerate_count', 'updated_at'])
+
+    return JsonResponse({
+        'message': ai_text,
+        'regenerate_count': session.regenerate_count,
+        'max_regenerate': MAX_REGENERATE,
     })
 
 

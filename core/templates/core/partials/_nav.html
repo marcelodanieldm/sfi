@@ -272,6 +272,9 @@
     modal.classList.remove('open');
     backdrop.classList.remove('open');
   }
+  // Expuesto globalmente para que otras páginas (p. ej. el chat de MentorIA)
+  // puedan abrir el mismo selector de rol sin duplicar el modal.
+  window.sfiOpenRoleModal = openModal;
 
   openBtns.forEach(function(b){ if (b) b.addEventListener('click', openModal); });
   cancelBtn.addEventListener('click', closeModal);

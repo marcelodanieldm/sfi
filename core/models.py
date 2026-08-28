@@ -419,6 +419,8 @@ class MentorIASession(models.Model):
         blank=True,
         help_text='Rol IT del usuario al iniciar esta sesión'
     )
+    # Cantidad de veces que se regeneró la pregunta inicial (máximo 5, ver mentor_ia_controller)
+    regenerate_count = models.PositiveSmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

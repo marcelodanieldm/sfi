@@ -23,6 +23,12 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
   display:flex;flex-direction:column;
   height:calc(100vh - var(--nav));
   height:calc(100dvh - var(--nav));
+  position:relative;
+}
+.app::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:600px;height:280px;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse,rgba(52,211,153,.07) 0%,transparent 70%);
 }
 
 /* ── Tipo bar ── */
@@ -32,6 +38,27 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
   border-bottom:1px solid var(--dim);
   flex-shrink:0;
 }
+
+/* ── Indicador de rol IT ── */
+.role-indicator{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--dim);
+  flex-shrink:0;position:relative;z-index:1;
+}
+.role-indicator-label{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:.74rem;color:var(--text);
+}
+.role-indicator-label .r-tag{color:var(--muted)}
+.role-indicator-label strong{color:var(--accent);font-weight:700}
+.role-indicator-btn{
+  font-family:var(--mono);font-size:.7rem;font-weight:600;
+  padding:6px 14px;border-radius:20px;
+  background:transparent;border:1px solid var(--accent);color:var(--accent);
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.role-indicator-btn:hover{background:rgba(52,211,153,.12)}
+
 .tipo-bar{
   display:flex;gap:8px;
   padding:10px 16px;
@@ -42,7 +69,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
   font-family:var(--mono);font-size:.72rem;font-weight:600;
   padding:8px 14px;min-height:36px;
   border-radius:20px;border:1px solid var(--border);
-  background:transparent;color:var(--muted);
+  background:var(--card);color:var(--text);
   cursor:pointer;white-space:nowrap;
   transition:all .15s;letter-spacing:.03em;
   touch-action:manipulation;flex-shrink:0;
@@ -82,27 +109,33 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
   flex:1;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
   text-align:center;color:var(--muted);
-  padding:24px 20px;
-  gap:0;
+  padding:32px 24px;
+  gap:0;position:relative;z-index:1;
+}
+.empty-state-card{
+  background:var(--bg2);border:1px solid var(--dim);border-radius:16px;
+  padding:36px 28px;max-width:400px;
+  display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
 }
 .empty-icon{
-  width:64px;height:64px;border-radius:50%;
-  background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);
+  width:72px;height:72px;border-radius:50%;
+  background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);
   display:flex;align-items:center;justify-content:center;
-  font-size:1.75rem;margin-bottom:16px;
+  font-size:2rem;margin-bottom:18px;
 }
-.empty-state h3{font-size:.95rem;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
-.empty-state p{font-size:.8rem;line-height:1.65;max-width:280px;color:var(--muted)}
+.empty-state h3{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.4}
+.empty-state p{font-size:.85rem;line-height:1.7;max-width:280px;color:var(--muted)}
 .empty-hint{
-  margin-top:20px;
+  margin-top:22px;
   display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
   max-width:320px;
 }
 .empty-hint-pill{
-  font-family:var(--mono);font-size:.65rem;font-weight:600;
-  padding:5px 10px;border-radius:20px;
-  background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);
-  color:var(--muted);letter-spacing:.03em;
+  font-family:var(--mono);font-size:.66rem;font-weight:600;
+  padding:6px 12px;border-radius:20px;
+  background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);
+  color:var(--accent);letter-spacing:.03em;
 }
 
 /* ── Messages ── */
@@ -119,9 +152,9 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
 .msg.user .msg-avatar{background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);color:var(--accent)}
 .msg.assistant .msg-avatar{background:var(--card);border:1px solid var(--border);color:var(--muted)}
 
-.msg-bubble{padding:10px 14px;border-radius:12px;font-size:.84rem;line-height:1.65}
-.msg.user .msg-bubble{background:var(--card);border:1px solid var(--border);border-top-right-radius:4px}
-.msg.assistant .msg-bubble{background:var(--bg);border:1px solid var(--dim);border-top-left-radius:4px}
+.msg-bubble{padding:12px 16px;border-radius:12px;font-size:.88rem;line-height:1.7}
+.msg.user .msg-bubble{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);border-top-right-radius:4px}
+.msg.assistant .msg-bubble{background:var(--card);border:1px solid var(--border);border-top-left-radius:4px;border-left:3px solid var(--accent)}
 .msg-bubble p{margin-bottom:8px}.msg-bubble p:last-child{margin-bottom:0}
 .msg.assistant .msg-bubble h3{font-size:.92rem;font-weight:700;color:var(--text);margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--dim)}
 .msg.assistant .msg-bubble h3:first-child{margin-top:0}
@@ -135,7 +168,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
 
 /* ── Typing indicator ── */
 .typing{align-self:flex-start;display:flex;gap:8px;align-items:flex-end}
-.typing-dots{display:flex;gap:4px;padding:10px 14px;background:var(--bg);border:1px solid var(--dim);border-radius:12px;border-top-left-radius:4px}
+.typing-dots{display:flex;gap:4px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:12px;border-top-left-radius:4px}
 .typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce .9s infinite}
 .typing-dots span:nth-child(2){animation-delay:.15s}
 .typing-dots span:nth-child(3){animation-delay:.3s}
@@ -149,7 +182,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
   background:var(--bg);flex-shrink:0;
 }
 .input-blocked-msg{
-  text-align:center;font-size:.72rem;color:var(--faint);
+  text-align:center;font-size:.72rem;color:var(--muted);
   font-family:var(--mono);margin-bottom:6px;display:none;
 }
 .input-blocked-msg.visible{display:block}
@@ -165,7 +198,7 @@ textarea{
 }
 textarea:focus{border-color:var(--accent)}
 textarea:disabled{opacity:.5;cursor:not-allowed}
-textarea::placeholder{color:var(--faint)}
+textarea::placeholder{color:var(--muted)}
 .send-btn{
   width:44px;height:44px;border-radius:var(--r);
   background:var(--accent);border:none;cursor:pointer;
@@ -178,7 +211,7 @@ textarea::placeholder{color:var(--faint)}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 .send-btn svg{width:18px;height:18px;fill:#0d1117}
 .input-hint{
-  font-size:.7rem;color:var(--faint);font-family:var(--mono);
+  font-size:.7rem;color:var(--muted);font-family:var(--mono);
   margin-top:5px;text-align:right;
 }
 
@@ -208,11 +241,24 @@ textarea::placeholder{color:var(--faint)}
   .empty-hint{display:none}
 }
 
-/* ── Contador de intercambios ── */
-.turn-counter{
-  font-family:var(--mono);font-size:.68rem;color:var(--faint);
-  padding:6px 16px 0;text-align:center;flex-shrink:0;
+/* ── Contador de intercambios + regenerar ── */
+.session-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:8px 16px;background:var(--bg2);border-bottom:1px solid var(--dim);
+  flex-shrink:0;position:relative;z-index:1;
 }
+.turn-counter{
+  font-family:var(--mono);font-size:.7rem;color:var(--muted);
+}
+.regen-btn{
+  font-family:var(--mono);font-size:.68rem;font-weight:600;
+  padding:6px 12px;border-radius:20px;
+  background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.4);
+  color:#fbbf24;cursor:pointer;white-space:nowrap;
+  transition:all .15s;
+}
+.regen-btn:hover:not(:disabled){background:rgba(251,191,36,.18);border-color:#fbbf24}
+.regen-btn:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -220,6 +266,19 @@ textarea::placeholder{color:var(--faint)}
 {% include 'core/partials/_nav.html' with active='mentoria' active_label='MentorIA' %}
 
 <div class="app">
+
+  <!-- Indicador de rol IT -->
+  <div class="role-indicator">
+    <span class="role-indicator-label">
+      <span class="r-tag">Practicando como:</span>
+      {% if rol_it_preferido_label %}
+        <strong>{{ rol_it_preferido_label }}</strong>
+      {% else %}
+        <strong>Rol no elegido</strong>
+      {% endif %}
+    </span>
+    <button type="button" class="role-indicator-btn" id="changeRoleBtn">Cambiar rol</button>
+  </div>
 
   <!-- Selector de tipo -->
   <div class="tipo-wrap" id="tipoWrap">
@@ -235,18 +294,23 @@ textarea::placeholder{color:var(--faint)}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
     </button>
   </div>
-  <div class="turn-counter" id="turnCounter" hidden></div>
+  <div class="session-bar" id="sessionBar" hidden>
+    <span class="turn-counter" id="turnCounter"></span>
+    <button class="regen-btn" id="regenBtn" type="button" hidden>🔄 Regenerar pregunta</button>
+  </div>
 
   <!-- Área de chat -->
   <div class="chat-area" id="chatArea">
     <div class="empty-state" id="emptyState">
-      <div class="empty-icon">🤖</div>
-      <h3>Seleccioná un área para comenzar</h3>
-      <p>MentorIA crea un escenario real y te da feedback personalizado sobre tu respuesta.</p>
-      <div class="empty-hint">
-        {% for key, label in tipos|slice:":4" %}
-          <span class="empty-hint-pill">{{ label }}</span>
-        {% endfor %}
+      <div class="empty-state-card">
+        <div class="empty-icon">🤖</div>
+        <h3>Seleccioná un área para comenzar</h3>
+        <p>MentorIA crea un escenario real y te da feedback personalizado sobre tu respuesta.</p>
+        <div class="empty-hint">
+          {% for key, label in tipos|slice:":4" %}
+            <span class="empty-hint-pill">{{ label }}</span>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
@@ -275,17 +339,28 @@ marked.use({ breaks: true, gfm: true });
 let sessionId = null;
 let isLoading = false;
 let exchangeCount = 0;
+let regenerateCount = 0;
+const MAX_REGENERATE = 5;
 // El rol IT preferido ya viene guardado en el perfil (se cambia desde el
 // selector de rol del menú superior, compartido con Roleplay).
 let currentRolIt = {% if rol_it_preferido %}'{{ rol_it_preferido }}'{% else %}null{% endif %};
 
-const chatArea    = document.getElementById('chatArea');
-const emptyState  = document.getElementById('emptyState');
-const msgInput    = document.getElementById('msgInput');
-const sendBtn     = document.getElementById('sendBtn');
-const blockedMsg  = document.getElementById('blockedMsg');
-const tipoBar     = document.getElementById('tipoBar');
-const turnCounter = document.getElementById('turnCounter');
+const chatArea      = document.getElementById('chatArea');
+const emptyState    = document.getElementById('emptyState');
+const msgInput      = document.getElementById('msgInput');
+const sendBtn       = document.getElementById('sendBtn');
+const blockedMsg    = document.getElementById('blockedMsg');
+const tipoBar       = document.getElementById('tipoBar');
+const sessionBar    = document.getElementById('sessionBar');
+const turnCounter   = document.getElementById('turnCounter');
+const regenBtn      = document.getElementById('regenBtn');
+const changeRoleBtn = document.getElementById('changeRoleBtn');
+
+changeRoleBtn.addEventListener('click', () => {
+  if (typeof window.sfiOpenRoleModal === 'function') window.sfiOpenRoleModal();
+});
+
+regenBtn.addEventListener('click', regenerateQuestion);
 
 msgInput.addEventListener('input', () => {
   msgInput.style.height = 'auto';
@@ -379,7 +454,8 @@ function appendMessage(role, text) {
 async function startSession(tipo) {
   sessionId = null;
   exchangeCount = 0;
-  turnCounter.hidden = true;
+  regenerateCount = 0;
+  sessionBar.hidden = true;
   chatArea.innerHTML = '';
   if (emptyState) {
     const clone = emptyState.cloneNode(true);
@@ -404,8 +480,8 @@ async function startSession(tipo) {
     sessionId = data.session_id;
     appendMessage('assistant', data.message);
     exchangeCount = 0;
-    turnCounter.textContent = 'Intercambio 0 · MentorIA suele necesitar 2-3 respuestas para armar tu informe';
-    turnCounter.hidden = false;
+    updateSessionBar();
+    sessionBar.hidden = false;
     unlock();
   } catch {
     hideTyping();
@@ -414,6 +490,49 @@ async function startSession(tipo) {
     sendBtn.disabled  = false;
     blockedMsg.classList.remove('visible');
     isLoading = false;
+  }
+}
+
+function updateSessionBar() {
+  turnCounter.textContent = exchangeCount === 0
+    ? 'MentorIA suele necesitar 2-3 respuestas para armar tu informe'
+    : `Intercambio ${exchangeCount} · MentorIA suele necesitar 2-3 respuestas para armar tu informe`;
+  // Solo se puede regenerar la pregunta inicial, antes de responder.
+  const canRegenerate = exchangeCount === 0 && regenerateCount < MAX_REGENERATE;
+  regenBtn.hidden = exchangeCount !== 0;
+  regenBtn.disabled = !canRegenerate;
+  regenBtn.textContent = regenerateCount === 0
+    ? '🔄 Regenerar pregunta'
+    : `🔄 Regenerar pregunta (${MAX_REGENERATE - regenerateCount} restantes)`;
+}
+
+async function regenerateQuestion() {
+  if (!sessionId || isLoading || exchangeCount !== 0 || regenerateCount >= MAX_REGENERATE) return;
+  lock();
+  msgInput.placeholder = 'Generando una pregunta distinta...';
+  showTyping();
+  // Sacamos la única burbuja de la IA mientras se genera la nueva.
+  chatArea.querySelectorAll('.msg.assistant').forEach(el => el.remove());
+  try {
+    const res  = await fetch(`/mentoria/api/session/${sessionId}/regenerate/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF },
+    });
+    const data = await res.json();
+    hideTyping();
+    if (!res.ok) {
+      appendMessage('assistant', '⚠️ ' + (data.error || 'No se pudo regenerar la pregunta.'));
+      unlock();
+      return;
+    }
+    appendMessage('assistant', data.message);
+    regenerateCount = data.regenerate_count;
+    updateSessionBar();
+    unlock();
+  } catch {
+    hideTyping();
+    appendMessage('assistant', '⚠️ Error de conexión. Intentá de nuevo.');
+    unlock();
   }
 }
 
@@ -439,7 +558,7 @@ async function doSend() {
     } else {
       appendMessage('assistant', data.message);
       exchangeCount += 1;
-      turnCounter.textContent = `Intercambio ${exchangeCount} · MentorIA suele necesitar 2-3 respuestas para armar tu informe`;
+      updateSessionBar();
     }
     unlock();
   } catch {

@@ -48,6 +48,7 @@ urlpatterns = [
     path('mentoria/mp/cancel/',                  views.mentor_ia_mp_cancel,           name='mentor_ia_mp_cancel'),
     path('mentoria/chat/',                       views.mentor_ia_chat,               name='mentor_ia_chat'),
     path('mentoria/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),
+    path('mentoria/api/session/<uuid:session_id>/regenerate/', views.mentor_ia_api_regenerate_session, name='mentor_ia_api_regenerate_session'),
     path('mentoria/api/message/<uuid:session_id>/', views.mentor_ia_api_send_message, name='mentor_ia_api_send_message'),
     path('mentoria/api/webhook/',              views.webhook_stripe_mentoria,      name='webhook_stripe_mentoria'),
 
