@@ -39,25 +39,6 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:#0d1117;color:#f
   flex-shrink:0;
 }
 
-/* ── Indicador de rol IT ── */
-.role-indicator{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--dim);
-  flex-shrink:0;position:relative;z-index:1;
-}
-.role-indicator-label{
-  display:flex;align-items:center;gap:6px;
-  font-family:var(--mono);font-size:.74rem;color:var(--text);
-}
-.role-indicator-label .r-tag{color:var(--muted)}
-.role-indicator-label strong{color:var(--accent);font-weight:700}
-.role-indicator-btn{
-  font-family:var(--mono);font-size:.7rem;font-weight:600;
-  padding:6px 14px;border-radius:20px;
-  background:transparent;border:1px solid var(--accent);color:var(--accent);
-  cursor:pointer;white-space:nowrap;transition:all .15s;
-}
-.role-indicator-btn:hover{background:rgba(52,211,153,.12)}
 
 .tipo-bar{
   display:flex;gap:8px;
@@ -267,19 +248,6 @@ textarea::placeholder{color:var(--muted)}
 
 <div class="app">
 
-  <!-- Indicador de rol IT -->
-  <div class="role-indicator">
-    <span class="role-indicator-label">
-      <span class="r-tag">Practicando como:</span>
-      {% if rol_it_preferido_label %}
-        <strong>{{ rol_it_preferido_label }}</strong>
-      {% else %}
-        <strong>Rol no elegido</strong>
-      {% endif %}
-    </span>
-    <button type="button" class="role-indicator-btn" id="changeRoleBtn">Cambiar rol</button>
-  </div>
-
   <!-- Selector de tipo -->
   <div class="tipo-wrap" id="tipoWrap">
     <button class="sc-arr sc-l" id="tipoL" aria-label="Anterior" tabindex="-1" hidden>
@@ -354,11 +322,6 @@ const tipoBar       = document.getElementById('tipoBar');
 const sessionBar    = document.getElementById('sessionBar');
 const turnCounter   = document.getElementById('turnCounter');
 const regenBtn      = document.getElementById('regenBtn');
-const changeRoleBtn = document.getElementById('changeRoleBtn');
-
-changeRoleBtn.addEventListener('click', () => {
-  if (typeof window.sfiOpenRoleModal === 'function') window.sfiOpenRoleModal();
-});
 
 regenBtn.addEventListener('click', regenerateQuestion);
 

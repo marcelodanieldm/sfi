@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoleplayStore } from '../stores/useRoleplayStore'
-import RoleSelector from './RoleSelector.vue'
 
 const props = defineProps({
   csrfToken: { type: String, default: '' },
@@ -13,41 +12,40 @@ const emit = defineEmits(['scenario-selected'])
 const router = useRouter()
 const store  = useRoleplayStore()
 
-const showRoleSelector = ref(false)
+const needsRole      = ref(false)
 const isStarting      = ref(false)
 const error           = ref(null)
 
 onMounted(async () => {
-  // Si el usuario ya tiene un rol IT guardado en su perfil (p. ej. porque lo
-  // eligió desde el selector compartido del nav, o en una sesión anterior),
-  // arrancamos directo sin pedirlo de nuevo. Solo mostramos el modal la
-  // primera vez que no hay ningún rol guardado todavía.
+  // El rol IT se elige una sola vez desde el selector compartido del nav
+  // (mismo modal que usa MentorIA). Si el usuario ya lo tiene guardado,
+  // arrancamos directo; si no, le pedimos que lo elija ahi arriba.
   try {
     const res = await fetch('/api/v1/roleplay/roles/')
     if (res.ok) {
       const data = await res.json()
       if (data.user_role) {
-        showRoleSelector.value = false
-        await onRoleSelected(data.user_role)
+        await startWithRole(data.user_role)
         return
       }
     }
   } catch (err) {
     console.error('[ScenarioSelector] error chequeando rol guardado:', err)
   }
-  showRoleSelector.value = true
+  needsRole.value = true
+  if (typeof window.sfiOpenRoleModal === 'function') window.sfiOpenRoleModal()
 })
 
 /**
- * Cuando el usuario selecciona un rol:
+ * Arranca una sesion nueva para el rol IT indicado:
  * 1. Llama a POST /api/v1/roleplay/sessions/start/ con rol_it_sesion
- * 2. OpenAI genera un escenario dinámico
- * 3. Navega a la sesión de chat
+ * 2. OpenAI genera un escenario dinamico
+ * 3. Navega a la sesion de chat
  */
-async function onRoleSelected(rolItSesion) {
+async function startWithRole(rolItSesion) {
   isStarting.value = true
   error.value      = null
-  showRoleSelector.value = false
+  needsRole.value  = false
   
   try {
     const csrf = store.csrfToken || props.csrfToken
@@ -85,9 +83,9 @@ async function onRoleSelected(rolItSesion) {
       window.location.href = `/roleplay/chat/${data.session_id}/`
     }
   } catch (err) {
-    console.error('[ScenarioSelector] onRoleSelected error:', err)
+    console.error('[ScenarioSelector] startWithRole error:', err)
     error.value = err.message || 'No se pudo iniciar la simulación. Intentá de nuevo.'
-    showRoleSelector.value = true
+    needsRole.value = true
   } finally {
     isStarting.value = false
   }
@@ -96,13 +94,11 @@ async function onRoleSelected(rolItSesion) {
 
 <template>
   <div class="scenario-selector">
-    <!-- Modal Selector de Rol -->
-    <RoleSelector 
-      :is-open="showRoleSelector"
-      @role-selected="onRoleSelected"
-      :disabled="isStarting"
-      :csrf-token="csrfToken"
-    />
+    <!-- El selector de rol vive en el nav compartido; aca solo mostramos un
+         mensaje mientras el usuario todavia no eligio ninguno. -->
+    <div v-if="needsRole" class="role-hint">
+      <p>Elegí tu rol IT arriba ("Cambiar rol") para generar tu primer escenario.</p>
+    </div>
 
     <!-- Mensaje de error -->
     <div v-if="error" class="error-banner">
@@ -125,6 +121,23 @@ async function onRoleSelected(rolItSesion) {
   justify-content: center;
   min-height: 400px;
   padding: 2rem;
+}
+
+.role-hint {
+  background-color: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  border-radius: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  max-width: 480px;
+  text-align: center;
+}
+
+.role-hint p {
+  color: #34d399;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .error-banner {

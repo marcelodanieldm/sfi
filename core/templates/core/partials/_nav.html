@@ -92,6 +92,30 @@
   .sfi-badge{font-size:.65rem;padding:4px 8px}
 }
 
+/* ── Banner de rol IT (visible en MentorIA + Roleplay) ── */
+.sfi-role-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 20px;background:#1f2937;border-bottom:1px solid #2d3748;
+  position:sticky;top:52px;z-index:190;
+}
+.sfi-role-banner-label{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-family:'JetBrains Mono',monospace;font-size:.76rem;color:#f3f4f6;
+}
+.sfi-role-banner-label .tag{color:#9ca3af;font-weight:500}
+.sfi-role-banner-label strong{color:#34d399;font-weight:700}
+.sfi-role-banner-btn{
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;
+  padding:7px 16px;border-radius:20px;flex-shrink:0;
+  background:rgba(52,211,153,.1);border:1px solid #34d399;color:#34d399;
+  cursor:pointer;white-space:nowrap;transition:all .15s;
+}
+.sfi-role-banner-btn:hover{background:rgba(52,211,153,.2)}
+@media(max-width:480px){
+  .sfi-role-banner{padding:9px 16px}
+  .sfi-role-banner-label{font-size:.7rem}
+}
+
 /* ── Selector de rol IT compartido ── */
 .sfi-role-backdrop{
   display:none;position:fixed;inset:0;
@@ -144,7 +168,6 @@
     <a href="{% url 'core:mentor_ia_chat' %}"       class="np {% if active == 'mentoria'     %}on{% endif %}">MentorIA</a>
     <a href="{% url 'core:roleplay_selector' %}"    class="np {% if active == 'roleplay'     %}on{% endif %}">Roleplay</a>
     <a href="{% url 'core:mentor_ia_subscription' %}" class="np {% if active == 'subscription' %}on{% endif %}">Mi suscripción</a>
-    <button type="button" class="np" id="sfiRoleBtn">👤 {{ user.get_rol_it_preferido_display|default:'Elegir rol' }}</button>
     <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
       {% csrf_token %}
       <button type="submit" class="np danger">Salir</button>
@@ -169,7 +192,6 @@
   <a href="{% url 'core:mentor_ia_chat' %}"       class="np {% if active == 'mentoria'     %}on{% endif %}">🤖 MentorIA</a>
   <a href="{% url 'core:roleplay_selector' %}"    class="np {% if active == 'roleplay'     %}on{% endif %}">🎭 Roleplay</a>
   <a href="{% url 'core:mentor_ia_subscription' %}" class="np {% if active == 'subscription' %}on{% endif %}">💳 Mi suscripción</a>
-  <button type="button" class="np" id="sfiRoleBtnMobile">👤 {{ user.get_rol_it_preferido_display|default:'Elegir rol' }}</button>
   <div class="sfi-drop-sep"></div>
   <form method="POST" action="{% url 'core:logout' %}" style="margin:0">
     {% csrf_token %}
@@ -177,6 +199,15 @@
   </form>
 </nav>
 <div class="sfi-ovl" id="sfiOvl"></div>
+
+<!-- ── Banner de rol IT (compartido MentorIA + Roleplay) ── -->
+<div class="sfi-role-banner">
+  <span class="sfi-role-banner-label">
+    <span class="tag">Practicando como:</span>
+    <strong id="sfiRoleBannerText">{{ user.get_rol_it_preferido_display|default:'rol no elegido' }}</strong>
+  </span>
+  <button type="button" class="sfi-role-banner-btn" id="sfiRoleBannerBtn">Cambiar rol</button>
+</div>
 
 <!-- ── Selector de rol IT (compartido MentorIA + Roleplay) ── -->
 <div class="sfi-role-backdrop" id="sfiRoleBackdrop"></div>
@@ -243,7 +274,7 @@
   var confirmBtn = document.getElementById('sfiRoleConfirm');
   var cancelBtn  = document.getElementById('sfiRoleCancel');
   var closeBtn   = document.getElementById('sfiRoleClose');
-  var openBtns   = [document.getElementById('sfiRoleBtn'), document.getElementById('sfiRoleBtnMobile')];
+  var openBtns   = [document.getElementById('sfiRoleBannerBtn')];
 
   function renderGrid(){
     grid.innerHTML = ROLES_IT.map(function(r){

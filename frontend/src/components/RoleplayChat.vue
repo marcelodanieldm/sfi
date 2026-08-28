@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
 import { useRoleplayStore } from '../stores/useRoleplayStore'
 import EvaluationReport from './EvaluationReport.vue'
-import RoleSelector from './RoleSelector.vue'
 
 const store = useRoleplayStore()
 
@@ -34,7 +33,6 @@ const ROLES_IT_LABELS = {
   'cloud_engineer': 'Cloud Engineer',
 }
 
-const showRoleSelector = ref(false)
 const csrfToken = ref('')
 const regenerateCount = ref(0)
 const canRegenerate = ref(true)
@@ -113,15 +111,6 @@ async function sendMessage() {
   await store.sendMessage(text)
 }
 
-function onRoleSelected(newRole) {
-  currentRolItSesion.value = newRole
-  showRoleSelector.value = false
-  
-  // Mostrar notificación en el chat que el rol fue cambiado
-  const roleLabel = ROLES_IT_LABELS[newRole] || newRole
-  console.log(`Rol IT cambiado a: ${roleLabel}. Los próximos escenarios serán personalizados según este rol.`)
-}
-
 function handleBackToChat() {
   // Volver al chat ocultando el informe final
   // Cambiar el estado de la sesión a 'in_progress' en lugar de 'completed'
@@ -151,14 +140,6 @@ async function confirmRegenerate() {
 </script>
 
 <template>
-  <!-- RoleSelector Modal -->
-  <RoleSelector
-    :is-open="showRoleSelector"
-    :csrf-token="csrfToken"
-    @role-selected="onRoleSelected"
-    @close="showRoleSelector = false"
-  />
-
   <!-- Confirmación de regenerar escenario -->
   <transition
     enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
@@ -275,11 +256,11 @@ async function confirmRegenerate() {
             >
               🔄 Regenerar ({{ 3 - regenerateCount }} disponibles)
             </button>
-            <!-- Botón Cambiar Rol -->
+            <!-- Botón Cambiar Rol — abre el mismo selector compartido del nav -->
             <button
-              @click="showRoleSelector = true"
+              @click="typeof window.sfiOpenRoleModal === 'function' && window.sfiOpenRoleModal()"
               class="text-[10px] px-2 py-1 rounded border border-[#374151] text-[#6b7280] hover:text-[#34d399] hover:border-[#34d399] transition-colors"
-              title="Cambiar rol IT"
+              title="Cambiar rol IT (aplica a tu próxima simulación)"
             >
               Cambiar
             </button>

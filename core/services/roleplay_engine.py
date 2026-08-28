@@ -4,6 +4,7 @@ RoleplayEngineService — Lógica de IA para el módulo de Roleplay de Soft Skil
 from __future__ import annotations
 
 import logging
+import random
 from typing import TypedDict
 
 import openai
@@ -65,6 +66,24 @@ class RoleplayEngineService:
         
         return role_contexts.get(rol_it, "")
 
+    # Arquetipos de conflicto usados para diversificar los escenarios dinamicos.
+    # Se elige uno al azar en cada generacion para que dos sesiones seguidas
+    # del mismo rol no terminen planteando siempre el mismo tipo de situacion.
+    _ARQUETIPOS_CONFLICTO = [
+        'un desacuerdo técnico con un compañero sobre cómo resolver algo',
+        'una negociación de plazos o alcance con un stakeholder que presiona por más velocidad',
+        'dar feedback difícil a alguien del equipo sobre su desempeño o su código',
+        'comunicar una mala noticia (retraso, error propio, cambio de rumbo) a alguien que no la va a recibir bien',
+        'un conflicto de prioridades entre dos áreas que compiten por los mismos recursos',
+        'mediar entre dos compañeros que están en desacuerdo y la tensión está afectando al equipo',
+        'convencer a alguien más senior o con más poder de decisión de un cambio de enfoque',
+        'manejar las expectativas de un cliente o usuario interno molesto por algo que no salió bien',
+        'la incorporación de alguien nuevo al equipo que no está rindiendo como se esperaba',
+        'asumir un error propio frente al equipo o a un superior sin quedar paralizado por la culpa',
+        'defender una decisión técnica propia frente a críticas de otra persona con más experiencia',
+        'reorganizar el trabajo del equipo cuando alguien clave se va o queda indisponible de repente',
+    ]
+
     def generate_dynamic_scenario(self, rol_it: str) -> dict:
         """
         Genera un escenario de roleplay completamente nuevo basado en el rol IT.
@@ -81,14 +100,16 @@ class RoleplayEngineService:
         """
         role_labels = dict(__import__('core.models', fromlist=['User']).User.ROLES_IT)
         rol_label = role_labels.get(rol_it, rol_it)
+        arquetipo = random.choice(self._ARQUETIPOS_CONFLICTO)
 
         prompt = f"""Genera un escenario de roleplay para entrenar soft skills de un profesional que trabaja como {rol_label}.
 
 El escenario debe:
 1. Ser realista y desafiante (no trivial)
 2. Simular una situación profesional común que requiera habilidades blandas
-3. Tener un conflicto o dilema que requiera comunicación, negociación o liderazgo
+3. Estar centrado en este tipo de conflicto específico: {arquetipo}
 4. Ser completable en 4-5 turnos de conversación
+5. Ser distinto a los escenarios típicos/genéricos — inventá nombres, contexto de la empresa/proyecto y detalles concretos propios de este caso, no reutilices siempre el mismo tipo de ejemplo
 
 Responde en EXACTAMENTE este formato JSON (sin markdown, sin código blocks):
 {{"title": "Nombre corto del escenario", "context": "Descripción de la situación profesional (2-3 párrafos que pinten el escenario)", "user_role": "El rol del usuario en la simulación", "bot_role": "El rol del personaje que va a jugar la IA", "initial_bot_message": "Primer mensaje que abre la conversación (como si fuera el bot_role)", "max_turns": 4}}
@@ -99,6 +120,7 @@ Personaliza para {rol_label}: usa vocabulario, desafíos y situaciones relevante
             response = self._client.chat.completions.create(
                 model='gpt-4o-mini',
                 max_tokens=1000,
+                temperature=1.1,
                 messages=[{'role': 'user', 'content': prompt}],
             )
             response_text = response.choices[0].message.content.strip()

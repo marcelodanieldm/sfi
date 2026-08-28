@@ -15,6 +15,7 @@ Rutas:
 
 import json
 import logging
+import random
 
 import openai
 import stripe
@@ -41,6 +42,7 @@ Reglas del flujo conversacional:
 1. Lanza UNA sola pregunta situacional compleja y realista de acuerdo al módulo elegido por el usuario.
 2. Espera la respuesta del usuario humano. No te adelantes ni respondas por él.
 3. Cuando el usuario responda, analiza su estructura verbal, empatía, madurez profesional y liderazgo técnico.
+4. Variedad obligatoria: nunca reutilices el mismo escenario, nombres, empresa o detalles textuales entre sesiones distintas, aunque sea el mismo módulo. Cambiá el contexto, la urgencia, las personas involucradas y el tipo de conflicto en cada sesión para que se sienta una situación nueva.
 
 Estructura obligatoria del informe final (Output en formato Markdown):
 
@@ -61,35 +63,75 @@ _SYSTEM_PROMPTS = {
     'entrevistas': _NUCLEO + """
 
 Módulo: **Entrevistas de Trabajo**
-Lanza una behavioral question realista de entrevista tech (ej: "Contame de un conflicto técnico que hayas tenido con un compañero y cómo lo resolviste"). Evaluá usando el framework STAR.""",
+Lanza una behavioral question realista de entrevista tech, distinta cada vez. Evaluá usando el framework STAR.""",
 
     'resolucion': _NUCLEO + """
 
 Módulo: **Resolución de Problemas**
-Lanza un escenario técnico con un problema complejo y real (sistema caído en producción, bug crítico sin reproducir, decisión de arquitectura bajo presión de tiempo, etc.). Pedí al usuario su proceso de análisis y plan de acción.
-
-Ejemplo de escenario: "Tu aplicación en producción empieza a dar errores 500 esporádicos a las 3am. El sistema de alertas te despertó. ¿Cuáles son tus primeros 3 pasos?".""",
+Lanza un escenario técnico con un problema complejo y real (sistema caído en producción, bug crítico sin reproducir, decisión de arquitectura bajo presión de tiempo, etc.). Pedí al usuario su proceso de análisis y plan de acción.""",
 
     'trabajo_equipo': _NUCLEO + """
 
 Módulo: **Trabajo en Equipo**
-Lanza una situación de equipo desafiante y realista (conflicto con PM sobre alcance, dev que bloquea al equipo, sprint comprometido, feedback difícil de dar, etc.).
-
-Ejemplo de escenario: "Un dev de tu equipo lleva 3 días bloqueado en una tarea y no pide ayuda. Esto está retrasando el sprint. ¿Qué hacés?".""",
+Lanza una situación de equipo desafiante y realista (conflicto con PM sobre alcance, dev que bloquea al equipo, sprint comprometido, feedback difícil de dar, etc.).""",
 
     'comunicacion': _NUCLEO + """
 
 Módulo: **Comunicación Asertiva**
-Lanza una situación donde la comunicación es el factor clave. Pedí que el usuario escriba textualmente lo que diría — no una descripción, el texto real.
-
-Ejemplo de escenario: "Tu Tech Lead te pide estimar una tarea en 2 días, pero sabés que toma 6. ¿Cómo le respondés?".""",
+Lanza una situación donde la comunicación es el factor clave. Pedí que el usuario escriba textualmente lo que diría — no una descripción, el texto real.""",
 
     'proactividad': _NUCLEO + """
 
 Módulo: **Proactividad**
-Lanza una situación donde hay una oportunidad clara de proactividad que el usuario podría estar ignorando (proceso ineficiente que todos toleran, bug conocido no escalado, mejora técnica sin proponer, documentación inexistente, etc.).
+Lanza una situación donde hay una oportunidad clara de proactividad que el usuario podría estar ignorando (proceso ineficiente que todos toleran, bug conocido no escalado, mejora técnica sin proponer, documentación inexistente, etc.).""",
+}
 
-Ejemplo de escenario: "Notaste que el proceso de deploy manual lleva 40 minutos y ocurre 3 veces por semana. Nadie se queja, pero todos pierden tiempo. ¿Qué hacés con eso?".""",
+# ────────────────────────────────────────────────────────────────────────────
+#  Disparadores de ejemplo por módulo — se elige uno al azar en cada sesión
+#  (nueva o regenerada) para reducir la repetición de escenarios.
+# ────────────────────────────────────────────────────────────────────────────
+
+_ESCENARIOS_EJEMPLO = {
+    'entrevistas': [
+        'Contame de un conflicto técnico que hayas tenido con un compañero y cómo lo resolviste.',
+        'Describime una vez que tuviste que entregar algo con información incompleta. ¿Qué hiciste?',
+        'Contáme de un proyecto que fracasó. ¿Qué rol jugaste vos en eso y qué aprendiste?',
+        'Describime cómo manejaste una situación donde no estabas de acuerdo con una decisión técnica de tu manager.',
+        'Contáme de una vez que tuviste que aprender algo nuevo bajo presión de tiempo para completar una tarea.',
+        'Describime cómo priorizaste cuando tenías más tareas de las que podías terminar en un sprint.',
+    ],
+    'resolucion': [
+        'Tu aplicación en producción empieza a dar errores 500 esporádicos a las 3am. El sistema de alertas te despertó. ¿Cuáles son tus primeros 3 pasos?',
+        'Un cliente grande reporta que el sistema se puso lento desde ayer, pero las métricas de infraestructura se ven normales. ¿Cómo lo investigás?',
+        'Deployeáste un cambio hace una hora y ahora un módulo crítico tira excepciones intermitentes que no podés reproducir en local. ¿Qué hacés?',
+        'La base de datos principal empezó a tener locks que traban queries clave, y nadie sabe bien por qué empezó hoy. ¿Cómo abordás el problema?',
+        'Un job nocturno que corre hace meses sin problemas falló tres noches seguidas y nadie lo notó hasta que un reporte llegó vacío. ¿Cómo lo encarás?',
+        'Te piden elegir entre dos soluciones técnicas: una rápida pero con deuda técnica, otra correcta pero que atrasa el release una semana. ¿Cómo decidís?',
+    ],
+    'trabajo_equipo': [
+        'Un dev de tu equipo lleva 3 días bloqueado en una tarea y no pide ayuda. Esto está retrasando el sprint. ¿Qué hacés?',
+        'Dos compañeros de tu equipo están en desacuerdo sobre cómo implementar una feature y la discusión se puso tensa en el canal público. ¿Cómo intervenís?',
+        'El PM te pide sumar una feature nueva a mitad de sprint sin mover la fecha de entrega. ¿Qué hacés?',
+        'Un compañero mergea código sin pasar por code review porque "tenía apuro". ¿Cómo lo abordás?',
+        'Notaste que un integrante del equipo quedó afuera de decisiones importantes en las últimas semanas sin que nadie lo haya notado. ¿Qué hacés?',
+        'Tu equipo quedó dividido entre dos enfoques de arquitectura y la discusión lleva dos reuniones sin resolverse. ¿Cómo destrabás la situación?',
+    ],
+    'comunicacion': [
+        'Tu Tech Lead te pide estimar una tarea en 2 días, pero sabés que toma 6. ¿Cómo le respondés?',
+        'Un compañero te pide revisar su PR "urgente" justo cuando estás por entrar a otra reunión crítica. ¿Qué le escribís?',
+        'Tu manager te felicita en público por un trabajo que en realidad hizo mayormente otro compañero. ¿Qué decís?',
+        'Tenés que darle feedback a un compañero senior sobre código que considerás de baja calidad, sin generar un conflicto. ¿Qué le escribís?',
+        'El cliente te escribe molesto porque una funcionalidad prometida no va a estar lista a tiempo. ¿Cómo le respondés?',
+        'Necesitás decirle a tu equipo que un enfoque en el que llevan dos semanas trabajando hay que descartarlo. ¿Qué les decís?',
+    ],
+    'proactividad': [
+        'Notaste que el proceso de deploy manual lleva 40 minutos y ocurre 3 veces por semana. Nadie se queja, pero todos pierden tiempo. ¿Qué hacés con eso?',
+        'Veís que un bug menor pero molesto lleva meses reportado sin que nadie lo tome, porque siempre hay cosas "más urgentes". ¿Qué hacés?',
+        'Notás que la documentación de onboarding está desactualizada y cada persona nueva pierde días por eso. ¿Qué hacés?',
+        'Descubriste una forma de reducir el tiempo de build a la mitad, pero implica tocar configuración que nadie quiere tocar. ¿Qué hacés?',
+        'Veís que se repite el mismo tipo de incidente cada dos semanas y nadie hizo un post-mortem real. ¿Qué hacés?',
+        'Notás que un proceso manual que hace tu equipo podría automatizarse fácilmente, pero nadie lo propuso nunca. ¿Qué hacés?',
+    ],
 }
 
 _TIPO_LABELS = {
@@ -576,10 +618,17 @@ def mentor_ia_api_new_session(request):
         
         if role_context:
             system_prompt += f"\n\n**Contexto del usuario:** {role_context}\nPersonaliza el escenario y preguntas según este rol IT."
+
+        disparador = random.choice(_ESCENARIOS_EJEMPLO[tipo])
+        system_prompt += (
+            f"\n\n**Disparador sugerido para esta sesión (parafraseálo y ambientalo distinto, "
+            f"no lo copies literal):** {disparador}"
+        )
         
         response = client.chat.completions.create(
             model='gpt-4o-mini',
             max_tokens=1024,
+            temperature=1.05,
             messages=[
                 {'role': 'system',  'content': system_prompt},
                 {'role': 'user',    'content': 'Comenzá la sesión de evaluación.'},
@@ -637,9 +686,16 @@ def mentor_ia_api_regenerate_session(request, session_id):
         if role_context:
             system_prompt += f"\n\n**Contexto del usuario:** {role_context}\nPersonaliza el escenario y preguntas según este rol IT."
 
+        disparador = random.choice(_ESCENARIOS_EJEMPLO[session.tipo])
+        system_prompt += (
+            f"\n\n**Disparador sugerido para esta sesión (parafraseálo y ambientalo distinto, "
+            f"no lo copies literal, y que sea bien diferente a lo que ya generaste antes):** {disparador}"
+        )
+
         response = client.chat.completions.create(
             model='gpt-4o-mini',
             max_tokens=1024,
+            temperature=1.1,
             messages=[
                 {'role': 'system', 'content': system_prompt},
                 {'role': 'user',   'content': 'Comenzá la sesión de evaluación con un escenario distinto al anterior.'},
