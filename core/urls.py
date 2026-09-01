@@ -27,8 +27,6 @@ urlpatterns = [
     path('api/v1/payments/create-session', views.create_payment_session, name='create_payment_session'),
     path('api/v1/payments/portal', views.create_portal_session, name='create_portal_session'),
     path('api/v1/webhooks/payments', views.unified_webhook, name='unified_webhook'),
-    path('api/v1/webhooks/stripe/', views.stripe_webhook, name='stripe_webhook'),
-    path('api/v1/webhooks/mercadopago/', views.mercadopago_webhook, name='mercadopago_webhook'),
 
     # MentorIA — MercadoPago checkout
     path('mentoria/mp/checkout/', views.mentor_ia_mp_checkout, name='mentor_ia_mp_checkout'),
@@ -40,7 +38,7 @@ urlpatterns = [
     path('mentoria/',                          views.mentor_ia,                    name='mentor_ia'),
     path('practica/',                          views.practica_hub,                 name='practica_hub'),
     path('mentoria/checkout/',                 views.mentor_ia_checkout,           name='mentor_ia_checkout'),
-    path('mentoria/checkout/start/',           views.mentor_ia_checkout_start,     name='mentor_ia_checkout_start'),
+    path('mentoria/checkout/<str:billing_cycle>/start/', views.mentor_ia_checkout_start, name='mentor_ia_checkout_start'),
     path('mentoria/checkout/success/',         views.mentor_ia_checkout_success,   name='mentor_ia_checkout_success'),
     path('mentoria/checkout/cancel/',          views.mentor_ia_checkout_cancel,    name='mentor_ia_checkout_cancel'),
     path('mentoria/suscripcion/',                views.mentor_ia_subscription,        name='mentor_ia_subscription'),
@@ -50,7 +48,6 @@ urlpatterns = [
     path('mentoria/api/session/',              views.mentor_ia_api_new_session,    name='mentor_ia_api_new_session'),
     path('mentoria/api/session/<uuid:session_id>/regenerate/', views.mentor_ia_api_regenerate_session, name='mentor_ia_api_regenerate_session'),
     path('mentoria/api/message/<uuid:session_id>/', views.mentor_ia_api_send_message, name='mentor_ia_api_send_message'),
-    path('mentoria/api/webhook/',              views.webhook_stripe_mentoria,      name='webhook_stripe_mentoria'),
 
     # Roleplay de Soft Skills — páginas
     path('roleplay/',                               views.roleplay_selector,   name='roleplay_selector'),

@@ -160,13 +160,19 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
 
     <div class="plan-card">
       <p class="plan-name">SkillsForIT Pro</p>
-      <p class="plan-price">U$D {{ precio }}<span>/mes</span></p>
+      <p class="plan-price">U$D {{ precio }}<span>/mes</span> · U$D {{ precio_bimensual }}<span>/bimestre</span></p>
       <p class="plan-desc">MentorIA (coach IA 24/7) + Roleplay de Soft Skills · Evaluaciones y simulaciones ilimitadas · Feedback personalizado · Cancelá cuando quieras</p>
 
       <div class="actions">
         <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="margin:0">
           {% csrf_token %}
-          <button type="submit" class="btn btn-stripe">Pagar con Stripe</button>
+          <input type="hidden" name="billing_cycle" value="monthly">
+          <button type="submit" class="btn btn-stripe">Stripe mensual · USD {{ precio }}</button>
+        </form>
+        <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="margin:0">
+          {% csrf_token %}
+          <input type="hidden" name="billing_cycle" value="bimonthly">
+          <button type="submit" class="btn btn-stripe">Stripe bimensual · USD {{ precio_bimensual }}</button>
         </form>
         <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="margin:0">
           {% csrf_token %}
@@ -204,7 +210,7 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
   </button>
   <div id="webhookPanel" style="display:none">
     <p style="font-size:.78rem;color:var(--muted);margin-bottom:16px;line-height:1.6">
-      Configurá estas URLs en los dashboards de Stripe y MercadoPago para mantener el estado de suscripción sincronizado.
+      Configurá esta URL en los dashboards de Stripe y MercadoPago para mantener el estado de suscripción sincronizado. Es un único endpoint que detecta automáticamente la pasarela.
     </p>
 
     <div class="webhook-card">
@@ -213,11 +219,11 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
         <span style="font-size:.72rem;color:var(--faint)">Dashboard → Developers → Webhooks</span>
       </div>
       <div class="webhook-url-row">
-        <code id="stripeUrl">{{ request.scheme }}://{{ request.get_host }}{% url 'core:webhook_stripe_mentoria' %}</code>
+        <code id="stripeUrl">{{ request.scheme }}://{{ request.get_host }}{% url 'core:unified_webhook' %}</code>
         <button class="copy-btn" onclick="copyUrl('stripeUrl', this)">Copiar</button>
       </div>
       <p style="font-size:.72rem;color:var(--faint);margin-top:8px">
-        Eventos: <code style="color:var(--accent)">customer.subscription.created</code> · <code style="color:var(--accent)">customer.subscription.updated</code> · <code style="color:var(--accent)">customer.subscription.deleted</code>
+        Eventos: <code style="color:var(--accent)">checkout.session.completed</code> · <code style="color:var(--accent)">customer.subscription.*</code> · <code style="color:var(--accent)">invoice.paid</code> · <code style="color:var(--accent)">invoice.payment_failed</code>
       </p>
     </div>
 
@@ -227,11 +233,11 @@ h1{font-family:var(--mono);font-size:1.1rem;font-weight:600;margin-bottom:6px}
         <span style="font-size:.72rem;color:var(--faint)">Dashboard → Tu negocio → Webhooks</span>
       </div>
       <div class="webhook-url-row">
-        <code id="mpUrl">{{ request.scheme }}://{{ request.get_host }}{% url 'core:mercadopago_webhook' %}</code>
+        <code id="mpUrl">{{ request.scheme }}://{{ request.get_host }}{% url 'core:unified_webhook' %}</code>
         <button class="copy-btn" onclick="copyUrl('mpUrl', this)">Copiar</button>
       </div>
       <p style="font-size:.72rem;color:var(--faint);margin-top:8px">
-        Evento: <code style="color:var(--accent)">preapproval</code>
+        Evento: <code style="color:var(--accent)">subscription_preapproval</code>
       </p>
     </div>
   </div>

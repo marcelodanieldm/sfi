@@ -268,7 +268,7 @@ footer a{color:var(--accent)}
     <a href="#productos">Productos</a>
     <a href="#pricing">Precios</a>
     {% if is_authenticated %}
-      <a href="{% url 'core:mentor_ia_checkout' %}" class="btn" style="padding:8px 18px">Suscribirme →</a>
+      <a href="{% url 'core:mentor_ia_checkout_start' 'monthly' %}" class="btn" style="padding:8px 18px">Suscribirme →</a>
     {% else %}
       <a href="{% url 'core:login' %}" class="btn btn-outline" style="padding:8px 16px">Iniciar sesión</a>
       <a href="#pricing" class="btn" style="padding:8px 18px">Comenzar →</a>
@@ -290,7 +290,7 @@ footer a{color:var(--accent)}
   <a href="#como-funciona" class="nav-drop-link">⚡ Cómo funciona</a>
   <div class="nav-drop-sep"></div>
   {% if is_authenticated %}
-    <a href="{% url 'core:mentor_ia_checkout' %}" class="nav-drop-link primary">Suscribirme →</a>
+    <a href="{% url 'core:mentor_ia_checkout_start' 'monthly' %}" class="nav-drop-link primary">Suscribirme →</a>
   {% else %}
     <a href="{% url 'core:login' %}" class="nav-drop-link primary">Iniciar sesión / Registrarse →</a>
   {% endif %}
@@ -310,7 +310,7 @@ footer a{color:var(--accent)}
   </p>
   <div class="hero-cta">
     {% if is_authenticated %}
-      <a href="{% url 'core:mentor_ia_checkout' %}" class="btn btn-lg">Comenzar por USD ${{ precio_mensual }}/mes →</a>
+      <a href="{% url 'core:mentor_ia_checkout_start' 'monthly' %}" class="btn btn-lg">Comenzar por USD ${{ precio_mensual }}/mes →</a>
     {% else %}
       <a href="#pricing" class="btn btn-lg">Comenzar ahora →</a>
     {% endif %}
@@ -486,8 +486,16 @@ footer a{color:var(--accent)}
       <div class="cta-stack">
         <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="width:100%">
           {% csrf_token %}
+          <input type="hidden" name="billing_cycle" value="monthly">
           <button type="submit" class="btn btn-stripe btn-lg btn-full">
-            💳 Pagar con tarjeta (Stripe) →
+            💳 Stripe mensual · USD ${{ precio_mensual }} →
+          </button>
+        </form>
+        <form method="POST" action="{% url 'core:mentor_ia_checkout' %}" style="width:100%">
+          {% csrf_token %}
+          <input type="hidden" name="billing_cycle" value="bimonthly">
+          <button type="submit" class="btn btn-stripe btn-lg btn-full">
+            💳 Stripe bimensual · USD ${{ precio_bimensual }} →
           </button>
         </form>
         <form method="POST" action="{% url 'core:mentor_ia_mp_checkout' %}" style="width:100%">
@@ -507,8 +515,11 @@ footer a{color:var(--accent)}
       </div>
     {% else %}
       <div class="cta-stack">
-        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_checkout_start' %}" class="btn btn-stripe btn-lg btn-full">
-          💳 Registrarme y pagar con Stripe →
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_checkout_start' 'monthly' %}" class="btn btn-stripe btn-lg btn-full">
+          💳 Registrarme y pagar Stripe mensual →
+        </a>
+        <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_checkout_start' 'bimonthly' %}" class="btn btn-stripe btn-lg btn-full">
+          💳 Registrarme y pagar Stripe bimensual →
         </a>
         <a href="{% url 'core:login' %}?next={% url 'core:mentor_ia_mp_checkout_start' 'monthly' %}" class="btn btn-mp btn-lg btn-full">
           🇦🇷 Registrarme y pagar MP mensual →

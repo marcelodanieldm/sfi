@@ -145,6 +145,7 @@ SITE_URL            = os.environ.get('SITE_URL', 'https://skillsforit.online')
 STRIPE_SECRET_KEY            = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET        = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 STRIPE_MENTORIA_PRICE_ID     = os.environ.get('STRIPE_MENTORIA_PRICE_ID', '')
+STRIPE_MENTORIA_PRICE_ID_BIMONTHLY = os.environ.get('STRIPE_MENTORIA_PRICE_ID_BIMONTHLY', '')
 STRIPE_MENTORIA_WEBHOOK_SECRET = os.environ.get('STRIPE_MENTORIA_WEBHOOK_SECRET', '')
 
 MP_ACCESS_TOKEN          = os.environ.get('MP_ACCESS_TOKEN', '')

@@ -15,7 +15,7 @@ Landing page estática que muestra los eBooks disponibles. La entrega del PDF oc
 Herramienta de análisis de CVs con IA. El usuario sube su CV, el sistema lo evalúa con dos agentes de IA (parsing + recomendaciones) y ofrece un informe premium detrás de un pago único (Stripe o MercadoPago).
 
 ### 3. MentorIA (`/mentoria/`)
-Coach de soft skills IT disponible 24/7 por texto. Suscripción mensual de USD $9.99 procesada por Stripe o MercadoPago. El chat evalúa al usuario en 5 áreas con IA y genera un informe estructurado con la Respuesta Perfecta a nivel Staff/Principal Dev.
+Coach de soft skills IT disponible 24/7 por texto. Suscripción mensual (USD $19) o bimensual (USD $41) procesada por Stripe o MercadoPago. El chat evalúa al usuario en 5 áreas con IA y genera un informe estructurado con la Respuesta Perfecta a nivel Staff/Principal Dev.
 
 ---
 
@@ -35,9 +35,7 @@ sfi/
 │   │   ├── hotmart_controller.py         # Webhook de Hotmart
 │   │   ├── mentor_ia_controller.py       # Chat, checkout y API de MentorIA
 │   │   ├── payments_controller.py        # Endpoints unificados de pago
-│   │   ├── stripe_webhook_controller.py  # Webhook dedicado de Stripe
-│   │   ├── mercadopago_webhook_controller.py  # Webhook dedicado de MP
-│   │   └── unified_webhook_controller.py # Webhook unificado con idempotencia
+│   │   └── unified_webhook_controller.py # Webhook único de Stripe + MercadoPago (con idempotencia)
 │   ├── services/
 │   │   ├── ai_agents.py      # Agentes de IA para el ATS Evaluator
 │   │   ├── ats_engine.py     # Motor de puntuación ATS
