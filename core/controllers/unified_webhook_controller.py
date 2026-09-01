@@ -18,15 +18,26 @@ Seguridad:
 
 Mapeo de estados:
   Stripe:
+    checkout.session.completed               → activa apenas se completa el checkout (no espera subscription.created)
     customer.subscription.created / updated → activo si status in (active, trialing)
     customer.subscription.deleted           → cancelado
     invoice.paid                            → confirma active (renovación)
     invoice.payment_failed                  → past_due (pago fallido)
+    invoice.upcoming                        → email de recordatorio de renovación (0-7 días antes)
 
   MercadoPago (subscription_preapproval):
     status authorized                       → active
     status paused / pending                 → inactive
     status cancelled                        → canceled
+
+Notificaciones por email (ambas pasarelas):
+  - Confirmación al pasar a status=active (alta o reactivación).
+  - Cancelación al pasar a status=canceled.
+
+Este es el ÚNICO endpoint de webhooks para MentorIA — reemplaza a los antiguos
+/api/v1/webhooks/stripe/, /api/v1/webhooks/mercadopago/ y /mentoria/api/webhook/
+(consolidados acá para evitar lógica duplicada e inconsistente). Los dashboards
+de Stripe y MercadoPago deben apuntar únicamente a /api/v1/webhooks/payments.
 
 Variables requeridas en settings:
   STRIPE_WEBHOOK_SECRET
@@ -150,7 +161,28 @@ def _find_sub_by_stripe(customer_id: str, sub_id: str):
     return sub
 
 
-def _upsert_stripe_sub(stripe_sub, status_override: str | None = None):
+def _billing_cycle_from_metadata(obj) -> str:
+    metadata = obj.get('metadata') or {}
+    billing_cycle = metadata.get('billing_cycle', 'monthly')
+    return billing_cycle if billing_cycle in ('monthly', 'bimonthly') else 'monthly'
+
+
+def _notify_stripe_change(sub, old_status: str, period_end):
+    """Envía email de confirmación/cancelación si el status cambió de forma relevante."""
+    from core.services.email_service import (
+        send_subscription_confirmation_email,
+        send_subscription_cancellation_email,
+    )
+    try:
+        if sub.status == 'active' and old_status != 'active':
+            send_subscription_confirmation_email(sub.user, 'stripe', period_end)
+        elif sub.status == 'canceled' and old_status != 'canceled':
+            send_subscription_cancellation_email(sub.user, 'stripe')
+    except Exception as exc:
+        logger.error('Error enviando email Stripe (sub=%s): %s', sub.stripe_subscription_id, exc)
+
+
+def _upsert_stripe_sub(stripe_sub, status_override: str | None = None, user_id: str = '', billing_cycle: str = ''):
     """Crea o actualiza MentorIASubscription a partir de un stripe.Subscription."""
     from core.models import User
     sub_id      = stripe_sub.get('id', '')
@@ -163,6 +195,7 @@ def _upsert_stripe_sub(stripe_sub, status_override: str | None = None):
 
     defaults = {
         'payment_provider':       'stripe',
+        'billing_cycle':          billing_cycle if billing_cycle in ('monthly', 'bimonthly') else _billing_cycle_from_metadata(stripe_sub),
         'stripe_subscription_id': sub_id,
         'stripe_customer_id':     customer_id,
         'status':                 status,
@@ -172,10 +205,23 @@ def _upsert_stripe_sub(stripe_sub, status_override: str | None = None):
     # Buscar registro existente
     sub = _find_sub_by_stripe(customer_id, sub_id)
     if sub:
+        old_status = sub.status
         for k, v in defaults.items():
             setattr(sub, k, v)
         sub.save(update_fields=list(defaults.keys()) + ['updated_at'])
+        _notify_stripe_change(sub, old_status, period_end)
         return
+
+    if user_id:
+        try:
+            user = User.objects.get(id=user_id)
+            existing = MentorIASubscription.objects.filter(user=user).first()
+            old_status = existing.status if existing else ''
+            sub, created = MentorIASubscription.objects.update_or_create(user=user, defaults=defaults)
+            _notify_stripe_change(sub, '' if created else old_status, period_end)
+            return
+        except (User.DoesNotExist, ValueError):
+            pass
 
     # Intentar vincular por email del customer
     try:
@@ -185,7 +231,10 @@ def _upsert_stripe_sub(stripe_sub, status_override: str | None = None):
         if email:
             user = User.objects.filter(email=email).first()
             if user:
-                MentorIASubscription.objects.update_or_create(user=user, defaults=defaults)
+                existing = MentorIASubscription.objects.filter(user=user).first()
+                old_status = existing.status if existing else ''
+                sub, _created = MentorIASubscription.objects.update_or_create(user=user, defaults=defaults)
+                _notify_stripe_change(sub, old_status, period_end)
                 return
     except Exception as exc:
         logger.error('Error al resolver customer Stripe %s: %s', customer_id, exc)
@@ -193,14 +242,52 @@ def _upsert_stripe_sub(stripe_sub, status_override: str | None = None):
     logger.warning('No se pudo vincular suscripción Stripe %s', sub_id)
 
 
-def _sync_mp_preapproval(preapproval_id: str):
-    """Recupera el preapproval de MP y actualiza MentorIASubscription."""
+def _handle_invoice_upcoming(invoice):
+    """invoice.upcoming — envía recordatorio de renovación si vence en 0-7 días."""
+    from core.services.email_service import send_renewal_reminder_email
+
+    customer_id   = invoice.get('customer', '')
+    period_end_ts = invoice.get('period_end') or invoice.get('lines', {}).get('data', [{}])[0].get('period', {}).get('end')
+
+    sub = MentorIASubscription.objects.filter(stripe_customer_id=customer_id).first()
+    if not sub:
+        return
+
+    period_end = sub.current_period_end or _ts(period_end_ts)
+    if not period_end:
+        return
+
+    days = (period_end - datetime.now(dt_tz.utc)).days
+    if 0 < days <= 7:
+        try:
+            send_renewal_reminder_email(sub.user, 'stripe', period_end, days)
+        except Exception as exc:
+            logger.error('Error enviando recordatorio de renovación Stripe: %s', exc)
+
+
+def sync_mp_subscription(preapproval_id: str):
+    """
+    Recupera el preapproval de MP y actualiza MentorIASubscription, enviando
+    email de confirmación/cancelación cuando corresponda.
+
+    Función pública: además de ser usada por el webhook, la reutilizan
+    mentor_ia_controller.mentor_ia_mp_checkout_success y mentor_ia_mp_sync
+    para reconciliar "en caliente" cuando el usuario vuelve del checkout o
+    pide sincronizar manualmente.
+    """
     import mercadopago
     from core.models import User
+    from core.services.email_service import (
+        send_subscription_confirmation_email,
+        send_subscription_cancellation_email,
+    )
 
     sdk = mercadopago.SDK(getattr(settings, 'MP_ACCESS_TOKEN', ''))
     try:
-        result     = sdk.preapproval().get(preapproval_id)
+        result = sdk.preapproval().get(preapproval_id)
+        if result['status'] != 200:
+            logger.error('MP preapproval GET falló: %s', result)
+            return
         preapproval = result['response']
     except Exception as exc:
         logger.error('Error al obtener preapproval MP %s: %s', preapproval_id, exc)
@@ -208,10 +295,11 @@ def _sync_mp_preapproval(preapproval_id: str):
 
     mp_status    = preapproval.get('status', 'pending')
     local_status = _MP_STATUS_MAP.get(mp_status, 'inactive')
+    payer_id     = str(preapproval.get('payer_id', ''))
     payer_email  = preapproval.get('payer_email', '')
     external_ref = preapproval.get('external_reference', '')
     user_ref, _, billing_cycle = external_ref.partition(':')
-    if billing_cycle not in ('monthly', 'bimonthly'):
+    if billing_cycle not in ('monthly', 'bimonthly', 'quarterly'):
         billing_cycle = 'monthly'
 
     next_payment = preapproval.get('next_payment_date')
@@ -226,32 +314,58 @@ def _sync_mp_preapproval(preapproval_id: str):
         'payment_provider': 'mercadopago',
         'billing_cycle':    billing_cycle,
         'mp_preapproval_id': preapproval_id,
-        'mp_payer_id':       str(preapproval.get('payer_id', '')),
+        'mp_payer_id':       payer_id,
         'status':            local_status,
         'current_period_end': period_end,
     }
 
+    def _notify(sub, old_status):
+        try:
+            if local_status == 'active' and old_status != 'active':
+                send_subscription_confirmation_email(sub.user, 'mercadopago', period_end)
+            elif local_status == 'canceled' and old_status != 'canceled':
+                send_subscription_cancellation_email(sub.user, 'mercadopago')
+        except Exception as exc:
+            logger.error('Error enviando email MP (preapproval=%s): %s', preapproval_id, exc)
+
+    # 1. Buscar por preapproval_id (caso habitual — checkout ya guardó el id)
     sub = MentorIASubscription.objects.filter(mp_preapproval_id=preapproval_id).first()
     if sub:
-        for k, v in defaults.items():
-            setattr(sub, k, v)
+        old_status = sub.status
+        for field, value in defaults.items():
+            setattr(sub, field, value)
         sub.save(update_fields=list(defaults.keys()) + ['updated_at'])
+        logger.info('MP sub sincronizada: preapproval=%s status=%s', preapproval_id, local_status)
+        _notify(sub, old_status)
         return
 
-    # Vincular por external_reference (user_id)
-    for lookup in [
-        lambda: User.objects.get(id=user_ref) if user_ref else None,
-        lambda: User.objects.get(email=payer_email.lower()) if payer_email else None,
-    ]:
+    # 2. Buscar por external_reference (= user_id guardado en el checkout)
+    if user_ref:
         try:
-            user = lookup()
-            if user:
-                MentorIASubscription.objects.update_or_create(user=user, defaults=defaults)
-                return
+            user = User.objects.get(id=user_ref)
+            existing = MentorIASubscription.objects.filter(user=user).first()
+            old_status = existing.status if existing else ''
+            sub, created = MentorIASubscription.objects.update_or_create(user=user, defaults=defaults)
+            logger.info('MP sub vinculada por external_ref: user=%s status=%s', user_ref, local_status)
+            _notify(sub, '' if created else old_status)
+            return
         except (User.DoesNotExist, ValueError):
             pass
 
-    logger.warning('No se pudo vincular preapproval MP %s', preapproval_id)
+    # 3. Buscar por email del pagador
+    if payer_email:
+        try:
+            user = User.objects.get(email=payer_email.lower().strip())
+            existing = MentorIASubscription.objects.filter(user=user).first()
+            old_status = existing.status if existing else ''
+            sub, created = MentorIASubscription.objects.update_or_create(user=user, defaults=defaults)
+            logger.info('MP sub vinculada por email: %s status=%s', payer_email, local_status)
+            _notify(sub, '' if created else old_status)
+            return
+        except User.DoesNotExist:
+            pass
+
+    logger.warning('No se pudo vincular preapproval %s a ningún usuario', preapproval_id)
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -259,11 +373,13 @@ def _sync_mp_preapproval(preapproval_id: str):
 # ────────────────────────────────────────────────────────────────────────────
 
 _STRIPE_HANDLED = {
+    'checkout.session.completed',
     'customer.subscription.created',
     'customer.subscription.updated',
     'customer.subscription.deleted',
     'invoice.paid',
     'invoice.payment_failed',
+    'invoice.upcoming',
 }
 
 
@@ -274,7 +390,24 @@ def _handle_stripe(event):
     if event_type not in _STRIPE_HANDLED:
         return 'ignored'
 
-    if event_type in ('customer.subscription.created', 'customer.subscription.updated'):
+    if event_type == 'checkout.session.completed':
+        if data.get('mode') != 'subscription':
+            return 'ignored'
+        sub_id = data.get('subscription')
+        if sub_id:
+            try:
+                stripe.api_key = getattr(settings, 'STRIPE_SECRET_KEY', '')
+                stripe_sub = stripe.Subscription.retrieve(sub_id)
+                metadata = data.get('metadata') or {}
+                _upsert_stripe_sub(
+                    stripe_sub,
+                    user_id=metadata.get('user_id', ''),
+                    billing_cycle=_billing_cycle_from_metadata(data),
+                )
+            except Exception as exc:
+                logger.error('checkout.session.completed: error al recuperar sub %s: %s', sub_id, exc)
+
+    elif event_type in ('customer.subscription.created', 'customer.subscription.updated'):
         _upsert_stripe_sub(data)
 
     elif event_type == 'customer.subscription.deleted':
@@ -297,6 +430,9 @@ def _handle_stripe(event):
                 stripe_subscription_id=sub_id,
             ).update(status='past_due')
 
+    elif event_type == 'invoice.upcoming':
+        _handle_invoice_upcoming(data)
+
     return 'ok'
 
 
@@ -306,7 +442,7 @@ def _handle_mp(payload):
     preapproval_id = payload.get('data', {}).get('id', '')
     if not preapproval_id:
         return 'error'
-    _sync_mp_preapproval(str(preapproval_id))
+    sync_mp_subscription(str(preapproval_id))
     return 'ok'
 
 

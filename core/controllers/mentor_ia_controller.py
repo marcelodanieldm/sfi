@@ -10,7 +10,9 @@ Rutas:
   GET  /mentoria/chat/               → interfaz de chat (requiere suscripción)
   POST /mentoria/api/session/        → crea sesión de evaluación + mensaje inicial de la IA
   POST /mentoria/api/message/<id>/   → envía mensaje del usuario, devuelve respuesta de la IA
-  POST /mentoria/api/webhook/        → webhook de Stripe para gestionar suscripciones
+
+Los webhooks de Stripe/MercadoPago están consolidados en
+core.controllers.unified_webhook_controller (POST /api/v1/webhooks/payments).
 """
 
 import json
@@ -25,7 +27,6 @@ login_required = _login_required(redirect_field_name='')
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from core.models import MentorIAMessage, MentorIASession, MentorIASubscription
@@ -142,7 +143,19 @@ _TIPO_LABELS = {
     'proactividad':   'Proactividad',
 }
 
-PRECIO_MENSUAL = '9.99'
+PRECIO_MENSUAL = '19'
+PRECIO_BIMENSUAL = '41'
+
+STRIPE_BILLING_PLANS = {
+    'monthly': {
+        'label': 'Mensual',
+        'price_setting': 'STRIPE_MENTORIA_PRICE_ID',
+    },
+    'bimonthly': {
+        'label': 'Bimensual',
+        'price_setting': 'STRIPE_MENTORIA_PRICE_ID_BIMONTHLY',
+    },
+}
 
 MP_BILLING_PLANS = {
     'monthly': {
@@ -158,6 +171,8 @@ MP_BILLING_PLANS = {
         'plan_setting': 'MP_PREAPPROVAL_PLAN_ID_BIMONTHLY',
     },
 }
+
+PENDING_SUBSCRIPTION_STATUSES = {'inactive', 'past_due', 'trialing'}
 
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -198,6 +213,26 @@ def _get_subscription(user):
         return None
 
 
+def _has_checkout_in_progress(sub):
+    if not sub:
+        return False
+    return sub.status in PENDING_SUBSCRIPTION_STATUSES and bool(
+        sub.stripe_subscription_id or sub.mp_preapproval_id
+    )
+
+
+def _stripe_session_belongs_to_user(checkout_session, user):
+    metadata = checkout_session.metadata or {}
+    metadata_user_id = metadata.get('user_id')
+    if metadata_user_id:
+        return metadata_user_id == str(user.id)
+
+    customer_email = (getattr(checkout_session, 'customer_email', '') or '').lower().strip()
+    if not customer_email and checkout_session.customer:
+        customer_email = (getattr(checkout_session.customer, 'email', '') or '').lower().strip()
+    return bool(customer_email and customer_email == user.email.lower().strip())
+
+
 def _is_subscriber(user):
     if user.is_superuser:
         return True
@@ -229,6 +264,7 @@ def mentor_ia(request):
 
     return render(request, 'core/mentor_ia/landing.html', {
         'precio_mensual': PRECIO_MENSUAL,
+        'precio_bimensual': PRECIO_BIMENSUAL,
         'mp_monthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT', '9990'),
         'mp_bimonthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT_BIMONTHLY', '19980'),
         'mp_currency': getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS'),
@@ -245,24 +281,31 @@ def mentor_ia(request):
 def mentor_ia_checkout(request):
     """
     POST /mentoria/checkout/
-    Crea una sesión de checkout en Stripe para la suscripción mensual.
+    Crea una sesión de checkout en Stripe para la suscripción (mensual o bimensual).
     """
-    return _start_stripe_checkout(request)
+    return _start_stripe_checkout(request, request.POST.get('billing_cycle', 'monthly'))
 
 
 @login_required
-def mentor_ia_checkout_start(request):
-    return _start_stripe_checkout(request)
+def mentor_ia_checkout_start(request, billing_cycle='monthly'):
+    return _start_stripe_checkout(request, billing_cycle)
 
 
-def _start_stripe_checkout(request):
+def _start_stripe_checkout(request, billing_cycle='monthly'):
+    billing_cycle = billing_cycle if billing_cycle in STRIPE_BILLING_PLANS else 'monthly'
+    sub = _get_subscription(request.user)
+    if sub and sub.is_active:
+        return redirect('core:practica_hub')
+    if _has_checkout_in_progress(sub) and sub.payment_provider != 'stripe':
+        return redirect('core:mentor_ia_subscription')
+
     _stripe_client()
-    price_id = getattr(settings, 'STRIPE_MENTORIA_PRICE_ID', '')
+    plan_config = STRIPE_BILLING_PLANS.get(billing_cycle, STRIPE_BILLING_PLANS['monthly'])
+    price_id = getattr(settings, plan_config['price_setting'], '')
     if not price_id:
-        logger.error('STRIPE_MENTORIA_PRICE_ID no configurado')
+        logger.error('%s no configurado', plan_config['price_setting'])
         return redirect('core:mentor_ia')
 
-    sub = _get_subscription(request.user)
     customer_id = sub.stripe_customer_id if sub else None
 
     site_url = getattr(settings, 'SITE_URL', 'https://skillsforit.online')
@@ -273,7 +316,7 @@ def _start_stripe_checkout(request):
             'line_items': [{'price': price_id, 'quantity': 1}],
             'success_url': f'{site_url}/mentoria/checkout/success/?session_id={{CHECKOUT_SESSION_ID}}',
             'cancel_url': f'{site_url}/mentoria/',
-            'metadata': {'user_id': str(request.user.id)},
+            'metadata': {'user_id': str(request.user.id), 'billing_cycle': billing_cycle},
         }
         if customer_id:
             params['customer'] = customer_id
@@ -302,11 +345,15 @@ def mentor_ia_checkout_success(request):
             checkout_session = stripe.checkout.Session.retrieve(
                 session_id, expand=['subscription', 'customer']
             )
-            _activate_subscription(
-                user=request.user,
-                stripe_customer_id=checkout_session.customer.id if checkout_session.customer else '',
-                stripe_subscription=checkout_session.subscription,
-            )
+            if _stripe_session_belongs_to_user(checkout_session, request.user):
+                _activate_subscription(
+                    user=request.user,
+                    stripe_customer_id=checkout_session.customer.id if checkout_session.customer else '',
+                    stripe_subscription=checkout_session.subscription,
+                    billing_cycle=(checkout_session.metadata or {}).get('billing_cycle', 'monthly'),
+                )
+            else:
+                logger.warning('Stripe success con session ajena: user=%s session=%s', request.user.id, session_id)
         except Exception as exc:
             logger.error('Error activating subscription on success redirect: %s', exc)
 
@@ -343,6 +390,13 @@ def mentor_ia_mp_checkout_start(request, billing_cycle):
 
 
 def _start_mp_checkout(request, billing_cycle):
+    billing_cycle = billing_cycle if billing_cycle in MP_BILLING_PLANS else 'monthly'
+    sub = _get_subscription(request.user)
+    if sub and sub.is_active:
+        return redirect('core:practica_hub')
+    if _has_checkout_in_progress(sub) and sub.payment_provider != 'mercadopago':
+        return redirect('core:mentor_ia_subscription')
+
     access_token = getattr(settings, 'MP_ACCESS_TOKEN', '')
     if not access_token:
         logger.error('MP_ACCESS_TOKEN no configurado')
@@ -398,7 +452,9 @@ def _start_mp_checkout(request, billing_cycle):
                 'payment_provider': 'mercadopago',
                 'billing_cycle': billing_cycle,
                 'mp_preapproval_id': preapproval['id'],
+                'mp_payer_id': '',
                 'status': 'inactive',
+                'current_period_end': None,
             },
         )
 
@@ -420,8 +476,8 @@ def mentor_ia_mp_checkout_success(request):
     sub = _get_subscription(request.user)
     if sub and sub.payment_provider == 'mercadopago' and sub.mp_preapproval_id:
         try:
-            from core.controllers.mercadopago_webhook_controller import _sync_mp_subscription
-            _sync_mp_subscription(sub.mp_preapproval_id)
+            from core.controllers.unified_webhook_controller import sync_mp_subscription
+            sync_mp_subscription(sub.mp_preapproval_id)
         except Exception as exc:
             logger.error('Error sincronizando preapproval MP en success redirect: %s', exc)
     return redirect('core:practica_hub')
@@ -431,7 +487,7 @@ def mentor_ia_mp_checkout_cancel(request):
     return redirect('core:mentor_ia')
 
 
-def _activate_subscription(user, stripe_customer_id, stripe_subscription):
+def _activate_subscription(user, stripe_customer_id, stripe_subscription, billing_cycle='monthly'):
     """Crea o actualiza MentorIASubscription desde un objeto stripe.Subscription."""
     if not stripe_subscription:
         return
@@ -453,7 +509,7 @@ def _activate_subscription(user, stripe_customer_id, stripe_subscription):
         user=user,
         defaults={
             'payment_provider':       'stripe',
-            'billing_cycle':          'monthly',
+            'billing_cycle':          billing_cycle if billing_cycle in STRIPE_BILLING_PLANS else 'monthly',
             'stripe_customer_id':     stripe_customer_id,
             'stripe_subscription_id': stripe_subscription.id,
             'status':                 stripe_subscription.status,
@@ -479,6 +535,7 @@ def mentor_ia_subscription(request):
     return render(request, 'core/mentor_ia/subscription.html', {
         'sub': sub,
         'precio': PRECIO_MENSUAL,
+        'precio_bimensual': PRECIO_BIMENSUAL,
         'mp_monthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT', '9990'),
         'mp_bimonthly_amount': getattr(settings, 'MP_SUBSCRIPTION_AMOUNT_BIMONTHLY', '19980'),
         'mp_currency': getattr(settings, 'MP_SUBSCRIPTION_CURRENCY', 'ARS'),
@@ -494,8 +551,8 @@ def mentor_ia_mp_sync(request):
         return JsonResponse({'error': 'No tenés una suscripción de MercadoPago para sincronizar.'}, status=400)
 
     try:
-        from core.controllers.mercadopago_webhook_controller import _sync_mp_subscription
-        _sync_mp_subscription(sub.mp_preapproval_id)
+        from core.controllers.unified_webhook_controller import sync_mp_subscription
+        sync_mp_subscription(sub.mp_preapproval_id)
         sub.refresh_from_db()
         return JsonResponse({
             'ok': True,
@@ -772,133 +829,3 @@ def mentor_ia_api_send_message(request, session_id):
     MentorIAMessage.objects.create(session=session, rol='assistant', contenido=ai_text)
 
     return JsonResponse({'message': ai_text})
-
-
-# ────────────────────────────────────────────────────────────────────────────
-#  Webhook de Stripe — gestión del ciclo de vida de la suscripción
-# ────────────────────────────────────────────────────────────────────────────
-
-@csrf_exempt
-@require_POST
-def webhook_stripe_mentoria(request):
-    """
-    POST /mentoria/api/webhook/
-    Maneja eventos de Stripe para mantener el estado de suscripción sincronizado.
-    """
-    _stripe_client()
-    webhook_secret = getattr(settings, 'STRIPE_MENTORIA_WEBHOOK_SECRET', '')
-    payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE', '')
-
-    try:
-        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
-    except (ValueError, stripe.error.SignatureVerificationError) as exc:
-        logger.warning('Stripe MentorIA webhook: firma inválida — %s', exc)
-        return JsonResponse({'error': 'Invalid signature'}, status=400)
-
-    event_type = event['type']
-    data = event['data']['object']
-
-    if event_type == 'customer.subscription.created':
-        _handle_subscription_change(data, is_new=True)
-    elif event_type == 'customer.subscription.updated':
-        _handle_subscription_change(data, is_new=False)
-    elif event_type == 'customer.subscription.deleted':
-        _handle_subscription_deleted(data)
-    elif event_type == 'invoice.upcoming':
-        _handle_invoice_upcoming(data)
-
-    return JsonResponse({'status': 'ok'})
-
-
-def _handle_subscription_change(subscription, is_new=False):
-    from datetime import datetime
-    from core.models import User
-    from core.services.email_service import send_subscription_confirmation_email
-
-    customer_id = subscription.get('customer', '')
-    sub_id = subscription.get('id', '')
-    status = subscription.get('status', 'inactive')
-
-    period_end_ts = subscription.get('current_period_end')
-    period_end = timezone.make_aware(
-        datetime.utcfromtimestamp(period_end_ts), timezone.utc,
-    ) if period_end_ts else None
-
-    try:
-        existing = MentorIASubscription.objects.get(stripe_subscription_id=sub_id)
-        existing.payment_provider = 'stripe'
-        existing.billing_cycle = 'monthly'
-        existing.status = status
-        existing.current_period_end = period_end
-        existing.save(update_fields=['payment_provider', 'billing_cycle', 'status', 'current_period_end', 'updated_at'])
-        logger.info('MentorIA subscription updated: %s → %s', sub_id, status)
-    except MentorIASubscription.DoesNotExist:
-        # El evento llegó antes del redirect de success — intentamos vincular por customer
-        try:
-            customer = stripe.Customer.retrieve(customer_id)
-            email = customer.get('email', '')
-            user = User.objects.get(email=email)
-            sub, _ = MentorIASubscription.objects.update_or_create(
-                user=user,
-                defaults={
-                    'payment_provider':       'stripe',
-                    'billing_cycle':          'monthly',
-                    'stripe_customer_id':     customer_id,
-                    'stripe_subscription_id': sub_id,
-                    'status':                 status,
-                    'current_period_end':     period_end,
-                },
-            )
-            logger.info('MentorIA subscription created via webhook: %s (%s)', sub_id, email)
-            if is_new and status == 'active':
-                send_subscription_confirmation_email(user, 'stripe', period_end)
-        except Exception as exc:
-            logger.error('No se pudo vincular suscripción por webhook: %s', exc)
-        return
-
-    if is_new and status == 'active':
-        try:
-            send_subscription_confirmation_email(existing.user, 'stripe', period_end)
-        except Exception as exc:
-            logger.error('Error enviando email de confirmación Stripe: %s', exc)
-
-
-def _handle_subscription_deleted(subscription):
-    from core.services.email_service import send_subscription_cancellation_email
-
-    sub_id = subscription.get('id', '')
-    try:
-        sub = MentorIASubscription.objects.get(stripe_subscription_id=sub_id)
-        sub.status = 'canceled'
-        sub.save(update_fields=['status', 'updated_at'])
-        logger.info('MentorIA subscription canceled: %s', sub_id)
-        try:
-            send_subscription_cancellation_email(sub.user, 'stripe')
-        except Exception as exc:
-            logger.error('Error enviando email de cancelación Stripe: %s', exc)
-    except MentorIASubscription.DoesNotExist:
-        pass
-
-
-def _handle_invoice_upcoming(invoice):
-    from datetime import datetime
-    from core.services.email_service import send_renewal_reminder_email
-
-    customer_id = invoice.get('customer', '')
-    period_end_ts = invoice.get('period_end') or invoice.get('lines', {}).get('data', [{}])[0].get('period', {}).get('end')
-
-    try:
-        sub = MentorIASubscription.objects.get(stripe_customer_id=customer_id)
-        period_end = sub.current_period_end
-        if not period_end and period_end_ts:
-            period_end = timezone.make_aware(datetime.utcfromtimestamp(period_end_ts), timezone.utc)
-        if period_end:
-            now = timezone.now()
-            days = (period_end - now).days
-            if 0 < days <= 7:
-                send_renewal_reminder_email(sub.user, 'stripe', period_end, days)
-    except MentorIASubscription.DoesNotExist:
-        pass
-    except Exception as exc:
-        logger.error('Error procesando invoice.upcoming: %s', exc)
